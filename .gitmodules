@@ -1,0 +1,3 @@
+[submodule "guitarix"]
+	path = guitarix
+	url = https://github.com/brummer10/guitarix.git
