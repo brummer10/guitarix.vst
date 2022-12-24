@@ -1,4 +1,4 @@
-#Guitarix.vst
+# Guitarix.vst
 
 This is a VST3 wrapper for [Guitarix](https://github.com/brummer10/guitarix)
 
@@ -11,7 +11,7 @@ for Mac/PC see here <https://github.com/maximalexanian/guitarix-vst>
 For Linux here is LV2 plug dynamic loading and preset loading from guitarix main application implemented.
 Host could save a state as usual in the VST preset format.
 
-##Dependencys
+## Dependencys
 
 - alsa
 - freetype2
