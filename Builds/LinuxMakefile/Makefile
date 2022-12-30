@@ -1,4 +1,15 @@
 
+# info colors
+red :=$(shell tput setaf 1)
+green :=$(shell tput setaf 2)
+yellow :=$(shell tput setaf 3)
+blue :=$(shell tput setaf 4)
+purple :=$(shell tput setaf 5)
+cyan :=$(shell tput setaf 6)
+reset :=$(shell tput sgr0)
+
+ceol :=$(shell tput cuu1 && tput el)
+
 # build with "V=1" for verbose builds
 ifeq ($(V), 1)
 V_AT =
@@ -26,12 +37,22 @@ ifndef CONFIG
 endif
 
 ifndef JUCE_DIR
-  JUCE_DIR := /usr/share/juce
-  SYS_INCLUDE_FLAGS = -lpng16 -lz -ljpeg -lFLAC -logg -lvorbis -lvorbisenc -lvorbisfile
+  JUCE_DIR := ../../JuceModules
+  ifdef USE_SYSTEM_JUCE
+    JUCE_DIR := /usr/share/juce
+    SYS_INCLUDE_FLAGS = -lpng16 -lz -ljpeg -lFLAC -logg -lvorbis -lvorbisenc -lvorbisfile
+    $(info $(yellow)INFO: $(reset)Using system Juce modules $(blue)[${JUCE_DIR}]$(reset))
+  else
+    $(info $(yellow)INFO: $(reset)Using included Juce modules $(blue)[${JUCE_DIR}]$(reset))
+  endif
+else
+  $(info $(yellow)INFO: $(reset)Using Juce modules from $(blue)${JUCE_DIR}$(reset))
 endif
 
 ifndef VST3_DIR
   VST3_DIR := $(JUCE_DIR)/modules/juce_audio_processors/format_types/VST3_SDK
+else
+  $(info Using VST§_SDK from $(blue)${VST§_DIR}$(reset))
 endif
 
 JUCE_ARCH_LABEL := $(shell uname -m)
@@ -220,7 +241,8 @@ Standalone : $(JUCE_OUTDIR)/$(JUCE_TARGET_STANDALONE_PLUGIN)
 $(JUCE_OUTDIR)/$(JUCE_TARGET_VST3) : $(OBJECTS_VST3) $(RESOURCES) $(JUCE_OUTDIR)/$(JUCE_TARGET_SHARED_CODE)
 	@command -v $(PKG_CONFIG) >/dev/null 2>&1 || { echo >&2 "pkg-config not installed. Please, install it."; exit 1; }
 	@$(PKG_CONFIG) --print-errors alsa freetype2 libcurl glibmm-2.4 giomm-2.4 avahi-gobject avahi-glib avahi-client fftw3f sndfile eigen3 lilv-0 lrdf 
-	@echo Linking "Guitarix - VST3"
+	@echo "$(ceol)Linking Guitarix - VST3$(reset)"
+	@echo "$(yellow)INFO:$(reset) Build finish, now run make install"
 	-$(V_AT)mkdir -p $(JUCE_BINDIR)
 	-$(V_AT)mkdir -p $(JUCE_LIBDIR)
 	-$(V_AT)mkdir -p $(JUCE_OUTDIR)
@@ -247,7 +269,7 @@ $(JUCE_OUTDIR)/$(JUCE_TARGET_STANDALONE_PLUGIN) : $(OBJECTS_STANDALONE_PLUGIN) $
 $(JUCE_OUTDIR)/$(JUCE_TARGET_SHARED_CODE) : $(OBJECTS_SHARED_CODE) $(RESOURCES)
 	@command -v $(PKG_CONFIG) >/dev/null 2>&1 || { echo >&2 "pkg-config not installed. Please, install it."; exit 1; }
 	@$(PKG_CONFIG) --print-errors alsa freetype2 libcurl glibmm-2.4 giomm-2.4 avahi-gobject avahi-glib avahi-client fftw3f sndfile eigen3 lilv-0 lrdf
-	@echo Linking "Guitarix - Shared Code"
+	@echo "$(ceol)$(blue)Linking Guitarix - Shared Code"
 	-$(V_AT)mkdir -p $(JUCE_BINDIR)
 	-$(V_AT)mkdir -p $(JUCE_LIBDIR)
 	-$(V_AT)mkdir -p $(JUCE_OUTDIR)
@@ -255,481 +277,481 @@ $(JUCE_OUTDIR)/$(JUCE_TARGET_SHARED_CODE) : $(OBJECTS_SHARED_CODE) $(RESOURCES)
 
 $(JUCE_OBJDIR)/include_juce_audio_plugin_client_VST3_dd633589.o: ../../JuceLibraryCode/include_juce_audio_plugin_client_VST3.cpp
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
-	@echo "Compiling include_juce_audio_plugin_client_VST3.cpp"
+	@echo "$(purple)Compiling include_juce_audio_plugin_client_VST3.cpp"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_VST3) $(JUCE_CFLAGS_VST3) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/include_juce_audio_plugin_client_Standalone_1a871192.o: ../../JuceLibraryCode/include_juce_audio_plugin_client_Standalone.cpp
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
-	@echo "Compiling include_juce_audio_plugin_client_Standalone.cpp"
+	@echo "$(ceol)Compiling include_juce_audio_plugin_client_Standalone.cpp"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_STANDALONE_PLUGIN) $(JUCE_CFLAGS_STANDALONE_PLUGIN) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/PluginEditor_94d4fb09.o: ../../Source/PluginEditor.cpp
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
-	@echo "Compiling PluginEditor.cpp"
+	@echo "$(ceol)Compiling PluginEditor.cpp"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/abgate_3dab4bb7.o: ../../guitarix/trunk/src/plugins/abgate.cc
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
-	@echo "Compiling abgate.cc"
+	@echo "$(ceol)Compiling abgate.cc"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/aclipper_274cf3d7.o: ../../guitarix/trunk/src/plugins/generated/aclipper.cc
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
-	@echo "Compiling aclipper.cc"
+	@echo "$(ceol)Compiling aclipper.cc"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/astrofuzz_8c50b14b.o: ../../guitarix/trunk/src/plugins/generated/astrofuzz.cc
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
-	@echo "Compiling astrofuzz.cc"
+	@echo "$(ceol)Compiling astrofuzz.cc"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/avahi_register_a890e2da.o: ../../guitarix/trunk/src/gx_head/engine/avahi_register.cpp
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
-	@echo "Compiling avahi_register.cpp"
+	@echo "$(ceol)Compiling avahi_register.cpp"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/axface_c72ddd4f.o: ../../guitarix/trunk/src/plugins/generated/axface.cc
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
-	@echo "Compiling axface.cc"
+	@echo "$(ceol)Compiling axface.cc"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/bassboom_a881d19.o: ../../guitarix/trunk/src/plugins/generated/bassboom.cc
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
-	@echo "Compiling bassboom.cc"
+	@echo "$(ceol)Compiling bassboom.cc"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/bfuzz_d1208148.o: ../../guitarix/trunk/src/plugins/generated/bfuzz.cc
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
-	@echo "Compiling bfuzz.cc"
+	@echo "$(ceol)Compiling bfuzz.cc"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/bmp_f167cdb4.o: ../../guitarix/trunk/src/plugins/generated/bmp.cc
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
-	@echo "Compiling bmp.cc"
+	@echo "$(ceol)Compiling bmp.cc"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/bossds1_dd8980c4.o: ../../guitarix/trunk/src/plugins/generated/bossds1.cc
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
-	@echo "Compiling bossds1.cc"
+	@echo "$(ceol)Compiling bossds1.cc"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/buffb_cfe089ca.o: ../../guitarix/trunk/src/plugins/generated/buffb.cc
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
-	@echo "Compiling buffb.cc"
+	@echo "$(ceol)Compiling buffb.cc"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/buzz_49e75e70.o: ../../guitarix/trunk/src/plugins/generated/buzz.cc
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
-	@echo "Compiling buzz.cc"
+	@echo "$(ceol)Compiling buzz.cc"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/coverd_9ed62a36.o: ../../guitarix/trunk/src/plugins/generated/coverd.cc
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
-	@echo "Compiling coverd.cc"
+	@echo "$(ceol)Compiling coverd.cc"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/cstb_7b047285.o: ../../guitarix/trunk/src/plugins/generated/cstb.cc
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
-	@echo "Compiling cstb.cc"
+	@echo "$(ceol)Compiling cstb.cc"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/eldist_de7416f6.o: ../../guitarix/trunk/src/plugins/generated/eldist.cc
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
-	@echo "Compiling eldist.cc"
+	@echo "$(ceol)Compiling eldist.cc"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/ffreak_e0339566.o: ../../guitarix/trunk/src/plugins/generated/ffreak.cc
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
-	@echo "Compiling ffreak.cc"
+	@echo "$(ceol)Compiling ffreak.cc"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/flanger_gx_baa4f914.o: ../../guitarix/trunk/src/plugins/generated/flanger_gx.cc
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
-	@echo "Compiling flanger_gx.cc"
+	@echo "$(ceol)Compiling flanger_gx.cc"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/foxeylady_d1bc00ec.o: ../../guitarix/trunk/src/plugins/generated/foxeylady.cc
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
-	@echo "Compiling foxeylady.cc"
+	@echo "$(ceol)Compiling foxeylady.cc"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/fumaster_37af8212.o: ../../guitarix/trunk/src/plugins/generated/fumaster.cc
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
-	@echo "Compiling fumaster.cc"
+	@echo "$(ceol)Compiling fumaster.cc"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/fuzzdrive_27d0389e.o: ../../guitarix/trunk/src/plugins/generated/fuzzdrive.cc
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
-	@echo "Compiling fuzzdrive.cc"
+	@echo "$(ceol)Compiling fuzzdrive.cc"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/fuzzfacefm_ba8dec90.o: ../../guitarix/trunk/src/plugins/generated/fuzzfacefm.cc
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
-	@echo "Compiling fuzzfacefm.cc"
+	@echo "$(ceol)Compiling fuzzfacefm.cc"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/fuzzfacerm_bb37069c.o: ../../guitarix/trunk/src/plugins/generated/fuzzfacerm.cc
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
-	@echo "Compiling fuzzfacerm.cc"
+	@echo "$(ceol)Compiling fuzzfacerm.cc"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/gcb_95_e1e77dce.o: ../../guitarix/trunk/src/plugins/generated/gcb_95.cc
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
-	@echo "Compiling gcb_95.cc"
+	@echo "$(ceol)Compiling gcb_95.cc"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/GuitarixEditor_cb2a0a8f.o: ../../Source/GuitarixEditor.cpp
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
-	@echo "Compiling GuitarixEditor.cpp"
+	@echo "$(ceol)Compiling GuitarixEditor.cpp"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/GuitarixProcessor_54f35e3a.o: ../../Source/GuitarixProcessor.cpp
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
-	@echo "Compiling GuitarixProcessor.cpp"
+	@echo "$(ceol)Compiling GuitarixProcessor.cpp"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/gx_convolver_2fcbb5a9.o: ../../guitarix/trunk/src/gx_head/engine/gx_convolver.cpp
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
-	@echo "Compiling gx_convolver.cpp"
+	@echo "$(ceol)Compiling gx_convolver.cpp"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/gx_engine_f500b135.o: ../../guitarix/trunk/src/gx_head/engine/gx_engine.cpp
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
-	@echo "Compiling gx_engine.cpp"
+	@echo "$(ceol)Compiling gx_engine.cpp"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/gx_engine_audio_37228c8c.o: ../../guitarix/trunk/src/gx_head/engine/gx_engine_audio.cpp
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
-	@echo "Compiling gx_engine_audio.cpp"
+	@echo "$(ceol)Compiling gx_engine_audio.cpp"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/gx_faust_plugins_4afd0c13.o: ../../guitarix/trunk/src/gx_head/engine/gx_faust_plugins.cpp
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
-	@echo "Compiling gx_faust_plugins.cpp"
+	@echo "$(ceol)Compiling gx_faust_plugins.cpp"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/gx_internal_plugins_9f9f4b91.o: ../../guitarix/trunk/src/gx_head/engine/gx_internal_plugins.cpp
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
-	@echo "Compiling gx_internal_plugins.cpp"
+	@echo "$(ceol)Compiling gx_internal_plugins.cpp"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/gx_internal_ui_plugins_eafcae6e.o: ../../guitarix/trunk/src/gx_head/engine/gx_internal_ui_plugins.cpp
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
-	@echo "Compiling gx_internal_ui_plugins.cpp"
+	@echo "$(ceol)Compiling gx_internal_ui_plugins.cpp"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/gx_jack_wrapper_f7417426.o: ../../guitarix/trunk/src/gx_head/engine/gx_jack_wrapper.cpp
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
-	@echo "Compiling gx_jack_wrapper.cpp"
+	@echo "$(ceol)Compiling gx_jack_wrapper.cpp"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/gx_json_dd7f185b.o: ../../guitarix/trunk/src/gx_head/engine/gx_json.cpp
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
-	@echo "Compiling gx_json.cpp"
+	@echo "$(ceol)Compiling gx_json.cpp"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/gx_logging_ebc4d916.o: ../../guitarix/trunk/src/gx_head/engine/gx_logging.cpp
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
-	@echo "Compiling gx_logging.cpp"
+	@echo "$(ceol)Compiling gx_logging.cpp"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/gx_main_7a86e84b.o: ../../guitarix/trunk/src/gx_head/gui/gx_main.cpp
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
-	@echo "Compiling gx_main.cpp"
+	@echo "$(ceol)Compiling gx_main.cpp"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/gx_paramtable_acdeb3d4.o: ../../guitarix/trunk/src/gx_head/engine/gx_paramtable.cpp
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
-	@echo "Compiling gx_paramtable.cpp"
+	@echo "$(ceol)Compiling gx_paramtable.cpp"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/gx_pitch_tracker_b232870.o: ../../guitarix/trunk/src/gx_head/engine/gx_pitch_tracker.cpp
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
-	@echo "Compiling gx_pitch_tracker.cpp"
+	@echo "$(ceol)Compiling gx_pitch_tracker.cpp"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/gx_pluginloader_26957b79.o: ../../guitarix/trunk/src/gx_head/engine/gx_pluginloader.cpp
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
-	@echo "Compiling gx_pluginloader.cpp"
+	@echo "$(ceol)Compiling gx_pluginloader.cpp"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/gx_preset_f7ee0352.o: ../../guitarix/trunk/src/gx_head/engine/gx_preset.cpp
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
-	@echo "Compiling gx_preset.cpp"
+	@echo "$(ceol)Compiling gx_preset.cpp"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/gx_resampler_20f75cac.o: ../../guitarix/trunk/src/gx_head/engine/gx_resampler.cpp
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
-	@echo "Compiling gx_resampler.cpp"
+	@echo "$(ceol)Compiling gx_resampler.cpp"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/gx_system_c57d6aa2.o: ../../guitarix/trunk/src/gx_head/engine/gx_system.cpp
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
-	@echo "Compiling gx_system.cpp"
+	@echo "$(ceol)Compiling gx_system.cpp"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/hfb_fb3bdfb5.o: ../../guitarix/trunk/src/plugins/generated/hfb.cc
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
-	@echo "Compiling hfb.cc"
+	@echo "$(ceol)Compiling hfb.cc"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/hogsfoot_c44f64e2.o: ../../guitarix/trunk/src/plugins/generated/hogsfoot.cc
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
-	@echo "Compiling hogsfoot.cc"
+	@echo "$(ceol)Compiling hogsfoot.cc"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/hornet_bf3f1a31.o: ../../guitarix/trunk/src/plugins/generated/hornet.cc
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
-	@echo "Compiling hornet.cc"
+	@echo "$(ceol)Compiling hornet.cc"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/jcm800pre_3c615609.o: ../../guitarix/trunk/src/plugins/jcm800pre.cpp
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
-	@echo "Compiling jcm800pre.cpp"
+	@echo "$(ceol)Compiling jcm800pre.cpp"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/jsonrpc_86bd3962.o: ../../guitarix/trunk/src/gx_head/engine/jsonrpc.cpp
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
-	@echo "Compiling jsonrpc.cpp"
+	@echo "$(ceol)Compiling jsonrpc.cpp"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/JuceUiBuilder_14cda45b.o: ../../Source/JuceUiBuilder.cpp
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
-	@echo "Compiling JuceUiBuilder.cpp"
+	@echo "$(ceol)Compiling JuceUiBuilder.cpp"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/ladspaback_d9977da1.o: ../../guitarix/trunk/src/gx_head/engine/ladspaback.cpp
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
-	@echo "Compiling ladspaback.cpp"
+	@echo "$(ceol)Compiling ladspaback.cpp"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/ladspaplugin_6c0a94ad.o: ../../guitarix/trunk/src/gx_head/engine/ladspaplugin.cpp
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
-	@echo "Compiling ladspaplugin.cpp"
+	@echo "$(ceol)Compiling ladspaplugin.cpp"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/lpbboost_1d31ee7e.o: ../../guitarix/trunk/src/plugins/generated/lpbboost.cc
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
-	@echo "Compiling lpbboost.cc"
+	@echo "$(ceol)Compiling lpbboost.cc"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/machine_fe310c4b.o: ../../guitarix/trunk/src/gx_head/gui/machine.cpp
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
-	@echo "Compiling machine.cpp"
+	@echo "$(ceol)Compiling machine.cpp"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/mbc_38c312b.o: ../../guitarix/trunk/src/plugins/generated/mbc.cc
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
-	@echo "Compiling mbc.cc"
+	@echo "$(ceol)Compiling mbc.cc"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/mbchor_3af773a6.o: ../../guitarix/trunk/src/plugins/generated/mbchor.cc
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
-	@echo "Compiling mbchor.cc"
+	@echo "$(ceol)Compiling mbchor.cc"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/mbclipper_eafced81.o: ../../guitarix/trunk/src/plugins/generated/mbclipper.cc
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
-	@echo "Compiling mbclipper.cc"
+	@echo "$(ceol)Compiling mbclipper.cc"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/mbcs_6e188b3e.o: ../../guitarix/trunk/src/plugins/generated/mbcs.cc
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
-	@echo "Compiling mbcs.cc"
+	@echo "$(ceol)Compiling mbcs.cc"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/mbd_38ca58a.o: ../../guitarix/trunk/src/plugins/generated/mbd.cc
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
-	@echo "Compiling mbd.cc"
+	@echo "$(ceol)Compiling mbd.cc"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/mbdel_5603d483.o: ../../guitarix/trunk/src/plugins/generated/mbdel.cc
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
-	@echo "Compiling mbdel.cc"
+	@echo "$(ceol)Compiling mbdel.cc"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/mbe_38d19e9.o: ../../guitarix/trunk/src/plugins/generated/mbe.cc
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
-	@echo "Compiling mbe.cc"
+	@echo "$(ceol)Compiling mbe.cc"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/metronome_2053bd67.o: ../../guitarix/trunk/src/plugins/metronome.cc
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
-	@echo "Compiling metronome.cc"
+	@echo "$(ceol)Compiling metronome.cc"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/mole_84c001a8.o: ../../guitarix/trunk/src/plugins/generated/mole.cc
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
-	@echo "Compiling mole.cc"
+	@echo "$(ceol)Compiling mole.cc"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/muff_8ea8fcbb.o: ../../guitarix/trunk/src/plugins/generated/muff.cc
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
-	@echo "Compiling muff.cc"
+	@echo "$(ceol)Compiling muff.cc"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/mxrdist_1a614e6c.o: ../../guitarix/trunk/src/plugins/generated/mxrdist.cc
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
-	@echo "Compiling mxrdist.cc"
+	@echo "$(ceol)Compiling mxrdist.cc"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/rangem_fc0cf413.o: ../../guitarix/trunk/src/plugins/generated/rangem.cc
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
-	@echo "Compiling rangem.cc"
+	@echo "$(ceol)Compiling rangem.cc"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/resampler-table_7cb6c3e.o: ../../guitarix/trunk/src/zita-resampler-1.1.0/resampler-table.cc
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
-	@echo "Compiling resampler-table.cc"
+	@echo "$(ceol)Compiling resampler-table.cc"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/resampler_a044e05f.o: ../../guitarix/trunk/src/zita-resampler-1.1.0/resampler.cc
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
-	@echo "Compiling resampler.cc"
+	@echo "$(ceol)Compiling resampler.cc"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/reversedelay_a7711462.o: ../../guitarix/trunk/src/plugins/reversedelay.cc
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
-	@echo "Compiling reversedelay.cc"
+	@echo "$(ceol)Compiling reversedelay.cc"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/ringbuffer_42114019.o: ../../Source/ringbuffer.c
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
-	@echo "Compiling ringbuffer.c"
+	@echo "$(ceol)Compiling ringbuffer.c"
 	$(V_AT)$(CC) $(JUCE_CFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/rolandwah_71068d23.o: ../../guitarix/trunk/src/plugins/generated/rolandwah.cc
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
-	@echo "Compiling rolandwah.cc"
+	@echo "$(ceol)Compiling rolandwah.cc"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/ruin_97560e7b.o: ../../guitarix/trunk/src/plugins/generated/ruin.cc
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
-	@echo "Compiling ruin.cc"
+	@echo "$(ceol)Compiling ruin.cc"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/scream_300a9a94.o: ../../guitarix/trunk/src/plugins/generated/scream.cc
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
-	@echo "Compiling scream.cc"
+	@echo "$(ceol)Compiling scream.cc"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/susta_ccc8595b.o: ../../guitarix/trunk/src/plugins/generated/susta.cc
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
-	@echo "Compiling susta.cc"
+	@echo "$(ceol)Compiling susta.cc"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/ts9sim_93733ac6.o: ../../guitarix/trunk/src/plugins/generated/ts9sim.cc
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
-	@echo "Compiling ts9sim.cc"
+	@echo "$(ceol)Compiling ts9sim.cc"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/tunerswitcher_8af09ec0.o: ../../guitarix/trunk/src/gx_head/engine/tunerswitcher.cpp
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
-	@echo "Compiling tunerswitcher.cpp"
+	@echo "$(ceol)Compiling tunerswitcher.cpp"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/vibe_afe046ed.o: ../../guitarix/trunk/src/plugins/vibe.cc
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
-	@echo "Compiling vibe.cc"
+	@echo "$(ceol)Compiling vibe.cc"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/vumeter_c5d6ccaf.o: ../../guitarix/trunk/src/plugins/vumeter.cc
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
-	@echo "Compiling vumeter.cc"
+	@echo "$(ceol)Compiling vumeter.cc"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/vumeter_st_13fca2cd.o: ../../guitarix/trunk/src/plugins/vumeter_st.cc
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
-	@echo "Compiling vumeter_st.cc"
+	@echo "$(ceol)Compiling vumeter_st.cc"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/zita-convolver_886c041b.o: ../../guitarix/trunk/src/zita-convolver/zita-convolver.cc
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
-	@echo "Compiling zita-convolver.cc"
+	@echo "$(ceol)Compiling zita-convolver.cc"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/zita_rev1_84405f08.o: ../../guitarix/trunk/src/plugins/generated/zita_rev1.cc
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
-	@echo "Compiling zita_rev1.cc"
+	@echo "$(ceol)Compiling zita_rev1.cc"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/include_juce_audio_basics_8a4e984a.o: ../../JuceLibraryCode/include_juce_audio_basics.cpp
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
-	@echo "Compiling include_juce_audio_basics.cpp"
+	@echo "$(ceol)Compiling include_juce_audio_basics.cpp"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/include_juce_audio_devices_63111d02.o: ../../JuceLibraryCode/include_juce_audio_devices.cpp
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
-	@echo "Compiling include_juce_audio_devices.cpp"
+	@echo "$(ceol)Compiling include_juce_audio_devices.cpp"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/include_juce_audio_formats_15f82001.o: ../../JuceLibraryCode/include_juce_audio_formats.cpp
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
-	@echo "Compiling include_juce_audio_formats.cpp"
+	@echo "$(ceol)Compiling include_juce_audio_formats.cpp"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/include_juce_audio_plugin_client_ARA_31a052ed.o: ../../JuceLibraryCode/include_juce_audio_plugin_client_ARA.cpp
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
-	@echo "Compiling include_juce_audio_plugin_client_ARA.cpp"
+	@echo "$(ceol)Compiling include_juce_audio_plugin_client_ARA.cpp"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/include_juce_audio_plugin_client_utils_e32edaee.o: ../../JuceLibraryCode/include_juce_audio_plugin_client_utils.cpp
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
-	@echo "Compiling include_juce_audio_plugin_client_utils.cpp"
+	@echo "$(ceol)Compiling include_juce_audio_plugin_client_utils.cpp"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/include_juce_audio_processors_10c03666.o: ../../JuceLibraryCode/include_juce_audio_processors.cpp
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
-	@echo "Compiling include_juce_audio_processors.cpp"
+	@echo "$(ceol)Compiling include_juce_audio_processors.cpp"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/include_juce_audio_processors_ara_2a4c6ef7.o: ../../JuceLibraryCode/include_juce_audio_processors_ara.cpp
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
-	@echo "Compiling include_juce_audio_processors_ara.cpp"
+	@echo "$(ceol)Compiling include_juce_audio_processors_ara.cpp"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/include_juce_audio_processors_lv2_libs_12bdca08.o: ../../JuceLibraryCode/include_juce_audio_processors_lv2_libs.cpp
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
-	@echo "Compiling include_juce_audio_processors_lv2_libs.cpp"
+	@echo "$(ceol)Compiling include_juce_audio_processors_lv2_libs.cpp"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/include_juce_audio_utils_9f9fb2d6.o: ../../JuceLibraryCode/include_juce_audio_utils.cpp
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
-	@echo "Compiling include_juce_audio_utils.cpp"
+	@echo "$(ceol)Compiling include_juce_audio_utils.cpp"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/include_juce_core_f26d17db.o: ../../JuceLibraryCode/include_juce_core.cpp
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
-	@echo "Compiling include_juce_core.cpp"
+	@echo "$(ceol)Compiling include_juce_core.cpp"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/include_juce_data_structures_7471b1e3.o: ../../JuceLibraryCode/include_juce_data_structures.cpp
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
-	@echo "Compiling include_juce_data_structures.cpp"
+	@echo "$(ceol)Compiling include_juce_data_structures.cpp"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/include_juce_events_fd7d695.o: ../../JuceLibraryCode/include_juce_events.cpp
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
-	@echo "Compiling include_juce_events.cpp"
+	@echo "$(ceol)Compiling include_juce_events.cpp"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/include_juce_graphics_f817e147.o: ../../JuceLibraryCode/include_juce_graphics.cpp
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
-	@echo "Compiling include_juce_graphics.cpp"
+	@echo "$(ceol)Compiling include_juce_graphics.cpp"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/include_juce_gui_basics_e3f79785.o: ../../JuceLibraryCode/include_juce_gui_basics.cpp
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
-	@echo "Compiling include_juce_gui_basics.cpp"
+	@echo "$(ceol)Compiling include_juce_gui_basics.cpp"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/include_juce_gui_extra_6dee1c1a.o: ../../JuceLibraryCode/include_juce_gui_extra.cpp
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
-	@echo "Compiling include_juce_gui_extra.cpp"
+	@echo "$(ceol)Compiling include_juce_gui_extra.cpp"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
 
 clean:
-	@echo Cleaning Guitarix
+	@echo "$(yellow)Cleaning Guitarix$(reset)"
 	$(V_AT)$(CLEANCMD)
 
 strip:

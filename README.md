@@ -13,37 +13,38 @@ Host could save a state as usual in the VST preset format.
 
 ## Dependencys
 
-- alsa
-- freetype2
-- libcurl
-- glibmm-2.4
-- giomm-2.4
-- avahi-gobject
-- avahi-glib
-- avahi-client
-- fftw3f
-- sndfile
-- eigen3
-- lilv-0
-- lrdf
-- boost_system
-- boost_iostreams
-- png16
-- zlib
-- jpeg
-- FLAC
-- ogg
-- vorbis
-- vorbisenc
-- vorbisfile
+On debian based systems the following packages been needed:
+
+- libfreetype6-dev
+- libglibmm-2.4-dev
+- libglib2.0-dev
+- libsigc++-2.0-dev
+- libfftw3-dev
+- libsndfile1-dev
+- liblilv-dev
+- liblrdf0-dev
+- libboost-iostreams-dev
+- libstdc++6
+- libc6-dev
+- libgcc-s1
+
+optional, when not use the included juce modules
+
 - juce-modules-source-data
 
 ## Build
 
-to build against system wide installed juce-modules-source-data
-just run.
+to build using the included juce modules just run
 
 - make
+
+- make install
+
+to build against system wide installed juce-modules-source-data
+just run. On debian based systems this require some additional link flags
+which will be set by this MACRO. Otherwise you could use the JUCE_DIR MACRO
+
+- make USE_SYSTEM_JUCE=1
 
 - make install
 
@@ -63,7 +64,7 @@ install will copy the VST3 bundle to $(HOME)/.vst3
 
 Don't use 'sudo' to install!!
 
-to overwrite this destination, use JUCE_VST3DESTDIR=/where/ever/you/want/it
+to overwrite the install destination, use JUCE_VST3DESTDIR=/where/ever/you/want/it
 
 that's all.
 Check your host for new plugs after install.
