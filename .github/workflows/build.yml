@@ -1,0 +1,52 @@
+name: build
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: remove tag
+      uses: dev-drprasad/delete-tag-and-release@v0.2.0
+      with:
+        delete_release: false
+        tag_name: Latest
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - uses: actions/checkout@v1
+    - name: submodule update
+      run: git submodule update --init
+    - name: make vst3
+      run: |
+        sudo apt-get install libfreetype6-dev libglibmm-2.4-dev libglib2.0-dev libsigc++-2.0-dev libfftw3-dev libsndfile1-dev liblilv-dev liblrdf0-dev libboost-iostreams-dev libstdc++6 libc6-dev libgcc-s1
+    - name: build 
+      run: make
+    - name: compress
+      run: |
+        cd /home/runner/work/guitarix.vst/Builds/LinuxMakefile/build
+        zip -r /home/runner/work/guitarix.vst/Builds/LinuxMakefile/build/Guitarix.vst3.zip ./Guitarix.vst3
+
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: Latest
+        release_name: Release latest
+        draft: false
+        prerelease: true
+
+    - name: Upload Release Asset
+      id: upload-release-asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: /home/runner/work/guitarix.vst/Builds/LinuxMakefile/build/Guitarix.vst3.zip
+        asset_name: Guitarix.vst3.zip
+        asset_content_type: application/zip
