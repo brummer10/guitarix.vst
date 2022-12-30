@@ -26,8 +26,8 @@ jobs:
       run: make
     - name: compress
       run: |
-        cd /home/runner/work/guitarix.vst/Builds/LinuxMakefile/build
-        zip -r /home/runner/work/guitarix.vst/Builds/LinuxMakefile/build/Guitarix.vst3.zip ./Guitarix.vst3
+        cd /home/runner/work/guitarix.vst/guitarix.vst/Builds/LinuxMakefile/build
+        zip -r /home/runner/work/guitarix.vst/guitarix.vst/Builds/LinuxMakefile/build/Guitarix.vst3.zip ./Guitarix.vst3
 
     - name: Create Release
       id: create_release
@@ -47,6 +47,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: /home/runner/work/guitarix.vst/Builds/LinuxMakefile/build/Guitarix.vst3.zip
+        asset_path: /home/runner/work/guitarix.vst/guitarix.vst/Builds/LinuxMakefile/build/Guitarix.vst3.zip
         asset_name: Guitarix.vst3.zip
         asset_content_type: application/zip
