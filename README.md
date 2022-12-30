@@ -27,6 +27,13 @@ On debian based systems the following packages been needed:
 - libstdc++6
 - libc6-dev
 - libgcc-s1
+- libasound2-dev
+- libwebkit2gtk-4.0-dev
+- libgtk-3-dev
+- libavahi-gobject-dev
+- libavahi-glib-dev
+- libavahi-client-dev
+- libeigen3-dev
 
 optional, when not use the included juce modules
 
