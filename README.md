@@ -11,7 +11,7 @@ for Mac/PC see here <https://github.com/maximalexanian/guitarix-vst>
 For Linux here is LV2 plug dynamic loading and preset loading from guitarix main application implemented.
 Host could save a state as usual in the VST preset format.
 
-## Dependencys
+## Dependencies
 
 On debian based systems the following packages been needed:
 
@@ -39,6 +39,30 @@ On debian based systems the following packages been needed:
 optional, when not use the included juce modules
 
 - juce-modules-source-data
+
+on Fedora/Red Hat based systems the dependecy list reads as followed
+
+- freetype-devel
+- glibmm2.4-devel
+- glib2-devel
+- libsigc++20-devel
+- fftw-devel
+- libsndfile-devel
+- lilv-devel
+- liblrdf-devel
+- boost-devel
+- libstdc++-devel
+- glibc-devel
+- libgcc
+- gcc
+- alsa-lib-devel
+- webkit2gtk4.0-devel
+- gtk3-devel
+- avahi-gobject-devel
+- avahi-glib-devel
+- avahi-devel
+- eigen3-devel
+
 
 ## Build
 
