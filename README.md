@@ -24,6 +24,7 @@ On debian based systems the following packages been needed:
 - liblilv-dev
 - liblrdf0-dev
 - libboost-iostreams-dev
+- libboost-system-dev
 - libstdc++6
 - libc6-dev
 - libgcc-s1
