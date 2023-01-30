@@ -1,8 +1,15 @@
 
-red :=$(shell tput setaf 1)
-yellow :=$(shell tput setaf 3)
-blue :=$(shell tput setaf 4)
-reset :=$(shell tput sgr0)
+ifneq ($(TERM),)
+  red :=$(shell tput setaf 1)
+  yellow :=$(shell tput setaf 3)
+  blue :=$(shell tput setaf 4)
+  reset :=$(shell tput sgr0)
+else
+  red :=''
+  yellow :=''
+  blue :=''
+  reset :=''
+endif
 
 SUBDIR := Builds/LinuxMakefile
 
@@ -28,4 +35,8 @@ endif
 
 $(SUBDIR): check-and-reinit-submodules
 	@exec $(MAKE) --no-print-directory -C $@ $(MAKECMDGOALS)
-
+ifneq ($(MAKECMDGOALS),install)
+ifneq ($(MAKECMDGOALS),clean)
+	@echo "$(yellow)INFO:$(reset) Build finish, now run $(blue)make install$(reset)"
+endif
+endif
