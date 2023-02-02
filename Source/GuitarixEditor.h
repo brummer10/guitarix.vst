@@ -157,6 +157,7 @@ private:
     
     std::string new_bank;
     std::string new_preset;
+    void on_preset_save();
     void on_preset_select();
     void load_preset_list();
     static void loadLV2PlugCallback(int i, GuitarixEditor* ge);

@@ -469,14 +469,13 @@ void PluginEditor::comboBoxChanged(juce::ComboBox* combo)
 	}
 }
 
-// replace findChildWithID() to find Components recursively (tapbox).
+// replace findChildWithID() to find Components recursively when needed (tapbox).
 juce::Component* PluginEditor::findChildByID(juce::Component* parent, const std::string parid)
 {
-    juce::Component *c = nullptr;
+    juce::Component *c = parent->findChildWithID(parid.c_str());
+    if (c) return c;
     for (int i = 0; i < parent->getNumChildComponents(); ++i)
     {
-        c = parent->findChildWithID(parid.c_str());
-        if (c) return c;
         juce::Component* childComp = parent->getChildComponent(i);
         if (childComp->getNumChildComponents()) {
             c = findChildByID (childComp, parid);

@@ -284,7 +284,8 @@ void GuitarixEditor::buttonClicked(juce::Button * b)
 	updateModeButtons();
 }
 
-void GuitarixEditor::loadLV2PlugCallback(int i, GuitarixEditor* ge) {
+void GuitarixEditor::loadLV2PlugCallback(int i, GuitarixEditor* ge)
+{
     if (!i) return;
     std::vector<ladspa::PluginDesc*>::iterator p = std::next(ge->ml.begin(),i-1);
     if (!(*p)->active) {
@@ -307,7 +308,8 @@ void GuitarixEditor::loadLV2PlugCallback(int i, GuitarixEditor* ge) {
     ge->ed_s.on_rack_unit_changed(true);    
 }
 
-void GuitarixEditor::load_preset_list() {
+void GuitarixEditor::load_preset_list()
+{
     presetFileMenu.clear(dontSendNotification);
 	std::string bank;
 	std::string preset;
@@ -340,8 +342,8 @@ void GuitarixEditor::load_preset_list() {
                         new_preset = preset;
                     }
 				}
-            //int idx = bi * 1000 + (pi++) + 1;
-            //presetFileMenu.addItem("<New>", idx);
+            int idx = bi * 1000 + (pi++) + 1;
+            presetFileMenu.addItem("<New>", idx);
 			bi++;
 		}
 
@@ -349,38 +351,69 @@ void GuitarixEditor::load_preset_list() {
 		presetFileMenu.setSelectedId(sel, juce::dontSendNotification);
 }
 
-void GuitarixEditor::on_preset_select() {
+void GuitarixEditor::on_preset_save()
+{
+    juce::AlertWindow *w = new juce::AlertWindow("Save Preset as", "", juce::AlertWindow::NoIcon);
+    w->addTextEditor("bank", new_bank, "Enter Bank Name", false);
+    w->addTextEditor("preset", "", "Enter Preset Name", false);
+    w->addButton("OK", 1, juce::KeyPress(juce::KeyPress::returnKey, 0, 0));
+    w->addButton("Cancel", 0, juce::KeyPress(juce::KeyPress::escapeKey, 0, 0));
+
+    auto savePreset = ([&, w, this](int result) {
+        if (result == 1) {
+            auto pset = w->getTextEditorContents("preset");
+            auto bank = w->getTextEditorContents("bank");
+            if (bank.isNotEmpty()) {
+                gx_system::PresetBanks* bb = banks();
+                bool need_new = true;
+                for (auto b = bb->begin(); b != bb->end(); ++b) {
+                    if (bank.toStdString().compare(b->get_name().raw()) == 0) {
+                        need_new = false;
+                        break;
+                    }
+                }
+                if (need_new) {
+                    machine->bank_insert_new(bank.toStdString());
+                }
+            }
+            if (pset.isNotEmpty() && bank.isNotEmpty()) {
+                this->audioProcessor.save_preset(bank.toStdString(), pset.toStdString());
+                this->load_preset_list();
+            }
+        }
+    });
+
+    auto callback = juce::ModalCallbackFunction::create(savePreset);
+    w->enterModalState(true, callback, true);
+}
+
+void GuitarixEditor::on_preset_select()
+{
     gx_system::PresetBanks* bb = banks();
- 	int bi = 0, sel = 0, ad = 0;
+    int bi = 0, sel = 0, ad = 0;
     new_bank.clear();
     new_preset.clear();
     if (!presetFileMenu.getText().compare("<New>")) {
         ad = 1;
     }
-	if (bb)
-		for (auto b = bb->begin(); b != bb->end(); ++b)
-		{
-			gx_system::PresetFile* pp = presets(b->get_name());
-			int pi = 0;
-			if (pp)
-				for (auto p = pp->begin(); p != pp->end()+ad; ++p)
-				{
-					int idx = bi * 1000 + (pi++) + 1;
-                    if (idx == presetFileMenu.getSelectedId()) {
-                        new_bank = b->get_name().raw();
-                        if (ad == 0)
-                            new_preset = p->name.raw();
-                    }
-				}
-			bi++;
-		}
+    if (bb)
+        for (auto b = bb->begin(); b != bb->end(); ++b) {
+            gx_system::PresetFile* pp = presets(b->get_name());
+            int pi = 0;
+            if (pp)
+            for (auto p = pp->begin(); p != pp->end()+ad; ++p) {
+                int idx = bi * 1000 + (pi++) + 1;
+                if (idx == presetFileMenu.getSelectedId()) {
+                    new_bank = b->get_name().raw();
+                    if (ad == 0)
+                        new_preset = p->name.raw();
+                }
+            }
+        bi++;
+    }
     if (!new_bank.empty() && !new_preset.empty())
         audioProcessor.load_preset(new_bank, new_preset);
-    //else if (!new_bank.empty()) {
-        // popup textinput to set new preset name
-       // audioProcessor.save_preset(new_bank, "NewPreset");
-       // load_preset_list();
-    //}
+    else on_preset_save();
 }
 
 void GuitarixEditor::paint(juce::Graphics& g)
