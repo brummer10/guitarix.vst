@@ -37,7 +37,7 @@ public:
 	enum MonoT{ mn_Mono, mn_Stereo, mn_Both };
 	MachineEditor(GuitarixProcessor& p, bool right, MonoT mono);
     ~MachineEditor() override;
-    std::vector<std::pair<juce::Component*, std::string> >clist;
+    std::vector<std::string> clist;
 
     //==============================================================================
 

@@ -171,7 +171,7 @@ void JuceUiBuilder::create_f_slider(const char *id, const char *label) {
 	s->setRange(p->getLowerAsFloat(), p->getUpperAsFloat(), p->getStepAsFloat());
 	if (p->isFloat()) s->setValue(p->getFloat().get_value(), juce::dontSendNotification);
 	else if (p->isInt()) s->setValue(p->getInt().get_value(), juce::dontSendNotification);
-    ed->subscribe_timer(s ,id);
+    ed->subscribe_timer(id);
 
 	//s->addListener(ed);
 	additem(s);
@@ -197,7 +197,7 @@ void JuceUiBuilder::create_f_button(const char *id, const char *label) {
 	if (p->isBool()) b->setToggleState(p->getBool().get_value(), juce::dontSendNotification);
 	else if (p->isFloat()) b->setToggleState(p->getFloat().get_value() != 0, juce::dontSendNotification);
 	else if (p->isInt()) b->setToggleState(p->getInt().get_value() != 0, juce::dontSendNotification);
-    ed->subscribe_timer(b, id);
+    ed->subscribe_timer(id);
 
 	b->addListener(ed);
 	additem(b);

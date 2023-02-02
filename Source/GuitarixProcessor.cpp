@@ -576,6 +576,7 @@ void GuitarixProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
     // initialisation that you need..
 //	gx_system::CmdlineOptions *options=0;
 //	jack->gx_jack_connection(true, true, 0, *options);
+    jack->get_engine().set_rack_changed();
 
     for(auto &r: rms)
     {

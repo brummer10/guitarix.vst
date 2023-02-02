@@ -155,9 +155,9 @@ void GuitarixEditor::timerCallback()
         meters[i].repaint();
     }
     // monitor mono feedback controller
-   /* for (auto i = ed.clist.begin(); i != ed.clist.end(); ++i)
+    for (auto i = ed.clist.begin(); i != ed.clist.end(); ++i)
 	{
-        std::string id = i->second;
+        std::string id = (*i);
         if (machine->parameter_hasId(id)) {
             if (machine->get_parameter_value<bool>(id.substr(0,id.find_last_of(".")+1)+"on_off")) {
                 ed.on_param_value_changed(ed.get_parameter(id.c_str()));
@@ -167,13 +167,13 @@ void GuitarixEditor::timerCallback()
     // monitor stere feedback controller
     for (auto i = ed_s.clist.begin(); i != ed_s.clist.end(); ++i)
 	{
-        std::string id = i->second;
+        std::string id = (*i);
         if (machine->parameter_hasId(id)) {
             if (machine->get_parameter_value<bool>(id.substr(0,id.find_last_of(".")+1)+"on_off")) {
                 ed_s.on_param_value_changed(ed_s.get_parameter(id.c_str()));
             }
         }  
-	}*/
+	}
     
 }
 
@@ -342,7 +342,7 @@ void GuitarixEditor::load_preset_list() {
 				}
             //int idx = bi * 1000 + (pi++) + 1;
             //presetFileMenu.addItem("<New>", idx);
-			//bi++;
+			bi++;
 		}
 
 	if (sel > 0)

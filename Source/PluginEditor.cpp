@@ -345,9 +345,9 @@ void PluginEditor::clear()
 	edlist.clear();
 }
 
-void PluginEditor::subscribe_timer(juce::Component* c, std::string id)
+void PluginEditor::subscribe_timer(std::string id)
 {
-    ed->clist.push_back(std::pair<juce::Component*, std::string>(c, id));
+    ed->clist.push_back(id);
 }
 
 void PluginEditor::getinfo(std::string &text)
@@ -469,14 +469,18 @@ void PluginEditor::comboBoxChanged(juce::ComboBox* combo)
 	}
 }
 
-// find components subscripted to timer update (needed for tapped components)
-juce::Component* PluginEditor::find_component(std::string id) {
-    for (auto i = ed->clist.begin(); i != ed->clist.end(); ++i) {
-        if ( i->second.compare(id) == 0) {
-            const char* _id = id.substr(0, id.find_last_of(".")).c_str();
-            //fprintf(stderr, "%s %s \n", _id, id.c_str());
-            if (!ed->plugin_in_use(_id)) return nullptr;
-            if (i->first->isVisible()) return i->first;
+// replace findChildWithID() to find Components recursively (tapbox).
+juce::Component* PluginEditor::findChildByID(juce::Component* parent, const std::string parid)
+{
+    juce::Component *c = nullptr;
+    for (int i = 0; i < parent->getNumChildComponents(); ++i)
+    {
+        c = parent->findChildWithID(parid.c_str());
+        if (c) return c;
+        juce::Component* childComp = parent->getChildComponent(i);
+        if (childComp->getNumChildComponents()) {
+            c = findChildByID (childComp, parid);
+            if (c) return c;
         }
     }
     return nullptr;
@@ -485,8 +489,7 @@ juce::Component* PluginEditor::find_component(std::string id) {
 void PluginEditor::on_param_value_changed(gx_engine::Parameter *p)
 {
 	const std::string parid = p->id();
-	juce::Component *c = findChildWithID(parid.c_str());
-	//if (!c) c = find_component(parid);
+	juce::Component *c = findChildByID(this, parid.c_str());
     if (!c) return;
 	if (dynamic_cast<gx_engine::JConvParameter*>(p) && dynamic_cast<juce::ComboBox*>(c))
 	{

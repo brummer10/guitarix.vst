@@ -60,7 +60,7 @@ public:
 
 	//Engine callbacks
 	void on_param_value_changed(gx_engine::Parameter *p) override;
-    void subscribe_timer(juce::Component* c, std::string id);
+    void subscribe_timer(std::string id);
 
     gx_system::CmdlineOptions& get_options();
 
@@ -70,8 +70,7 @@ private:
 	void comboBoxChanged(juce::ComboBox* combo) override;
 
 	void paint(juce::Graphics& g) override;
-    juce::Component* find_component(std::string id);
-
+    juce::Component* findChildByID(juce::Component* parent, const std::string parid);
 	std::list<juce::Component*> edlist;
 	
 	MachineEditor *ed;
