@@ -19,8 +19,8 @@ public:
         backgroundColourOffId = 0x1000106
     };
 
-    PushButton (juce::String name, juce::String label_)
-        : TextButton (name), label(label_)
+    PushButton (juce::String name, juce::String label)
+        : TextButton (name)
     {
         setColour (textColourOffId, juce::Colours::white);
         setColour (textColourOnId, juce::Colour::fromRGBA(66, 162, 200, 255));
@@ -36,7 +36,7 @@ public:
                       bool shouldDrawButtonAsDown) override
     {
         auto& lf = getLookAndFeel();
-        auto b = getPushBounds();
+        auto b = getLocalBounds().toFloat().reduced (4, 4);
         auto pushState = (getToggleState() ? 0.0 : -2.0);
         auto cornerSize = b.getHeight() * 0.5;
         g.setColour (findColour (frameColourId));
@@ -52,14 +52,6 @@ public:
     }
 
 private:
-
-    juce::String label;
-
-    juce::Rectangle<float> getPushBounds()
-    {
-        auto b = getLocalBounds().toFloat().reduced (4, 4);
-        return b;
-    }
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PushButton)
 };

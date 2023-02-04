@@ -63,6 +63,28 @@ on Fedora/Red Hat based systems the dependecy list reads as followed
 - avahi-devel
 - eigen3-devel
 
+on openSUSE based systems this is the dependency list:
+
+- freetype-devel
+- glibmm2_4-devel
+- glib2-devel
+- libsigc++2-devel
+- fftw-devel
+- libsndfile-devel
+- liblilv-0-devel
+- liblrdf-devel
+- boost-devel
+- libstdc++-devel
+- glibc-devel
+- libgcc_s1 gcc
+- alsa-devel
+- webkit2gtk4-devel
+- gtk3-devel
+- libavahi-gobject-devel
+- libavahi-glib-devel
+- libavahi-devel
+- eigen3-devel
+
 
 ## Build
 

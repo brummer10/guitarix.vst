@@ -617,7 +617,6 @@ void JuceUiBuilder::create_switch_no_caption_(const char *sw_type, const char * 
 void JuceUiBuilder::create_feedback_switch_(const char *sw_type, const char * id) {
 
     const char* label = get_label(sw_type);
-    fprintf(stderr, "%s\n", label);  
     create_f_button(id, label);
 }
 
