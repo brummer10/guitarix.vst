@@ -123,7 +123,7 @@ public:
 	const juce::String& GetCurrentFile() const { return currentFile; }
 	void SetCurrentFile(const juce::String& f) { currentFile=f; }
 
-    const auto& getRMSValues() const {return rms;}
+    const std::array<juce::LinearSmoothedValue<float>, 4>& getRMSValues() const {return rms;}
     void load_preset(std::string _bank, std::string _preset);
     void save_preset(std::string _bank, std::string _preset);
     void update_plugin_list(bool add);

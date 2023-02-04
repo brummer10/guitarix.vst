@@ -264,9 +264,11 @@ void GuitarixEditor::buttonClicked(juce::Button * b)
                 menu.addItem (i, juce::String(s), true, enabled);
             }
             i++;
-            //fprintf(stderr, "%s\n", ((*v)->Name).c_str());
+            //fprintf(stderr, "%s %s\n", ((*v)->Name).c_str(),((*v)->category.c_str()));
         }
-        menu.showMenuAsync (PopupMenu::Options().withTargetComponent (&pluginButton),
+        menu.showMenuAsync (PopupMenu::Options()
+            .withTargetComponent(&pluginButton)
+            .withMaximumNumColumns(1),
              ModalCallbackFunction::forComponent (loadLV2PlugCallback, this));
     }
 /*	else if (b == &singleButton)
@@ -305,7 +307,7 @@ void GuitarixEditor::loadLV2PlugCallback(int i, GuitarixEditor* ge)
     }
     ge->audioProcessor.update_plugin_list((*p)->active);
     ge->ed.on_rack_unit_changed(false);
-    ge->ed_s.on_rack_unit_changed(true);    
+    ge->ed_s.on_rack_unit_changed(true);
 }
 
 void GuitarixEditor::load_preset_list()

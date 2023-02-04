@@ -34,6 +34,18 @@ juce::TextButton *JuceUiBuilder::lasttextbutton = 0;
 juce::ComboBox *JuceUiBuilder::lastcombo = 0;
 int edx, edy;
 
+// icon to label wrapper
+const char* get_label(const char *sw_type) {
+    if (std::strcmp(sw_type, "pbutton") == 0) return ">";
+    else if (std::strcmp(sw_type, "rbutton") == 0) return "Rec";
+    else if (std::strcmp(sw_type, "prbutton") == 0) return "<";
+    else if (std::strcmp(sw_type, "fbutton") == 0) return ">>";
+    else if (std::strcmp(sw_type, "frbutton") == 0) return "<<";
+    else if (std::strcmp(sw_type, "button") == 0) return "X";
+    else if (std::strcmp(sw_type, "overdub") == 0) return "O";
+    else return "";
+}
+
 JuceUiBuilder::JuceUiBuilder(PluginEditor *ed, PluginDef *pd, juce::Rectangle<int> *rect)
 	: UiBuilder() {
 	JuceUiBuilder::ed = ed;
@@ -150,7 +162,7 @@ void JuceUiBuilder::create_slider(const char *id, const char *label, juce::Slide
 	closebox();
 }
 
-void JuceUiBuilder::create_f_slider(const char *id, const char *label) {
+void JuceUiBuilder::create_f_slider(const char *id, const char *label, juce::Slider::SliderStyle style, int w, int h) {
 	if (inHide) return;
 
 	gx_engine::Parameter *p = ed->get_parameter(id);
@@ -161,11 +173,11 @@ void JuceUiBuilder::create_f_slider(const char *id, const char *label) {
 	juce::Slider *s = new juce::Slider(label);
 
 	s->setComponentID(id);
-	s->setSliderStyle(juce::Slider::LinearBarVertical);
+	s->setSliderStyle(style);
     s->setTextBoxStyle (juce::Slider::NoTextBox, false, 0, 0);
-    s->setColour(juce::Slider::ColourIds::trackColourId, juce::Colours::white.withBrightness(0.5));
+    s->setColour(juce::Slider::ColourIds::trackColourId, juce::Colour::fromRGBA(66, 162, 200, 255));
     s->snapValue(-70.0, juce::Slider::DragMode::notDragging);
-	s->setBounds(0, 0, 5, 100);
+	s->setBounds(0, 0, w, h);
 
 	lastslider = s;
 	s->setRange(p->getLowerAsFloat(), p->getUpperAsFloat(), p->getStepAsFloat());
@@ -186,13 +198,13 @@ void JuceUiBuilder::create_f_button(const char *id, const char *label) {
 
 	addbox(true, label);
 
-	juce::ToggleButton *b = new juce::ToggleButton(label);
+	juced::PushButton *b = new juced::PushButton(id, label);
 
 	b->setComponentID(id);
 	b->setBounds(0, 0, 60, texth);
-	b->changeWidthToFitText();
+	//b->changeWidthToFitText();
 
-	lastbutton = b;
+	//lastbutton = b;
 
 	if (p->isBool()) b->setToggleState(p->getBool().get_value(), juce::dontSendNotification);
 	else if (p->isFloat()) b->setToggleState(p->getFloat().get_value() != 0, juce::dontSendNotification);
@@ -586,12 +598,12 @@ void JuceUiBuilder::create_selector_(const char *id, const char *label) {
 }
 
 void JuceUiBuilder::create_simple_meter_(const char *id) {
-	//create_f_slider(id, "");
+	create_f_slider(id, "", juce::Slider::LinearBarVertical, 15, 120);
 }
 
 void JuceUiBuilder::create_simple_c_meter_(const char *id, const char *idl, const char *label) {
 	create_slider(idl, label, juce::Slider::SliderStyle::LinearVertical, 40, 100);
-	//create_f_slider(id, label);
+	create_f_slider(id, label, juce::Slider::LinearBarVertical, 5, 100);
 }
 
 void JuceUiBuilder::create_spin_value_(const char *id, const char *label) {
@@ -603,7 +615,10 @@ void JuceUiBuilder::create_switch_no_caption_(const char *sw_type, const char * 
 }
 
 void JuceUiBuilder::create_feedback_switch_(const char *sw_type, const char * id) {
-    //create_f_button(id, "");
+
+    const char* label = get_label(sw_type);
+    fprintf(stderr, "%s\n", label);  
+    create_f_button(id, label);
 }
 
 void JuceUiBuilder::create_fload_switch_(const char *sw_type, const char * id, const char * idf) {

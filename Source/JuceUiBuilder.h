@@ -18,6 +18,7 @@
 
 #pragma once
 #include <JuceHeader.h>
+#include "PushButton.h"
 #include "guitarix.h"
 
 class PluginEditor;
@@ -84,7 +85,7 @@ private:
 	static void load_glade_file_(const char *fname);
 
 	static void create_slider(const char *id, const char *label, juce::Slider::SliderStyle style, int w, int h);
-	static void create_f_slider(const char *id, const char *label);
+	static void create_f_slider(const char *id, const char *label, juce::Slider::SliderStyle style, int w, int h);
 	static void create_combo(const char *id, const char *label);
 	static void create_button(const char *id, const char *label);
 	static void create_text_button(const char *id, const char *label);
