@@ -46,6 +46,7 @@ const char* get_label(const char *sw_type) {
     else return "";
 }
 
+//==============================================================================
 JuceUiBuilder::JuceUiBuilder(PluginEditor *ed, PluginDef *pd, juce::Rectangle<int> *rect)
 	: UiBuilder() {
 	JuceUiBuilder::ed = ed;

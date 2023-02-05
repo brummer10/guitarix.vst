@@ -42,7 +42,7 @@ void cat2color(const char* cat, juce::Colour &col)
 	else if(strcmp(cat, "Misc")==0)
 		{col = juce::Colour::fromRGBA(  0,   0,   0, 255); return;}
 	else if(strcmp(cat, "External")==0)
-		{col = juce::Colour::fromRGBA( 128, 128, 255, 255); return;}
+		{col = juce::Colour::fromRGBA( 255, 128, 255, 255); return;}
 	col=juce::Colour::fromRGBA(255, 255, 255, 255);
 }
 

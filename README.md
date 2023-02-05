@@ -23,13 +23,11 @@ On debian based systems the following packages been needed:
 - libsndfile1-dev
 - liblilv-dev
 - liblrdf0-dev
-- libboost-iostreams-dev
-- libboost-system-dev
+- libboost-dev
 - libstdc++6
 - libc6-dev
 - libgcc-s1
 - libasound2-dev
-- libwebkit2gtk-4.0-dev
 - libgtk-3-dev
 - libavahi-gobject-dev
 - libavahi-glib-dev
@@ -74,11 +72,11 @@ on openSUSE based systems this is the dependency list:
 - liblilv-0-devel
 - liblrdf-devel
 - boost-devel
+- libboost_system-devel
 - libstdc++-devel
 - glibc-devel
 - libgcc_s1 gcc
 - alsa-devel
-- webkit2gtk4-devel
 - gtk3-devel
 - libavahi-gobject-devel
 - libavahi-glib-devel

@@ -114,7 +114,7 @@ ifeq ($(CONFIG),Debug)
 
   JUCE_CFLAGS += $(JUCE_CPPFLAGS) $(TARGET_ARCH) -fPIC -g -ggdb -O0 -I../../guitarix/trunk/src/headers -I../../guitarix/trunk/libgxwmm -I../../guitarix/trunk/libgxw -I../../guitarix/trunk -I../../guitarix/trunk/src/faust-generated -I../../guitarix/trunk/src/gx_head/engine -I../../guitarix/trunk/src/gx_head/engine/tabels -I../../guitarix/trunk/src/zita-convolver -I../../guitarix/trunk/src/zita-resampler-1.1.0 -I../../guitarix/trunk/src/zita-resampler-1.1.0/zita-resampler -I../../guitarix/trunk/src/plugins -I../../guitarix/trunk/src/plugins/genarated -I/usr/lib/x86_64-linux-gnu/ $(CFLAGS)
   JUCE_CXXFLAGS += $(JUCE_CFLAGS) -std=gnu++17 $(CXXFLAGS)
-  JUCE_LDFLAGS += $(TARGET_ARCH) -L$(JUCE_BINDIR) -L$(JUCE_LIBDIR) $(shell $(PKG_CONFIG) --libs alsa freetype2 libcurl glibmm-2.4 giomm-2.4 avahi-gobject avahi-glib avahi-client fftw3f sndfile eigen3 lilv-0 lrdf) -fvisibility=hidden -I../../guitarix/trunk/src/headers -lboost_system -lboost_iostreams -lrt -ldl -lpthread $(SYS_INCLUDE_FLAGS) $(LDFLAGS)
+  JUCE_LDFLAGS += $(TARGET_ARCH) -L$(JUCE_BINDIR) -L$(JUCE_LIBDIR) $(shell $(PKG_CONFIG) --libs alsa freetype2 libcurl glibmm-2.4 giomm-2.4 avahi-gobject avahi-glib avahi-client fftw3f sndfile eigen3 lilv-0 lrdf) -fvisibility=hidden -I../../guitarix/trunk/src/headers -lrt -ldl -lpthread $(SYS_INCLUDE_FLAGS) $(LDFLAGS)
 
   CLEANCMD = rm -rf $(JUCE_OUTDIR)/$(TARGET) $(JUCE_OBJDIR)
 endif
@@ -148,7 +148,7 @@ ifeq ($(CONFIG),Release)
 
   JUCE_CFLAGS += $(JUCE_CPPFLAGS) $(TARGET_ARCH) -fPIC -O3 -I../../guitarix/trunk/src/headers -I../../guitarix/trunk/libgxwmm -I../../guitarix/trunk/libgxw -I../../guitarix/trunk -I../../guitarix/trunk/src/faust-generated -I../../guitarix/trunk/src/gx_head/engine -I../../guitarix/trunk/src/gx_head/engine/tabels -I../../guitarix/trunk/src/zita-convolver -I../../guitarix/trunk/src/zita-resampler-1.1.0 -I../../guitarix/trunk/src/zita-resampler-1.1.0/zita-resampler -I../../guitarix/trunk/src/plugins -I../../guitarix/trunk/src/plugins/genarated -I/usr/lib/x86_64-linux-gnu/ $(CFLAGS)
   JUCE_CXXFLAGS += $(JUCE_CFLAGS) -std=gnu++17 $(CXXFLAGS)
-  JUCE_LDFLAGS += $(TARGET_ARCH) -L$(JUCE_BINDIR) -L$(JUCE_LIBDIR) $(shell $(PKG_CONFIG) --libs alsa freetype2 libcurl glibmm-2.4 giomm-2.4 avahi-gobject avahi-glib avahi-client fftw3f sndfile eigen3 lilv-0 lrdf) -fvisibility=hidden -I../../guitarix/trunk/src/headers -lboost_system -lboost_iostreams -lrt -ldl -lpthread $(SYS_INCLUDE_FLAGS) $(LDFLAGS)
+  JUCE_LDFLAGS += $(TARGET_ARCH) -L$(JUCE_BINDIR) -L$(JUCE_LIBDIR) $(shell $(PKG_CONFIG) --libs alsa freetype2 libcurl glibmm-2.4 giomm-2.4 avahi-gobject avahi-glib avahi-client fftw3f sndfile eigen3 lilv-0 lrdf) -fvisibility=hidden -I../../guitarix/trunk/src/headers -lrt -ldl -lpthread $(SYS_INCLUDE_FLAGS) $(LDFLAGS)
 
   CLEANCMD = rm -rf $(JUCE_OUTDIR)/$(TARGET) $(JUCE_OBJDIR)
 endif
@@ -162,7 +162,6 @@ OBJECTS_STANDALONE_PLUGIN := \
   $(JUCE_OBJDIR)/include_juce_audio_plugin_client_Standalone_1a871192.o \
 
 OBJECTS_SHARED_CODE := \
-  $(JUCE_OBJDIR)/PluginEditor_94d4fb09.o \
   $(JUCE_OBJDIR)/abgate_3dab4bb7.o \
   $(JUCE_OBJDIR)/aclipper_274cf3d7.o \
   $(JUCE_OBJDIR)/astrofuzz_8c50b14b.o \
@@ -185,8 +184,6 @@ OBJECTS_SHARED_CODE := \
   $(JUCE_OBJDIR)/fuzzfacefm_ba8dec90.o \
   $(JUCE_OBJDIR)/fuzzfacerm_bb37069c.o \
   $(JUCE_OBJDIR)/gcb_95_e1e77dce.o \
-  $(JUCE_OBJDIR)/GuitarixEditor_cb2a0a8f.o \
-  $(JUCE_OBJDIR)/GuitarixProcessor_54f35e3a.o \
   $(JUCE_OBJDIR)/gx_convolver_2fcbb5a9.o \
   $(JUCE_OBJDIR)/gx_engine_f500b135.o \
   $(JUCE_OBJDIR)/gx_engine_audio_37228c8c.o \
@@ -240,6 +237,13 @@ OBJECTS_SHARED_CODE := \
   $(JUCE_OBJDIR)/vumeter_st_13fca2cd.o \
   $(JUCE_OBJDIR)/zita-convolver_886c041b.o \
   $(JUCE_OBJDIR)/zita_rev1_84405f08.o \
+
+JUCE_UI_SHARED_CODE := \
+  $(JUCE_OBJDIR)/PluginEditor_94d4fb09.o \
+  $(JUCE_OBJDIR)/GuitarixEditor_cb2a0a8f.o \
+  $(JUCE_OBJDIR)/GuitarixProcessor_54f35e3a.o \
+
+JUCE_SHARED_CODE := \
   $(JUCE_OBJDIR)/include_juce_audio_basics_8a4e984a.o \
   $(JUCE_OBJDIR)/include_juce_audio_devices_63111d02.o \
   $(JUCE_OBJDIR)/include_juce_audio_formats_15f82001.o \
@@ -260,7 +264,7 @@ OBJECTS_SHARED_CODE := \
 
 all : VST3 # Standalone
 
-VST3 : inform $(JUCE_OUTDIR)/$(JUCE_TARGET_VST3)
+VST3 : $(JUCE_OUTDIR)/$(JUCE_TARGET_VST3)
 Standalone : $(JUCE_OUTDIR)/$(JUCE_TARGET_STANDALONE_PLUGIN)
 
 inform :
@@ -269,7 +273,7 @@ inform :
 finish:
 	@echo "$(ceol)$(ceol)$(yellow)INFO:$(reset) Compiling modules - $(purple)done$(reset)"
 
-$(JUCE_OUTDIR)/$(JUCE_TARGET_VST3) : $(OBJECTS_VST3) $(RESOURCES) $(JUCE_OUTDIR)/$(JUCE_TARGET_SHARED_CODE)
+$(JUCE_OUTDIR)/$(JUCE_TARGET_VST3) : $(JUCE_OUTDIR)/$(JUCE_TARGET_SHARED_CODE) $(RESOURCES) $(OBJECTS_VST3)
 	@command -v $(PKG_CONFIG) >/dev/null 2>&1 || { echo >&2 "pkg-config not installed. Please, install it."; exit 1; }
 	@$(PKG_CONFIG) --print-errors alsa freetype2 libcurl glibmm-2.4 giomm-2.4 avahi-gobject avahi-glib avahi-client fftw3f sndfile eigen3 lilv-0 lrdf 
 	@echo "$(blue)Linking Guitarix - VST3$(reset)"
@@ -298,14 +302,14 @@ $(JUCE_OUTDIR)/$(JUCE_TARGET_STANDALONE_PLUGIN) : $(OBJECTS_STANDALONE_PLUGIN) $
 	-$(V_AT)mkdir -p $(JUCE_OUTDIR)
 	$(V_AT)$(CXX) -o $(JUCE_OUTDIR)/$(JUCE_TARGET_STANDALONE_PLUGIN) $(OBJECTS_STANDALONE_PLUGIN) $(JUCE_OUTDIR)/$(JUCE_TARGET_SHARED_CODE) $(JUCE_LDFLAGS) $(JUCE_LDFLAGS_STANDALONE_PLUGIN) $(RESOURCES) $(TARGET_ARCH)
 
-$(JUCE_OUTDIR)/$(JUCE_TARGET_SHARED_CODE) : $(OBJECTS_SHARED_CODE) $(RESOURCES) finish
+$(JUCE_OUTDIR)/$(JUCE_TARGET_SHARED_CODE) : inform $(JUCE_SHARED_CODE) $(JUCE_UI_SHARED_CODE) $(OBJECTS_SHARED_CODE) $(RESOURCES) finish
 	@command -v $(PKG_CONFIG) >/dev/null 2>&1 || { echo >&2 "pkg-config not installed. Please, install it."; exit 1; }
 	@$(PKG_CONFIG) --print-errors alsa freetype2 libcurl glibmm-2.4 giomm-2.4 avahi-gobject avahi-glib avahi-client fftw3f sndfile eigen3 lilv-0 lrdf
 	@echo "$(blue)Linking Guitarix - Shared Code"
 	-$(V_AT)mkdir -p $(JUCE_BINDIR)
 	-$(V_AT)mkdir -p $(JUCE_LIBDIR)
 	-$(V_AT)mkdir -p $(JUCE_OUTDIR)
-	$(V_AT)$(AR) -rcs $(JUCE_OUTDIR)/$(JUCE_TARGET_SHARED_CODE) $(OBJECTS_SHARED_CODE)
+	$(V_AT)$(AR) -rcs $(JUCE_OUTDIR)/$(JUCE_TARGET_SHARED_CODE) $(JUCE_SHARED_CODE) $(JUCE_UI_SHARED_CODE) $(OBJECTS_SHARED_CODE)
 
 $(JUCE_OBJDIR)/include_juce_audio_plugin_client_VST3_dd633589.o: ../../JuceLibraryCode/include_juce_audio_plugin_client_VST3.cpp
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
