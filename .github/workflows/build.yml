@@ -21,7 +21,7 @@ jobs:
       run: git submodule update --init
     - name: make vst3
       run: |
-        sudo apt-get install libfreetype6-dev libglibmm-2.4-dev libglib2.0-dev libsigc++-2.0-dev libfftw3-dev libsndfile1-dev liblilv-dev liblrdf0-dev libboost-iostreams-dev libstdc++6 libc6-dev libgcc-s1 libasound2-dev libwebkit2gtk-4.0-dev libgtk-3-dev libavahi-gobject-dev libavahi-glib-dev libavahi-client-dev libeigen3-dev libboost-system-dev
+        sudo apt-get install libfreetype6-dev libglibmm-2.4-dev libglib2.0-dev libsigc++-2.0-dev libfftw3-dev libsndfile1-dev liblilv-dev liblrdf0-dev libboost-iostreams-dev libstdc++6 libc6-dev libgcc-s1 libasound2-dev libgtk-3-dev libavahi-gobject-dev libavahi-glib-dev libavahi-client-dev libeigen3-dev libboost-system-dev
     - name: build 
       run: make
     - name: compress
