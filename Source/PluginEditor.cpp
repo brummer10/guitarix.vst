@@ -524,7 +524,7 @@ void PluginEditor::on_param_value_changed(gx_engine::Parameter *p)
 	{
 		juce::Slider* s = dynamic_cast<juce::Slider*>(c);
 		if (p->isFloat()) {
-            if (parid.find(".v") != std::string::npos) { // slider is fastmeter
+            if (p->isOutput() && parid.find(".v") != std::string::npos) { // slider is fastmeter
                 s->setValue(20.*log10(p->getFloat().get_value()), juce::dontSendNotification);
             } else {
                 s->setValue(p->getFloat().get_value(), juce::dontSendNotification);
