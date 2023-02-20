@@ -394,9 +394,12 @@ void PresetIO::collectRackOrder(gx_engine::Parameter *p, gx_system::JsonParser &
 */
 
 void GuitarixProcessor::load_preset(std::string _bank, std::string _preset) {
+    bool stereo = mStereoMode;
+    SetStereoMode(false);
     gx->gx_load_preset(machine, _bank.c_str(), _preset.c_str());
 	if(editor)
 		editor->createPluginEditors();
+    SetStereoMode(stereo);
 }
 
 void GuitarixProcessor::save_preset(std::string _bank, std::string _preset) {
