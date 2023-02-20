@@ -169,9 +169,11 @@ GuitarixProcessor::GuitarixProcessor()
 	addParameter(par_stereo);
 	gx_preset::GxSettings *settings = &(machine->get_settings());
 	gx_engine::ParamMap& pmap = settings->get_param();
+    gx_engine::BoolParameter& mStereo = pmap.reg_par(
+      "engine.set_stereo", N_("switch stereo input on/off"), &mStereoMode, false, true)->getBool();
 	pmap.signal_insert_remove().connect(
 		sigc::bind(sigc::mem_fun(*this, &GuitarixProcessor::on_param_insert_remove), false));
-    machine->get_parameter("engine.set_stereo").getBool().signal_changed().connect(
+    mStereo.signal_changed().connect(
         sigc::mem_fun(this, &GuitarixProcessor::SetStereoMode));
 	for (gx_engine::ParamMap::iterator i = pmap.begin(); i != pmap.end(); ++i) {
 		connect_value_changed_signal(i->second, false);
