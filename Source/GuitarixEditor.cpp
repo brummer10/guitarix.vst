@@ -313,44 +313,48 @@ void GuitarixEditor::loadLV2PlugCallback(int i, GuitarixEditor* ge)
 void GuitarixEditor::load_preset_list()
 {
     presetFileMenu.clear(dontSendNotification);
-	std::string bank;
-	std::string preset;
-	if (settings->setting_is_preset()) {
-		bank = settings->get_current_bank();
-		preset = settings->get_current_name();
-	}
-	else
-	{
-		bank = "";
-		preset = "";
-	}
-	std::string bp;
-	gx_system::PresetBanks* bb = banks();
-	int bi = 0, sel = 0;
-	if (bb)
-		for (auto b = bb->begin(); b != bb->end(); ++b)
-		{
-			gx_system::PresetFile* pp = presets(b->get_name());
-			presetFileMenu.addSectionHeading(b->get_name().raw());
-			int pi = 0;
-			if (pp)
-				for (auto p = pp->begin(); p != pp->end(); ++p)
-				{
-					int idx = bi * 1000 + (pi++) + 1;
-					presetFileMenu.addItem(p->name.raw(), idx);
-					if (b->get_name().raw() == bank && p->name.raw() == preset) {
+    std::string bank;
+    std::string preset;
+    if (settings->setting_is_preset()) {
+        bank = settings->get_current_bank();
+        preset = settings->get_current_name();
+    } else {
+        bank = "";
+        preset = "";
+    }
+    gx_system::PresetBanks* bb = banks();
+    int bi = 0, sel = 0;
+    if (bb)
+        for (auto b = bb->begin(); b != bb->end(); ++b) {
+            gx_system::PresetFile* pp = presets(b->get_name());
+            int pi = 0;
+            int in_factory = false;
+            if (pp) {
+                if (!in_factory && pp->get_type() == gx_system::PresetFile::PRESET_FACTORY) {
+                    in_factory = true;
+                    presetFileMenu.addSectionHeading(b->get_name().raw() + " - Factory Presets");
+                } else {
+                    presetFileMenu.addSectionHeading(b->get_name().raw());
+                }
+                for (auto p = pp->begin(); p != pp->end(); ++p) {
+                    int idx = bi * 1000 + (pi++) + 1;
+                    presetFileMenu.addItem(p->name.raw(), idx);
+                    if (b->get_name().raw() == bank && p->name.raw() == preset) {
                         sel = idx;
                         new_bank = bank;
                         new_preset = preset;
                     }
-				}
-            int idx = bi * 1000 + (pi++) + 1;
-            presetFileMenu.addItem("<New>", idx);
-			bi++;
-		}
+                }
+                if (!in_factory) {
+                    int idx = bi * 1000 + (pi++) + 1;
+                    presetFileMenu.addItem("<New>", idx);
+                    bi++;
+                }
+            }
+        }
 
-	if (sel > 0)
-		presetFileMenu.setSelectedId(sel, juce::dontSendNotification);
+    if (sel > 0)
+        presetFileMenu.setSelectedId(sel, juce::dontSendNotification);
 }
 
 void GuitarixEditor::on_preset_save()
@@ -369,7 +373,8 @@ void GuitarixEditor::on_preset_save()
                 gx_system::PresetBanks* bb = banks();
                 bool need_new = true;
                 for (auto b = bb->begin(); b != bb->end(); ++b) {
-                    if (bank.toStdString().compare(b->get_name().raw()) == 0) {
+                    if ((bank.toStdString().compare(b->get_name().raw()) == 0) &&
+                         b->get_type() != gx_system::PresetFile::PRESET_FACTORY){
                         need_new = false;
                         break;
                     }

@@ -304,12 +304,15 @@ $(JUCE_OUTDIR)/$(JUCE_TARGET_VST3) : $(JUCE_OUTDIR)/$(JUCE_TARGET_SHARED_CODE) $
 	-$(V_AT)mkdir -p $(JUCE_OUTDIR)/$(JUCE_VST3DIR)/$(JUCE_VST3SUBDIR)
 	-$(V_AT)mkdir -p $(JUCE_OUTDIR)/$(JUCE_VST3DIR)/$(JUCE_VST3SUBDIR)/gx_head/sounds/amps
 	-$(V_AT)mkdir -p $(JUCE_OUTDIR)/$(JUCE_VST3DIR)/$(JUCE_VST3SUBDIR)/gx_head/sounds/bands
+	-$(V_AT)mkdir -p $(JUCE_OUTDIR)/$(JUCE_VST3DIR)/$(JUCE_VST3SUBDIR)/gx_head/factorysettings
 	$(V_AT)$(CXX) -o $(JUCE_OUTDIR)/$(JUCE_TARGET_VST3) $(OBJECTS_VST3) $(JUCE_OUTDIR)/$(JUCE_TARGET_SHARED_CODE) $(JUCE_LDFLAGS)  $(JUCE_LDFLAGS_VST3) $(RESOURCES) $(TARGET_ARCH)
 	@echo "$(blue)Stripping Guitarix - VST3$(reset)"
 	-$(V_AT)$(STRIP) --strip-unneeded $(JUCE_OUTDIR)/$(JUCE_TARGET_VST3)
 	-$(V_AT)cp -R ../../guitarix/trunk/IR/greathall.wav $(JUCE_OUTDIR)/$(JUCE_VST3DIR)/$(JUCE_VST3SUBDIR)/gx_head/sounds/
 	-$(V_AT)cp -R ../../guitarix/trunk/IR/BestPlugins_Amps/* $(JUCE_OUTDIR)/$(JUCE_VST3DIR)/$(JUCE_VST3SUBDIR)/gx_head/sounds/amps
 	-$(V_AT)cp -R ../../guitarix/trunk/IR/BestPlugins_Bands/* $(JUCE_OUTDIR)/$(JUCE_VST3DIR)/$(JUCE_VST3SUBDIR)/gx_head/sounds/bands
+	-$(V_AT)cp -R ../../guitarix/trunk/factorysettings/dirlist.js $(JUCE_OUTDIR)/$(JUCE_VST3DIR)/$(JUCE_VST3SUBDIR)/gx_head/factorysettings/dirlist.js
+	-$(V_AT)cp -R ../../guitarix/trunk/factorysettings/Musiclab.gx $(JUCE_OUTDIR)/$(JUCE_VST3DIR)/$(JUCE_VST3SUBDIR)/gx_head/factorysettings/Musiclab.gx
 
 install :
 	$(V_AT)[ ! "$(JUCE_VST3DESTDIR)" ] || (mkdir -p $(JUCE_VST3DESTDIR) && cp -R $(JUCE_COPYCMD_VST3))
