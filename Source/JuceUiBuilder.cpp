@@ -518,6 +518,7 @@ void JuceUiBuilder::closebox()
 void JuceUiBuilder::openTabBox_(const char* label) {
 	//addbox(true);
 	juce::TabbedComponent* t = new juce::TabbedComponent(TabbedButtonBar::Orientation::TabsAtTop);
+    t->getTabbedButtonBar().setColour (juce::TabbedButtonBar::ColourIds::frontTextColourId, juce::Colours::white);
 	boxstack.push_front(decltype(boxstack)::value_type(boxkey_t(0, t), juce::Point<int>()));
 }
 
