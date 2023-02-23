@@ -79,6 +79,11 @@ on openSUSE based systems this is the dependency list:
 - libavahi-devel
 - eigen3-devel
 
+## Latest x86-64 Linux Binary build
+
+[![build](https://github.com/brummer10/guitarix.vst/actions/workflows/build.yml/badge.svg)](https://github.com/brummer10/guitarix.vst/actions/workflows/build.yml)
+
+[Guitarix.vst3.zip](https://github.com/brummer10/guitarix.vst/releases/download/Latest/Guitarix.vst3.zip)
 
 ## Build
 

@@ -53,7 +53,10 @@ GuitarixEditor::GuitarixEditor(GuitarixProcessor& p)
     
     p.get_machine_jack(jack, machine, false);
     settings = &(machine->get_settings());
-
+    
+    //getConstrainer()->setFixedAspectRatio((double)(edtw*2+2)/(winh+texth+8));
+    //setResizeLimits(edtw+1, (winh+texth+8)/2,edtw*4+2,winh+texth*2+8);
+    setResizable(true, false);
 	setSize(edtw*2+2, winh+texth+8);
 
 	aboutButton.setComponentID("ABOUT");
@@ -439,8 +442,21 @@ void GuitarixEditor::resized()
 {
 	// This is generally where you'll want to lay out the positions of any
 	// subcomponents in your editor..
-
-	// sets the position and size of the slider with arguments (x, y, width, height)
+    auto area = getLocalBounds();
+	double scale_x = (double)area.getWidth() / (double)(edtw*2+2);
+	double scale_y = (double)area.getHeight() / (double)(winh+texth+8);
+    double scale = scale_x < scale_y ? scale_x : scale_y;
+	ed.setTransform(AffineTransform::scale(scale));
+	ed_s.setTransform(AffineTransform::scale(scale));
+	monoButton.setTransform(AffineTransform::scale(scale));
+	stereoButton.setTransform(AffineTransform::scale(scale));
+	aboutButton.setTransform(AffineTransform::scale(scale));
+	pluginButton.setTransform(AffineTransform::scale(scale));
+	meters[0].setTransform(AffineTransform::scale(scale));
+	meters[1].setTransform(AffineTransform::scale(scale));
+	meters[2].setTransform(AffineTransform::scale(scale));
+	meters[3].setTransform(AffineTransform::scale(scale));
+    presetFileMenu.setTransform(AffineTransform::scale(scale));
 }
 
 
