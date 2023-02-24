@@ -43,6 +43,7 @@ const char* get_label(const char *sw_type) {
     else if (std::strcmp(sw_type, "frbutton") == 0) return "<<";
     else if (std::strcmp(sw_type, "button") == 0) return "X";
     else if (std::strcmp(sw_type, "overdub") == 0) return "O";
+    else if (std::strcmp(sw_type, "bypass") == 0) return "Direct";
     else return "";
 }
 
@@ -197,12 +198,10 @@ void JuceUiBuilder::create_f_button(const char *id, const char *label) {
 	if (p == 0) 
 		return;
 
-	addbox(true, label);
-
 	juced::PushButton *b = new juced::PushButton(id, label);
 
 	b->setComponentID(id);
-	b->setBounds(0, 0, 60, texth);
+	b->setBounds(0, 0, 55, texth);
 	//b->changeWidthToFitText();
 
 	//lastbutton = b;
@@ -214,7 +213,6 @@ void JuceUiBuilder::create_f_button(const char *id, const char *label) {
 
 	b->addListener(ed);
 	additem(b);
-	closebox();
 }
 
 void JuceUiBuilder::create_text_button(const char *id, const char *label) {
@@ -613,7 +611,8 @@ void JuceUiBuilder::create_spin_value_(const char *id, const char *label) {
 }
 
 void JuceUiBuilder::create_switch_no_caption_(const char *sw_type, const char * id) {
-	create_button(id, "");
+    const char* label = get_label(sw_type);
+	create_text_button(id, label);
 }
 
 void JuceUiBuilder::create_feedback_switch_(const char *sw_type, const char * id) {

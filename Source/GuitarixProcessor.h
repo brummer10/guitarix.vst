@@ -88,7 +88,7 @@ public:
 	bool hasEditor() const override;
 
 	void set_editor(GuitarixEditor* ed) { editor = ed; timer.set_editor(ed); }
-
+	double scale;
 	//==============================================================================
 	const juce::String getName() const override;
 

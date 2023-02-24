@@ -41,6 +41,7 @@ GuitarixEditor::GuitarixEditor(GuitarixProcessor& p)
 	monoButton("MONO"), stereoButton("STEREO"),
     pluginButton("LV2 plugs"), presetFileMenu(""),
     aboutButton("i"),
+    topBox(),
     ml(),
     new_bank(""),
     new_preset("")
@@ -57,39 +58,43 @@ GuitarixEditor::GuitarixEditor(GuitarixProcessor& p)
     //getConstrainer()->setFixedAspectRatio((double)(edtw*2+2)/(winh+texth+8));
     //setResizeLimits(edtw+1, (winh+texth+8)/2,edtw*4+2,winh+texth*2+8);
     setResizable(true, false);
-	setSize(edtw*2+2, winh+texth+8);
+	setSize((edtw*2+2) * audioProcessor.scale, (winh+texth+8) * audioProcessor.scale);
+
+    topBox.setComponentID("TopBox");
+    topBox.setBounds(0, 0, edtw*2+2, winh+texth+8);
+    addAndMakeVisible(topBox);
 
 	aboutButton.setComponentID("ABOUT");
 	aboutButton.setBounds(2 * edtw - 4 - texth, 4, texth, texth);
 	//aboutButton.changeWidthToFitText();
 	aboutButton.addListener(this);
-	addAndMakeVisible(aboutButton);
+	topBox.addAndMakeVisible(aboutButton);
 
     int left=0;
     
     meters[0].setBounds(left+4,4+3,100,texth/2-4);
-    addAndMakeVisible(meters);
+    topBox.addAndMakeVisible(meters);
     meters[1].setBounds(left+4,4+texth/2+1,100,texth/2-4);
-    addAndMakeVisible(meters[1]);
+    topBox.addAndMakeVisible(meters[1]);
     left+=100+4;
     
     meters[2].setBounds(left+4,4+3,100,texth/2-4);
-    addAndMakeVisible(meters[2]);
+    topBox.addAndMakeVisible(meters[2]);
     meters[3].setBounds(left+4,4+texth/2+1,100,texth/2-4);
-    addAndMakeVisible(meters[3]);
+    topBox.addAndMakeVisible(meters[3]);
     left+=100+4;
 
     monoButton.setComponentID("MONO");
     monoButton.setBounds(left+4, 4, 20, texth);
     monoButton.changeWidthToFitText();
     monoButton.addListener(this);
-    addAndMakeVisible(monoButton);
+    topBox.addAndMakeVisible(monoButton);
 
     stereoButton.setComponentID("STEREO");
     stereoButton.setBounds(monoButton.getRight()+4, 4, 20, texth);
     stereoButton.changeWidthToFitText();
     stereoButton.addListener(this);
-    addAndMakeVisible(stereoButton);
+    topBox.addAndMakeVisible(stereoButton);
 /*
 	singleButton.setComponentID("SINGLE");
 	singleButton.setBounds(stereoButton.getRight()+12, 4, 20, texth);
@@ -119,20 +124,20 @@ GuitarixEditor::GuitarixEditor(GuitarixProcessor& p)
     load_preset_list();
     presetFileMenu.onChange = [this] { on_preset_select(); };
     presetFileMenu.setBounds(stereoButton.getRight() + 8, 4, 250, texth);
-    addAndMakeVisible(&presetFileMenu);
+    topBox.addAndMakeVisible(&presetFileMenu);
 
 	pluginButton.setComponentID("LV2PLUGS");
 	pluginButton.setBounds(presetFileMenu.getRight() + 8, 4, 20, texth);
 	pluginButton.changeWidthToFitText();
 	pluginButton.addListener(this);
-	addAndMakeVisible(pluginButton);
+	topBox.addAndMakeVisible(pluginButton);
 
 	ed.setTopLeftPosition(0, texth+8); ed.setSize(edtw, winh);
 	//ed_r.setTopLeftPosition(edtw, texth); ed_r.setSize(edtw, winh);
 	ed_s.setTopLeftPosition(edtw+2, texth+8); ed_s.setSize(edtw, winh);
-	addAndMakeVisible(ed);
+	topBox.addAndMakeVisible(ed);
 	//addAndMakeVisible(ed_r);
-	addAndMakeVisible(ed_s);
+	topBox.addAndMakeVisible(ed_s);
     
     startTimerHz(24);
     /*ladspa::LadspaPluginList ml;
@@ -442,21 +447,11 @@ void GuitarixEditor::resized()
 {
 	// This is generally where you'll want to lay out the positions of any
 	// subcomponents in your editor..
-    auto area = getLocalBounds();
-	double scale_x = (double)area.getWidth() / (double)(edtw*2+2);
-	double scale_y = (double)area.getHeight() / (double)(winh+texth+8);
-    double scale = scale_x < scale_y ? scale_x : scale_y;
-	ed.setTransform(AffineTransform::scale(scale));
-	ed_s.setTransform(AffineTransform::scale(scale));
-	monoButton.setTransform(AffineTransform::scale(scale));
-	stereoButton.setTransform(AffineTransform::scale(scale));
-	aboutButton.setTransform(AffineTransform::scale(scale));
-	pluginButton.setTransform(AffineTransform::scale(scale));
-	meters[0].setTransform(AffineTransform::scale(scale));
-	meters[1].setTransform(AffineTransform::scale(scale));
-	meters[2].setTransform(AffineTransform::scale(scale));
-	meters[3].setTransform(AffineTransform::scale(scale));
-    presetFileMenu.setTransform(AffineTransform::scale(scale));
+    auto area = getLocalBounds().toFloat();
+	double scale_x = static_cast<double>(area.getWidth() / (edtw*2+2));
+	double scale_y = static_cast<double>(area.getHeight() / (winh+texth+8));
+    audioProcessor.scale = std::max(0.5,std::min(2.5,scale_x < scale_y ? scale_x : scale_y));
+	topBox.setTransform(AffineTransform::scale(audioProcessor.scale));
 }
 
 

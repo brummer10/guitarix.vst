@@ -150,7 +150,7 @@ private:
 
 	juce::ComboBox presetFileMenu;
     HorizontalMeter meters[4];
-
+    juce::Component topBox;
     gx_system::PresetFile* get_bank(const std::string& id);
     gx_system::PresetBanks* banks();
     gx_system::PresetFile* presets(const std::string& id);

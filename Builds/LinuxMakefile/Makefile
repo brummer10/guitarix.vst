@@ -226,7 +226,6 @@ OBJECTS_SHARED_CODE := \
   $(JUCE_OBJDIR)/hornet_bf3f1a31.o \
   $(JUCE_OBJDIR)/jcm800pre_3c615609.o \
   $(JUCE_OBJDIR)/jsonrpc_86bd3962.o \
-  $(JUCE_OBJDIR)/JuceUiBuilder_14cda45b.o \
   $(JUCE_OBJDIR)/ladspaback_d9977da1.o \
   $(JUCE_OBJDIR)/ladspaplugin_6c0a94ad.o \
   $(JUCE_OBJDIR)/lpbboost_1d31ee7e.o \
@@ -260,6 +259,7 @@ OBJECTS_SHARED_CODE := \
   $(JUCE_OBJDIR)/zita_rev1_84405f08.o \
 
 JUCE_UI_SHARED_CODE := \
+  $(JUCE_OBJDIR)/JuceUiBuilder_14cda45b.o \
   $(JUCE_OBJDIR)/PluginEditor_94d4fb09.o \
   $(JUCE_OBJDIR)/GuitarixEditor_cb2a0a8f.o \
   $(JUCE_OBJDIR)/GuitarixProcessor_54f35e3a.o \

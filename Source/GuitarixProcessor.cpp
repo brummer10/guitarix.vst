@@ -109,6 +109,7 @@ GuitarixProcessor::GuitarixProcessor()
                      #endif
                        )
 #endif
+	, scale(1.0)
 	, editor(0)
 	, mStereoMode(false)
 	, mMultiMode(false)
