@@ -583,6 +583,7 @@ void JuceUiBuilder::create_small_rackknobr_(const char *id, const char *label) {
 
 void JuceUiBuilder::create_feedback_slider_(const char *id, const char *label) {
 	create_slider(id, label, juce::Slider::SliderStyle::LinearHorizontal, 150, 20);
+    ed->subscribe_timer(id);
 }
 
 void JuceUiBuilder::create_master_slider_(const char *id, const char *label) {
@@ -641,6 +642,7 @@ void JuceUiBuilder::create_simple_spin_value_(const char *id) {
 }
 
 void JuceUiBuilder::create_eq_rackslider_no_caption_(const char *id) {
+	create_f_slider(id, "", juce::Slider::LinearBar, 120, 15);
 }
 
 void JuceUiBuilder::closeBox_() {
