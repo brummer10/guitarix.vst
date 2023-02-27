@@ -68,7 +68,11 @@ private:
 	void sliderValueChanged(juce::Slider* slider) override;
 	void buttonClicked(juce::Button* button) override;
 	void comboBoxChanged(juce::ComboBox* combo) override;
-
+    void open_file_browser(juce::Button* button, const std::string& id);
+    bool is_factory_IR(const std::string& dir);
+    void load_IR(const std::string& attr, juce::Button* button, juce::String fname);
+    void set_ir_load_button_text(const std::string& attr, bool set);
+    juce::File lastDirectory;
 	void paint(juce::Graphics& g) override;
     juce::Component* findChildByID(juce::Component* parent, const std::string parid);
 	std::list<juce::Component*> edlist;

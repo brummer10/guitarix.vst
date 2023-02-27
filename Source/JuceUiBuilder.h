@@ -90,6 +90,7 @@ private:
 	static void create_button(const char *id, const char *label);
 	static void create_text_button(const char *id, const char *label);
     static void create_f_button(const char *id, const char *label);
+    static void create_fload_button(const char *id, const char *label, int w, int h);
 
 	static void addbox(bool vertical, const char* label);
 	static void closebox();

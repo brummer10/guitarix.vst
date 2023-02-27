@@ -274,6 +274,21 @@ void JuceUiBuilder::create_button(const char *id, const char *label) {
 	additem(b);
 }
 
+void JuceUiBuilder::create_fload_button(const char *id, const char *label, int w, int h) {
+	if (inHide) return;
+
+	juced::PushButton *b = new juced::PushButton(id, label);
+
+	b->setComponentID(id);
+	b->setBounds(0, 0, w, h);
+	//b->changeWidthToFitText();
+
+	//lastbutton = b;
+
+	b->addListener(ed);
+	additem(b);
+}
+
 void JuceUiBuilder::create_combo(const char *id, const char *label) {
 	if (inHide) return;
 	juce::ComboBox *c = new juce::ComboBox();
@@ -623,6 +638,7 @@ void JuceUiBuilder::create_feedback_switch_(const char *sw_type, const char * id
 }
 
 void JuceUiBuilder::create_fload_switch_(const char *sw_type, const char * id, const char * idf) {
+    if (id) create_fload_button(id, idf, 240, texth+4);
 }
 
 void JuceUiBuilder::create_switch_(const char *sw_type, const char * id, const char *label) {

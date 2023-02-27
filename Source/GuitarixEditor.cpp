@@ -157,32 +157,38 @@ GuitarixEditor::~GuitarixEditor()
 void GuitarixEditor::timerCallback()
 {
     auto rms=audioProcessor.getRMSValues();
-    for(int i=0; i<4; i++)
-    {
+    for(int i=0; i<4; i++) {
         meters[i].setLevel(rms[i].getCurrentValue());
         meters[i].repaint();
     }
     // monitor mono feedback controller
-    for (auto i = ed.clist.begin(); i != ed.clist.end(); ++i)
-	{
+    for (auto i = ed.clist.begin(); i != ed.clist.end(); ++i) {
         std::string id = (*i);
         if (machine->parameter_hasId(id)) {
             if (machine->get_parameter_value<bool>(id.substr(0,id.find_last_of(".")+1)+"on_off")) {
                 ed.on_param_value_changed(ed.get_parameter(id.c_str()));
             }
         }  
-	}
+    }
     // monitor stere feedback controller
-    for (auto i = ed_s.clist.begin(); i != ed_s.clist.end(); ++i)
-	{
+    for (auto i = ed_s.clist.begin(); i != ed_s.clist.end(); ++i) {
         std::string id = (*i);
         if (machine->parameter_hasId(id)) {
             if (machine->get_parameter_value<bool>(id.substr(0,id.find_last_of(".")+1)+"on_off")) {
                 ed_s.on_param_value_changed(ed_s.get_parameter(id.c_str()));
             }
         }  
-	}
-    
+    }
+    if (machine->get_parameter_value<bool>("cab.on_off"))
+        jack->get_engine().cabinet.pl_check_update();
+    if (machine->get_parameter_value<bool>("cab_st.on_off"))
+        jack->get_engine().cabinet_st.pl_check_update();
+    if (machine->get_parameter_value<bool>("pre.on_off"))
+        jack->get_engine().preamp.pl_check_update();
+    if (machine->get_parameter_value<bool>("pre_st.on_off"))
+        jack->get_engine().preamp_st.pl_check_update();
+    if (machine->get_parameter_value<bool>("con.on_off"))
+        jack->get_engine().contrast.pl_check_update();
 }
 
 void GuitarixEditor::updateModeButtons()
