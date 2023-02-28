@@ -169,6 +169,7 @@ ifeq ($(CONFIG),Release)
 
   JUCE_CFLAGS += $(JUCE_CPPFLAGS) $(TARGET_ARCH) -fPIC -O3 -I../../guitarix/trunk/src/headers -I../../guitarix/trunk/libgxwmm -I../../guitarix/trunk/libgxw -I../../guitarix/trunk -I../../guitarix/trunk/src/faust-generated -I../../guitarix/trunk/src/gx_head/engine -I../../guitarix/trunk/src/gx_head/engine/tabels -I../../guitarix/trunk/src/zita-convolver -I../../guitarix/trunk/src/zita-resampler-1.1.0 -I../../guitarix/trunk/src/zita-resampler-1.1.0/zita-resampler -I../../guitarix/trunk/src/plugins -I../../guitarix/trunk/src/plugins/genarated -I/usr/lib/x86_64-linux-gnu/ $(CFLAGS)
   JUCE_CXXFLAGS += $(JUCE_CFLAGS) -std=gnu++17 $(CXXFLAGS) $(SSE_CFLAGS)
+
   JUCE_LDFLAGS += $(TARGET_ARCH) -L$(JUCE_BINDIR) -L$(JUCE_LIBDIR) $(shell $(PKG_CONFIG) --libs alsa freetype2 libcurl glibmm-2.4 giomm-2.4 avahi-gobject avahi-glib avahi-client fftw3f sndfile eigen3 lilv-0 ) -fvisibility=hidden -I../../guitarix/trunk/src/headers -lrt -ldl -lpthread $(SYS_INCLUDE_FLAGS) $(LDFLAGS)
 
   CLEANCMD = rm -rf $(JUCE_OUTDIR)/$(TARGET) $(JUCE_OBJDIR)
@@ -281,6 +282,7 @@ JUCE_SHARED_CODE := \
   $(JUCE_OBJDIR)/include_juce_gui_basics_e3f79785.o \
  # $(JUCE_OBJDIR)/include_juce_gui_extra_6dee1c1a.o \
 
+
 .PHONY: clean all strip install VST3 Standalone
 
 all : VST3 # Standalone
@@ -294,7 +296,12 @@ inform :
 finish:
 	@echo "$(ceol)$(ceol)$(yellow)INFO:$(reset) Compiling modules - $(purple)done$(reset)"
 
-$(JUCE_OUTDIR)/$(JUCE_TARGET_VST3) : $(JUCE_OUTDIR)/$(JUCE_TARGET_SHARED_CODE) $(RESOURCES) $(OBJECTS_VST3)
+# tracking header files
+-include $(JUCE_UI_SHARED_CODE:%.o=%.d)
+-include $(JUCE_SHARED_CODE:%.o=%.d)
+-include $(OBJECTS_SHARED_CODE:%.o=%.d)
+
+$(JUCE_OUTDIR)/$(JUCE_TARGET_VST3) : inform $(OBJECTS_VST3) $(RESOURCES) $(JUCE_OUTDIR)/$(JUCE_TARGET_SHARED_CODE)
 	@command -v $(PKG_CONFIG) >/dev/null 2>&1 || { echo >&2 "pkg-config not installed. Please, install it."; exit 1; }
 	@$(PKG_CONFIG) --print-errors alsa freetype2 libcurl glibmm-2.4 giomm-2.4 avahi-gobject avahi-glib avahi-client fftw3f sndfile eigen3 lilv-0  
 	@echo "$(blue)Linking Guitarix - VST3$(reset)"
@@ -317,7 +324,7 @@ $(JUCE_OUTDIR)/$(JUCE_TARGET_VST3) : $(JUCE_OUTDIR)/$(JUCE_TARGET_SHARED_CODE) $
 install :
 	$(V_AT)[ ! "$(JUCE_VST3DESTDIR)" ] || (mkdir -p $(JUCE_VST3DESTDIR) && cp -R $(JUCE_COPYCMD_VST3))
 
-$(JUCE_OUTDIR)/$(JUCE_TARGET_STANDALONE_PLUGIN) : $(OBJECTS_STANDALONE_PLUGIN) $(RESOURCES) $(JUCE_OUTDIR)/$(JUCE_TARGET_SHARED_CODE)
+$(JUCE_OUTDIR)/$(JUCE_TARGET_STANDALONE_PLUGIN) : inform $(OBJECTS_STANDALONE_PLUGIN) $(RESOURCES) $(JUCE_OUTDIR)/$(JUCE_TARGET_SHARED_CODE)
 	@command -v $(PKG_CONFIG) >/dev/null 2>&1 || { echo >&2 "pkg-config not installed. Please, install it."; exit 1; }
 	@$(PKG_CONFIG) --print-errors alsa freetype2 libcurl glibmm-2.4 giomm-2.4 avahi-gobject avahi-glib avahi-client fftw3f sndfile eigen3 lilv-0 
 	@echo "$(blue)Linking Guitarix - Standalone Plugin$(reset)"
@@ -328,7 +335,7 @@ $(JUCE_OUTDIR)/$(JUCE_TARGET_STANDALONE_PLUGIN) : $(OBJECTS_STANDALONE_PLUGIN) $
 	@echo "$(blue)Stripping Guitarix - Standalone Plugin$(reset)"
 	-$(V_AT)$(STRIP) --strip-unneeded $(JUCE_OUTDIR)/$(JUCE_TARGET_STANDALONE_PLUGIN)
 
-$(JUCE_OUTDIR)/$(JUCE_TARGET_SHARED_CODE) : inform $(JUCE_SHARED_CODE) $(JUCE_UI_SHARED_CODE) $(OBJECTS_SHARED_CODE) $(RESOURCES) finish
+$(JUCE_OUTDIR)/$(JUCE_TARGET_SHARED_CODE) : $(JUCE_SHARED_CODE) $(JUCE_UI_SHARED_CODE) $(OBJECTS_SHARED_CODE) $(RESOURCES) finish
 	@command -v $(PKG_CONFIG) >/dev/null 2>&1 || { echo >&2 "pkg-config not installed. Please, install it."; exit 1; }
 	@$(PKG_CONFIG) --print-errors alsa freetype2 libcurl glibmm-2.4 giomm-2.4 avahi-gobject avahi-glib avahi-client fftw3f sndfile eigen3 lilv-0 
 	@echo "$(blue)Linking Guitarix - Shared Code"

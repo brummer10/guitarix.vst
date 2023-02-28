@@ -604,6 +604,8 @@ void MachineEditor::addEditor(int idx, PluginSelector *ps, PluginEditor *pe, con
 	cp.setPanelHeaderSize(pe, texth + 8);
 	cp.setCustomPanelHeader(pe, ps, true);
 	cp.setMaximumPanelSize(pe, h);
+    Desktop::getInstance().getAnimator().fadeOut(pe, 1);
+    Desktop::getInstance().getAnimator().fadeIn(pe, 800);
 	registerParListener(pe);
 	registerParListener(ps);
 }
@@ -737,6 +739,8 @@ void MachineEditor::pluginMenuChanged(PluginEditor *ped, juce::ComboBox *c, bool
 		ped->setSize(rect.getWidth(), h);
 		cp.setMaximumPanelSize(ped, h);
 		cp.expandPanelFully(ped, true);
+        Desktop::getInstance().getAnimator().fadeOut(ped, 1);
+        Desktop::getInstance().getAnimator().fadeIn(ped, 800);
 		PluginSelector *ps = ped->getPluginSelector();
 		if (ps) ps->setID(pd->id, cat);
 

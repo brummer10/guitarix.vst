@@ -107,6 +107,7 @@ private:
 	static bool inHide;
 	static juce::Rectangle<int> *bounds;
 
+
 public:
 	JuceUiBuilder(PluginEditor *ed, PluginDef *pd, juce::Rectangle<int> *rect);
 	~JuceUiBuilder();

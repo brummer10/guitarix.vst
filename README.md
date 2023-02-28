@@ -11,6 +11,12 @@ for Mac/PC see here <https://github.com/maximalexanian/guitarix-vst>
 For Linux here is LV2 plug dynamic loading and preset loading from guitarix main application implemented.
 Host could save a state as usual in the VST preset format.
 
+## Latest x86-64 Linux Binary build
+
+[![build](https://github.com/brummer10/guitarix.vst/actions/workflows/build.yml/badge.svg)](https://github.com/brummer10/guitarix.vst/actions/workflows/build.yml)
+
+[Guitarix.vst3.zip](https://github.com/brummer10/guitarix.vst/releases/download/Latest/Guitarix.vst3.zip)
+
 ## Dependencies
 
 On debian based systems the following packages been needed:
@@ -78,12 +84,6 @@ on openSUSE based systems this is the dependency list:
 - libavahi-glib-devel
 - libavahi-devel
 - eigen3-devel
-
-## Latest x86-64 Linux Binary build
-
-[![build](https://github.com/brummer10/guitarix.vst/actions/workflows/build.yml/badge.svg)](https://github.com/brummer10/guitarix.vst/actions/workflows/build.yml)
-
-[Guitarix.vst3.zip](https://github.com/brummer10/guitarix.vst/releases/download/Latest/Guitarix.vst3.zip)
 
 ## Build
 

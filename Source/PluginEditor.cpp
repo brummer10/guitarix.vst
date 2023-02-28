@@ -298,6 +298,7 @@ void PluginEditor::create(int edx, int edy, int &w, int &h)
         b.closeBox();
         b.closeBox();
 #undef PARAM
+        set_ir_load_button_text("jconv_mono.", true);
     }
     else if (pid == "jconv")//Convolver Stereo
     {
@@ -313,6 +314,7 @@ void PluginEditor::create(int edx, int edy, int &w, int &h)
         b.closeBox();
         b.closeBox();
 #undef PARAM
+        set_ir_load_button_text("jconv.", true);
     }
     else if (!pd->load_ui) {
         rect.setWidth(0);
@@ -326,8 +328,6 @@ void PluginEditor::create(int edx, int edy, int &w, int &h)
     h = rect.getHeight()+2;
     setBounds(edx, edy, w, h);
     //ed->addAndMakeVisible(this);
-    set_ir_load_button_text("jconv_mono.", true);
-    set_ir_load_button_text("jconv.", true);
 }
 
 bool PluginEditor::is_factory_IR(const std::string& dir) {
