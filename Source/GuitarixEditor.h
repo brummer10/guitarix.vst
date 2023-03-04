@@ -142,6 +142,7 @@ private:
 	MachineEditor ed, /*ed_r, */ed_s;
     
     gx_jack::GxJack *jack;
+	gx_jack::GxJack *jack_r;
     gx_engine::GxMachine *machine;
     gx_preset::GxSettings *settings;
 

@@ -52,6 +52,7 @@ GuitarixEditor::GuitarixEditor(GuitarixProcessor& p)
     
     //mIsVSTPlugin=audioProcessor.wrapperType==juce::AudioProcessor::WrapperType::wrapperType_VST3;
     
+    p.get_machine_jack(jack_r, machine, true);
     p.get_machine_jack(jack, machine, false);
     settings = &(machine->get_settings());
     
@@ -179,16 +180,25 @@ void GuitarixEditor::timerCallback()
             }
         }  
     }
-    if (machine->get_parameter_value<bool>("cab.on_off"))
+    bool stereo=audioProcessor.GetStereoMode();
+    if (machine->get_parameter_value<bool>("cab.on_off")) {
         jack->get_engine().cabinet.pl_check_update();
-    if (machine->get_parameter_value<bool>("cab_st.on_off"))
+        if (stereo) jack_r->get_engine().cabinet.pl_check_update();
+    }
+    if (machine->get_parameter_value<bool>("cab_st.on_off")) {
         jack->get_engine().cabinet_st.pl_check_update();
-    if (machine->get_parameter_value<bool>("pre.on_off"))
+    }
+    if (machine->get_parameter_value<bool>("pre.on_off")) {
         jack->get_engine().preamp.pl_check_update();
-    if (machine->get_parameter_value<bool>("pre_st.on_off"))
+        if (stereo) jack_r->get_engine().preamp.pl_check_update();
+    }
+    if (machine->get_parameter_value<bool>("pre_st.on_off")) {
         jack->get_engine().preamp_st.pl_check_update();
-    if (machine->get_parameter_value<bool>("con.on_off"))
+    }
+    if (machine->get_parameter_value<bool>("con.on_off")) {
         jack->get_engine().contrast.pl_check_update();
+        if (stereo) jack_r->get_engine().contrast.pl_check_update();
+    }
 }
 
 void GuitarixEditor::updateModeButtons()
