@@ -19,6 +19,7 @@
 #pragma once
 #include <JuceHeader.h>
 #include "PushButton.h"
+#include "TunerDisplay.h"
 #include "guitarix.h"
 
 class PluginEditor;
@@ -45,6 +46,24 @@ private:
 	float level = -60.f;
 };
 
+class SpinBox : public juce::Slider
+{
+public:
+    SpinBox(const char *label) :juce::Slider(label){}
+   ~SpinBox(){}
+
+    void setSnappingVal(float val) noexcept { m_snapVal = val; };
+    void mouseWheelMove(const juce::MouseEvent& e, const juce::MouseWheelDetails& wheel) override{
+        juce::MouseWheelDetails w(wheel);
+        w.deltaY = wheel.deltaY > 0 ? m_snapVal : -m_snapVal;
+        Slider::mouseWheelMove(e, w);
+    };
+
+private:
+    float m_snapVal{0.001f};
+
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SpinBox)
+};
 
 class JuceUiBuilder : public UiBuilder {
 private:
@@ -91,6 +110,7 @@ private:
 	static void create_text_button(const char *id, const char *label);
     static void create_f_button(const char *id, const char *label);
     static void create_fload_button(const char *id, const char *label, int w, int h);
+	static void create_spin_box(const char *id, const char *label, juce::Slider::SliderStyle style, int w, int h);
 
 	static void addbox(bool vertical, const char* label);
 	static void closebox();
@@ -113,6 +133,7 @@ public:
 	~JuceUiBuilder();
 
 	static void create_ir_combo(const char *id, const char *label);
+    static void create_tuner_display(gx_engine::GxMachine *machine);
 
 	static juce::Slider *lastslider;
 	static juce::ToggleButton *lastbutton;

@@ -56,6 +56,9 @@ PluginEditor::PluginEditor(MachineEditor* ed, const char* id, const char* cat, P
     if (ps) ps->setEditor(this); 
 }
 
+gx_engine::GxMachine *PluginEditor::get_machine() { return ed->machine;}
+
+
 void PluginEditor::recreate(const char *id, const char *cat, int edx, int edy, int &w, int &h)
 {
     clear();
@@ -86,7 +89,27 @@ void PluginEditor::create(int edx, int edy, int &w, int &h)
     juce::Rectangle<int> rect/*(0, 0, 100, 100);*/ = ed->getLocalBounds();
     //rect.setTop(edy);
     JuceUiBuilder b(this, pd, &rect);
-    if (pid == "COMMON-IN")
+    if (pid == "tuner")
+    {
+        b.openHorizontalTableBox("");
+        {
+            b.openVerticalBox("");
+            {
+                b.create_tuner_display(get_machine());
+                b.openHorizontalBox("");
+                {
+                    b.insertSpacer();
+                    b.create_selector_no_caption("racktuner.temperament");
+                    b.insertSpacer();
+                    b.create_spin_value("ui.tuner_reference_pitch", N_("Ref Freq"));
+                }
+                b.closeBox();
+            }
+            b.closeBox();
+        }
+        b.closeBox();
+    }
+    else if (pid == "COMMON-IN")
     {
         b.openHorizontalTableBox("");
         {
@@ -688,7 +711,8 @@ PluginSelector::PluginSelector(MachineEditor* ed, bool stereo, const char* id, c
     setBounds(0, 0, edtw, texth + 8);
 
     bool minus = false;
-    if (strncmp(id, "COMMON", 6) != 0 && strcmp(id, "ampstack") != 0)
+    bool plus = true;
+    if (strncmp(id, "COMMON", 6) != 0 && strcmp(id, "ampstack") != 0 && strcmp(id, "tuner") != 0)
     {
         ed->fillPluginCombo(&combo, stereo, id);
         combo.onChange = [this] { pluginMenuChanged(); };
@@ -707,9 +731,22 @@ PluginSelector::PluginSelector(MachineEditor* ed, bool stereo, const char* id, c
         addAndMakeVisible(&mute);
     }
 
-    add.setBounds(edtw - (minus ? 2 : 1)*(texth + 4), 4, texth, texth);
-    add.onClick = [this] { addButtonClicked(); };
-    addAndMakeVisible(&add);
+    if (strcmp(id, "tuner") == 0)
+    {
+        mute.setBounds(4, 4, texth, texth);
+        mute.setClickingTogglesState(true);
+        ed->updateMuteButton(&mute, "ui.racktuner");
+        mute.onClick = [this, ed] { ed->muteButtonClicked(&mute, "ui.racktuner");; };
+        //mute.setComponentID(juce::String("ui.racktuner"));
+        addAndMakeVisible(&mute);
+        plus = false;
+    }
+
+    if (plus) {
+        add.setBounds(edtw - (minus ? 2 : 1)*(texth + 4), 4, texth, texth);
+        add.onClick = [this] { addButtonClicked(); };
+        addAndMakeVisible(&add);
+    }
 
     if (minus)
     {
@@ -789,6 +826,8 @@ void PluginSelector::paint(juce::Graphics& g)
         g.drawFittedText("INPUT", rect, Justification::verticallyCentred | Justification::left, 1);
     else if(pid == "ampstack")
         g.drawFittedText("AMP STACK", rect, Justification::verticallyCentred | Justification::left, 1);
+    else if(pid == "tuner")
+        g.drawFittedText("Tuner", rect, Justification::verticallyCentred | Justification::left, 1);
 
     g.setColour(juce::Colour(0x7fffffff));
     rect = getLocalBounds();

@@ -122,6 +122,15 @@ JuceUiBuilder::~JuceUiBuilder() {
 */
 
 
+void JuceUiBuilder::create_tuner_display(gx_engine::GxMachine *machine) {
+	TunerDisplay *t = new TunerDisplay(machine);
+    //juce::Font f = t->getFont();
+    //f.setTypefaceName("FreeMono");
+    //t->setFont(f);
+    t->setBounds(edx, edy, edtw, texth*2);
+    additem(t);
+}
+
 void JuceUiBuilder::create_slider(const char *id, const char *label, juce::Slider::SliderStyle style, int w, int h) {
 	if (inHide) return;
 
@@ -150,6 +159,51 @@ void JuceUiBuilder::create_slider(const char *id, const char *label, juce::Slide
 	//s->setPopupDisplayEnabled(true, false, ed);
 	//s->setTextValueSuffix(label);
 	s->setBounds(edx+(ww-w)/2, edy + texth, w, h + texth);
+
+	lastslider = s;
+	s->setRange(p->getLowerAsFloat(), p->getUpperAsFloat(), p->getStepAsFloat());
+	if (p->isFloat()) s->setValue(p->getFloat().get_value(), juce::dontSendNotification);
+	else if (p->isInt()) s->setValue(p->getInt().get_value(), juce::dontSendNotification);
+	//s->setTooltip(p->desc());
+
+	s->addListener(ed);
+	additem(s);
+
+	edx += h + 2 * texth;
+	closebox();
+}
+
+void JuceUiBuilder::create_spin_box(const char *id, const char *label, juce::Slider::SliderStyle style, int w, int h) {
+	if (inHide) return;
+
+	gx_engine::Parameter *p = ed->get_parameter(id);
+	
+	if (p == 0) 
+		return;
+
+	addbox(true, label);
+
+	juce::Label *l = new juce::Label(p->name(), label);
+	l->setFont(juce::Font().withPointHeight(texth / 2));
+	int ww=juce::Font().withPointHeight(texth / 2).getStringWidth(label);
+	if (ww < w) ww = w;
+
+	l->setBounds(edx, edy, ww, texth);
+	l->setJustificationType(juce::Justification::centred);
+
+	additem(l);
+
+	SpinBox *s = new SpinBox(label);
+
+	s->setComponentID(id);
+    s->setSliderSnapsToMousePosition(false);
+    s->setColour(Slider::trackColourId, Colours::transparentBlack);
+	s->setSliderStyle(style);
+	s->setTextBoxStyle(juce::Slider::TextBoxRight, false, 40, texth);
+    s->setMouseDragSensitivity(5000);
+	//s->setPopupDisplayEnabled(true, false, ed);
+	//s->setTextValueSuffix(label);
+	s->setBounds(edx+(ww-w)/2, edy + texth, w, h );
 
 	lastslider = s;
 	s->setRange(p->getLowerAsFloat(), p->getUpperAsFloat(), p->getStepAsFloat());
@@ -623,7 +677,7 @@ void JuceUiBuilder::create_simple_c_meter_(const char *id, const char *idl, cons
 }
 
 void JuceUiBuilder::create_spin_value_(const char *id, const char *label) {
-	create_slider(id, label, juce::Slider::SliderStyle::LinearVertical, 40, 100);
+	create_spin_box(id, label, juce::Slider::SliderStyle::LinearBarVertical, 60, 20);
 }
 
 void JuceUiBuilder::create_switch_no_caption_(const char *sw_type, const char * id) {
@@ -655,6 +709,7 @@ void JuceUiBuilder::create_p_display_(const char *id, const char *idl, const cha
 }
 
 void JuceUiBuilder::create_simple_spin_value_(const char *id) {
+	create_spin_box(id, "", juce::Slider::SliderStyle::LinearBarVertical, 60, 20);
 }
 
 void JuceUiBuilder::create_eq_rackslider_no_caption_(const char *id) {

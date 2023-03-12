@@ -40,7 +40,7 @@ GuitarixEditor::GuitarixEditor(GuitarixProcessor& p)
     ed_s(p, false, MachineEditor::mn_Stereo),
 	monoButton("MONO"), stereoButton("STEREO"),
     pluginButton("LV2 plugs"), presetFileMenu(""),
-    aboutButton("i"),
+    aboutButton("i"), tunerButton("TUNER"),
     topBox(),
     ml(),
     new_bank(""),
@@ -55,6 +55,7 @@ GuitarixEditor::GuitarixEditor(GuitarixProcessor& p)
     p.get_machine_jack(jack_r, machine, true);
     p.get_machine_jack(jack, machine, false);
     settings = &(machine->get_settings());
+    tuner_on = machine->get_parameter_value<bool>("system.show_tuner");
     
     //getConstrainer()->setFixedAspectRatio((double)(edtw*2+2)/(winh+texth+8));
     //setResizeLimits(edtw+1, (winh+texth+8)/2,edtw*4+2,winh+texth*2+8);
@@ -96,6 +97,12 @@ GuitarixEditor::GuitarixEditor(GuitarixProcessor& p)
     stereoButton.changeWidthToFitText();
     stereoButton.addListener(this);
     topBox.addAndMakeVisible(stereoButton);
+
+    tunerButton.setComponentID("TUNER");
+    tunerButton.setBounds(stereoButton.getRight()+4, 4, 20, texth);
+    tunerButton.changeWidthToFitText();
+    tunerButton.addListener(this);
+    topBox.addAndMakeVisible(tunerButton);
 /*
 	singleButton.setComponentID("SINGLE");
 	singleButton.setBounds(stereoButton.getRight()+12, 4, 20, texth);
@@ -124,7 +131,7 @@ GuitarixEditor::GuitarixEditor(GuitarixProcessor& p)
 	updateModeButtons();
     load_preset_list();
     presetFileMenu.onChange = [this] { on_preset_select(); };
-    presetFileMenu.setBounds(stereoButton.getRight() + 8, 4, 250, texth);
+    presetFileMenu.setBounds(tunerButton.getRight() + 8, 4, 250, texth);
     topBox.addAndMakeVisible(&presetFileMenu);
 
 	pluginButton.setComponentID("LV2PLUGS");
@@ -140,7 +147,8 @@ GuitarixEditor::GuitarixEditor(GuitarixProcessor& p)
 	//addAndMakeVisible(ed_r);
 	topBox.addAndMakeVisible(ed_s);
     
-    startTimerHz(24);
+    startTimer(1, 42);
+    startTimer(2, 200);
     /*ladspa::LadspaPluginList ml;
     std::vector<std::string>  old_not_found;
     machine->load_ladspalist(old_not_found, ml);
@@ -151,53 +159,57 @@ GuitarixEditor::GuitarixEditor(GuitarixProcessor& p)
 
 GuitarixEditor::~GuitarixEditor()
 {
-	stopTimer();
+	stopTimer(1);
+    stopTimer(2);
     audioProcessor.set_editor(0);
 }
 
-void GuitarixEditor::timerCallback()
+void GuitarixEditor::timerCallback(int id)
 {
-    auto rms=audioProcessor.getRMSValues();
-    for(int i=0; i<4; i++) {
-        meters[i].setLevel(rms[i].getCurrentValue());
-        meters[i].repaint();
-    }
-    // monitor mono feedback controller
-    for (auto i = ed.clist.begin(); i != ed.clist.end(); ++i) {
-        std::string id = (*i);
-        if (machine->parameter_hasId(id)) {
-            if (machine->get_parameter_value<bool>(id.substr(0,id.find_last_of(".")+1)+"on_off")) {
-                ed.on_param_value_changed(ed.get_parameter(id.c_str()));
-            }
-        }  
-    }
-    // monitor stere feedback controller
-    for (auto i = ed_s.clist.begin(); i != ed_s.clist.end(); ++i) {
-        std::string id = (*i);
-        if (machine->parameter_hasId(id)) {
-            if (machine->get_parameter_value<bool>(id.substr(0,id.find_last_of(".")+1)+"on_off")) {
-                ed_s.on_param_value_changed(ed_s.get_parameter(id.c_str()));
-            }
-        }  
-    }
-    bool stereo=audioProcessor.GetStereoMode();
-    if (machine->get_parameter_value<bool>("cab.on_off")) {
-        jack->get_engine().cabinet.pl_check_update();
-        if (stereo) jack_r->get_engine().cabinet.pl_check_update();
-    }
-    if (machine->get_parameter_value<bool>("cab_st.on_off")) {
-        jack->get_engine().cabinet_st.pl_check_update();
-    }
-    if (machine->get_parameter_value<bool>("pre.on_off")) {
-        jack->get_engine().preamp.pl_check_update();
-        if (stereo) jack_r->get_engine().preamp.pl_check_update();
-    }
-    if (machine->get_parameter_value<bool>("pre_st.on_off")) {
-        jack->get_engine().preamp_st.pl_check_update();
-    }
-    if (machine->get_parameter_value<bool>("con.on_off")) {
-        jack->get_engine().contrast.pl_check_update();
-        if (stereo) jack_r->get_engine().contrast.pl_check_update();
+    if (id == 1) {
+        auto rms=audioProcessor.getRMSValues();
+        for(int i=0; i<4; i++) {
+            meters[i].setLevel(rms[i].getCurrentValue());
+            meters[i].repaint();
+        }
+        // monitor mono feedback controller
+        for (auto i = ed.clist.begin(); i != ed.clist.end(); ++i) {
+            std::string id = (*i);
+            if (machine->parameter_hasId(id)) {
+                if (machine->get_parameter_value<bool>(id.substr(0,id.find_last_of(".")+1)+"on_off")) {
+                    ed.on_param_value_changed(ed.get_parameter(id.c_str()));
+                }
+            }  
+        }
+        // monitor stere feedback controller
+        for (auto i = ed_s.clist.begin(); i != ed_s.clist.end(); ++i) {
+            std::string id = (*i);
+            if (machine->parameter_hasId(id)) {
+                if (machine->get_parameter_value<bool>(id.substr(0,id.find_last_of(".")+1)+"on_off")) {
+                    ed_s.on_param_value_changed(ed_s.get_parameter(id.c_str()));
+                }
+            }  
+        }
+    } else {
+        bool stereo=audioProcessor.GetStereoMode();
+        if (machine->get_parameter_value<bool>("cab.on_off")) {
+            jack->get_engine().cabinet.pl_check_update();
+            if (stereo) jack_r->get_engine().cabinet.pl_check_update();
+        }
+        if (machine->get_parameter_value<bool>("cab_st.on_off")) {
+            jack->get_engine().cabinet_st.pl_check_update();
+        }
+        if (machine->get_parameter_value<bool>("pre.on_off")) {
+            jack->get_engine().preamp.pl_check_update();
+            if (stereo) jack_r->get_engine().preamp.pl_check_update();
+        }
+        if (machine->get_parameter_value<bool>("pre_st.on_off")) {
+            jack->get_engine().preamp_st.pl_check_update();
+        }
+        if (machine->get_parameter_value<bool>("con.on_off")) {
+            jack->get_engine().contrast.pl_check_update();
+            if (stereo) jack_r->get_engine().contrast.pl_check_update();
+        }
     }
 }
 
@@ -205,9 +217,11 @@ void GuitarixEditor::updateModeButtons()
 {
 	bool stereo=audioProcessor.GetStereoMode(), multi=audioProcessor.GetMultiMode();
 	bool mute1, mute2; audioProcessor.GetMonoMute(mute1, mute2);
+    tuner_on = machine->get_parameter_value<bool>("system.show_tuner");
 
 	monoButton.setToggleState(!stereo, juce::dontSendNotification);
 	stereoButton.setToggleState(stereo, juce::dontSendNotification);
+    tunerButton.setToggleState(tuner_on, juce::dontSendNotification);
     meters[1].setVisible(stereo);
 /*	singleButton.setToggleState(!multi, juce::dontSendNotification);
 	multiButton.setToggleState(multi, juce::dontSendNotification);
@@ -229,6 +243,11 @@ void GuitarixEditor::buttonClicked(juce::Button * b)
         {audioProcessor.SetStereoMode(false); updateModeButtons();}
 	else if (b == &stereoButton)
         {audioProcessor.SetStereoMode(true); updateModeButtons();}
+	else if (b == &tunerButton) {
+        machine->set_parameter_value("system.show_tuner",!tuner_on);
+        updateModeButtons();
+        ed.addTunerEditor();
+    }
     else if (b == &aboutButton)
     {
         char txt[]=
@@ -490,7 +509,8 @@ MachineEditor::MachineEditor(GuitarixProcessor& p, bool right, MonoT mono) :
 	mIgnoreRackUnitChange(false),
 	mRight(right),
 	mMono(mono),
-	mAlternateDouble(false)
+	mAlternateDouble(false),
+    tunerIsVisible(false)
 {
 	p.get_machine_jack(jack, machine, right);
 	settings = &(machine->get_settings());
@@ -620,6 +640,47 @@ void MachineEditor::addEditor(int idx, PluginSelector *ps, PluginEditor *pe, con
 	registerParListener(ps);
 }
 
+void MachineEditor::addTunerEditor()
+{
+    if (machine->get_parameter_value<bool>("system.show_tuner") ) {
+        if (!tunerIsVisible) {
+            PluginSelector *ps = new PluginSelector(this, false, "tuner", "none");
+            tunerEditor = new PluginEditor(this, "tuner", "none", ps);
+            addEditor(0, ps, tunerEditor, "Tuner");
+            tunerIsVisible = true;
+        }
+    } else if (tunerIsVisible) {
+        mIgnoreRackUnitChange = true;
+        //remove_rack_unit(ped->getID(), stereo);
+        mIgnoreRackUnitChange = false;
+        unregisterParListener(tunerEditor->getPluginSelector());
+        unregisterParListener(tunerEditor);
+        cp.removePanel(tunerEditor);
+        tunerEditor = NULL;
+        tunerIsVisible = false;
+    }
+}
+
+bool MachineEditor::compare_pos( const std::string& o1, const std::string& o2)
+{
+    gx_engine::Plugin *pl = jack->get_engine().pluginlist.find_plugin(o1);
+    int pos1 = pl->get_effect_post_pre();
+    gx_engine::Plugin *plu = jack->get_engine().pluginlist.find_plugin(o2);
+    int pos2 = plu->get_effect_post_pre();
+    if (pos1 == pos2) {
+        pos1 = pl->get_position();
+        pos2 = plu->get_position();
+        return (pos1<pos2);
+    }
+    return (pos1>pos2);
+}
+
+void MachineEditor::reorder_by_post_pre(std::vector<std::string> *ol)
+{
+    std::sort(ol->begin(), ol->end(), [this](std::string& o1, std::string& o2) 
+        { return this->compare_pos(o1, o2); });
+}
+
 void MachineEditor::createPluginEditors()
 {
 	editors.clear();
@@ -631,27 +692,29 @@ void MachineEditor::createPluginEditors()
 	int w, h;
 	if (mMono == mn_Mono || mMono == mn_Both)
 	{
+        addTunerEditor();
+
 		inputEditor.create(0, 0, w, h);
 		inputEditor.setName("Input");
-		cp.addPanel(0, &inputEditor, false);
+		cp.addPanel(1, &inputEditor, false);
 		cp.setPanelHeaderSize(&inputEditor, texth + 8);
 		cp.setCustomPanelHeader(&inputEditor, new PluginSelector(this, false, inputEditor.getID(), ""), true);
 		cp.setMaximumPanelSize(&inputEditor, h);
 		registerParListener(&inputEditor);
 	}
 
-	int idx = 1;
-
+	int idx = 2;
 	for (int stereo = (mMono==mn_Stereo ? 1 : 0); stereo <= (mMono == mn_Mono ? 0 : 1); stereo++)
 	{
 		std::vector<std::string> ol;
 		ol=settings->get_rack_unit_order(stereo);
+        if (!stereo) reorder_by_post_pre(&ol);
 
 		std::list<gx_engine::Plugin*> lv;
 		if (stereo) get_visible_stereo(lv); else get_visible_mono(lv);
 		lv.sort(plugin_order);
 
-		for (auto oli = ol.begin(); oli != ol.end(); oli++)
+		for (auto oli = ol.begin(); oli != ol.end(); oli++) {
 			for (auto a = lv.begin(); a != lv.end(); a++)
 			{
 				if (*oli == (*a)->get_pdef()->id /*&& (*oli!="ampstack")*/)
@@ -661,14 +724,14 @@ void MachineEditor::createPluginEditors()
 					PluginSelector *ps = new PluginSelector(this, stereo, id, cat);
 					PluginEditor *pe = new PluginEditor(this, id, cat, ps);
 					addEditor(idx, ps, pe, (*a)->get_pdef()->name);
-					
 					idx++;
 					break;
 				}
 			}
+        }
 	}
 
-	if (mMono == mn_Stereo && idx == 1)
+	if (mMono == mn_Stereo && idx == 2)
 		addButtonClicked(0, true);
 
 	addAndMakeVisible(cp);
@@ -683,6 +746,12 @@ void MachineEditor::updateMuteButton(juce::ToggleButton *b, const char* id)
 	}
 
 	b->setVisible(true);
+    
+    if (strcmp(id, "ui.racktuner") == 0) {
+        b->setToggleState(machine->get_parameter_value<bool>("ui.racktuner"),dontSendNotification );
+        machine->tuner_used_for_display(b->getToggleState());
+        return;
+    }
 
 	gx_engine::Plugin *pl = jack->get_engine().pluginlist.find_plugin(id);
 	if (!pl) return;
@@ -696,6 +765,11 @@ void MachineEditor::updateMuteButton(juce::ToggleButton *b, const char* id)
 
 void MachineEditor::muteButtonClicked(juce::ToggleButton *b, const char* id)
 {
+    if (strcmp(id, "ui.racktuner") == 0) {
+        machine->set_parameter_value("ui.racktuner", b->getToggleState());
+        machine->tuner_used_for_display(b->getToggleState());
+        return;
+    }
 	gx_engine::Plugin *pl = jack->get_engine().pluginlist.find_plugin(id);
 	if (!pl) return;
 
@@ -749,8 +823,8 @@ void MachineEditor::pluginMenuChanged(PluginEditor *ped, juce::ComboBox *c, bool
 		ped->setSize(rect.getWidth(), h);
 		cp.setMaximumPanelSize(ped, h);
 		cp.expandPanelFully(ped, true);
-        Desktop::getInstance().getAnimator().fadeOut(ped, 1);
-        Desktop::getInstance().getAnimator().fadeIn(ped, 800);
+        //Desktop::getInstance().getAnimator().fadeOut(ped, 1);
+        //Desktop::getInstance().getAnimator().fadeIn(ped, 800);
 		PluginSelector *ps = ped->getPluginSelector();
 		if (ps) ps->setID(pd->id, cat);
 

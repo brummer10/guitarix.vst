@@ -20,7 +20,7 @@
 
 #include <JuceHeader.h>
 
-namespace gx_engine { class Parameter; }
+namespace gx_engine { class Parameter; class GxMachine; }
 namespace gx_system { class CmdlineOptions; }
 
 //==============================================================================
@@ -54,6 +54,7 @@ public:
 	//JuceUiBuilder callbacks
 	void addControl(juce::Component *c, juce::Component* parent = 0);
 	gx_engine::Parameter* get_parameter(const char* parid);
+    gx_engine::GxMachine *get_machine();
 
 	const char* getID() const { return pid.c_str(); }
 //	int edx, edy;

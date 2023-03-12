@@ -61,6 +61,7 @@ public:
 	void on_param_value_changed(gx_engine::Parameter *p);
 	void on_rack_unit_changed(bool stereo);
     bool plugin_in_use(const char* id);
+    void addTunerEditor();
 	gx_engine::GxMachine *machine;
 private:
 	gx_jack::GxJack *jack;
@@ -78,7 +79,8 @@ private:
 	//
 	bool insert_rack_unit(const char* id, const char* before, bool stereo);
 	bool remove_rack_unit(const char* id, bool stereo);
-
+    void reorder_by_post_pre(std::vector<std::string> *ol);
+    bool compare_pos( const std::string& o1, const std::string& o2);
 	//calls
 	void get_visible_mono(std::list<gx_engine::Plugin*> &l);
 	void get_visible_stereo(std::list<gx_engine::Plugin*> &l);
@@ -90,8 +92,10 @@ private:
 	juce::ConcertinaPanel cp;
 
 	void addEditor(int idx, PluginSelector *ps, PluginEditor *pe, const char* name);
+    bool tunerIsVisible;
 	std::list<ParListener*> editors;
 	PluginEditor inputEditor;
+	PluginEditor* tunerEditor;
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MachineEditor)
 };
@@ -119,14 +123,14 @@ private:
 };
 
 //==============================================================================
-class GuitarixEditor : public juce::AudioProcessorEditor, public juce::Button::Listener, public juce::Timer
+class GuitarixEditor : public juce::AudioProcessorEditor, public juce::Button::Listener, public juce::MultiTimer
 {
 public:
 	GuitarixEditor(GuitarixProcessor&);
 	~GuitarixEditor() override;
     ladspa::LadspaPluginList ml;
 
-    void timerCallback() override;
+    void timerCallback(int id) override;
     
     void paint(juce::Graphics&) override;
 	void resized() override;
@@ -146,8 +150,9 @@ private:
     gx_engine::GxMachine *machine;
     gx_preset::GxSettings *settings;
 
-	juce::TextButton monoButton, stereoButton, aboutButton, pluginButton /*, singleButton, multiButton, mute1Button, mute2Button*/;
+	juce::TextButton monoButton, stereoButton, aboutButton, pluginButton, tunerButton /*, singleButton, multiButton, mute1Button, mute2Button*/;
 	void buttonClicked(juce::Button* b) override;
+    bool tuner_on;
 
 	juce::ComboBox presetFileMenu;
     HorizontalMeter meters[4];
