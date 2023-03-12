@@ -634,8 +634,8 @@ void MachineEditor::addEditor(int idx, PluginSelector *ps, PluginEditor *pe, con
 	cp.setPanelHeaderSize(pe, texth + 8);
 	cp.setCustomPanelHeader(pe, ps, true);
 	cp.setMaximumPanelSize(pe, h);
-    Desktop::getInstance().getAnimator().fadeOut(pe, 1);
-    Desktop::getInstance().getAnimator().fadeIn(pe, 800);
+    //Desktop::getInstance().getAnimator().fadeOut(pe, 1);
+    //Desktop::getInstance().getAnimator().fadeIn(pe, 800);
 	registerParListener(pe);
 	registerParListener(ps);
 }
@@ -647,6 +647,7 @@ void MachineEditor::addTunerEditor()
             PluginSelector *ps = new PluginSelector(this, false, "tuner", "none");
             tunerEditor = new PluginEditor(this, "tuner", "none", ps);
             addEditor(0, ps, tunerEditor, "Tuner");
+            cp.expandPanelFully(tunerEditor, true);
             tunerIsVisible = true;
         }
     } else if (tunerIsVisible) {
@@ -865,10 +866,11 @@ void MachineEditor::addButtonClicked(PluginEditor *ped, bool stereo)
 	int idx=0;
 	for (int i = 0; i < cp.getNumPanels(); i++)
 		if ((PluginEditor*)cp.getPanel(i) == ped) {idx = i; break;}
-		
+
 	if (idx == cp.getNumPanels() - 1 && mMono==mn_Both || mMono==mn_Stereo) stereo = true;
 	PluginSelector *ps = new PluginSelector(this, stereo, "", "");
 	PluginEditor *pe = new PluginEditor(this, "", "", ps);
+    if (tunerIsVisible && !stereo && idx == 0) idx = 1;
 	addEditor(idx+1, ps, pe, "");
 }
 
