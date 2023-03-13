@@ -123,10 +123,7 @@ JuceUiBuilder::~JuceUiBuilder() {
 
 
 void JuceUiBuilder::create_tuner_display(gx_engine::GxMachine *machine) {
-	TunerDisplay *t = new TunerDisplay(machine);
-    //juce::Font f = t->getFont();
-    //f.setTypefaceName("FreeMono");
-    //t->setFont(f);
+    TunerDisplay *t = new TunerDisplay(machine);
     t->setBounds(edx, edy, edtw, texth*2);
     additem(t);
 }

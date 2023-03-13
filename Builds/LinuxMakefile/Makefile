@@ -264,6 +264,7 @@ JUCE_UI_SHARED_CODE := \
   $(JUCE_OBJDIR)/PluginEditor_94d4fb09.o \
   $(JUCE_OBJDIR)/GuitarixEditor_cb2a0a8f.o \
   $(JUCE_OBJDIR)/GuitarixProcessor_54f35e3a.o \
+  $(JUCE_OBJDIR)/TunerDisplay_6dee1c1a.o \
 
 JUCE_SHARED_CODE := \
   $(JUCE_OBJDIR)/include_juce_audio_basics_8a4e984a.o \
@@ -587,6 +588,11 @@ $(JUCE_OBJDIR)/jsonrpc_86bd3962.o: ../../guitarix/trunk/src/gx_head/engine/jsonr
 $(JUCE_OBJDIR)/JuceUiBuilder_14cda45b.o: ../../Source/JuceUiBuilder.cpp
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
 	@$(ECHO) "Compiling JuceUiBuilder.cpp"
+	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
+
+$(JUCE_OBJDIR)/TunerDisplay_6dee1c1a.o:  ../../Source/TunerDisplay.cpp
+	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
+	@$(ECHO) "Compiling TunerDisplay.cpp"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/ladspaback_d9977da1.o: ../../guitarix/trunk/src/gx_head/engine/ladspaback.cpp

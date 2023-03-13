@@ -685,8 +685,10 @@ void MachineEditor::reorder_by_post_pre(std::vector<std::string> *ol)
 void MachineEditor::createPluginEditors()
 {
 	editors.clear();
-	for (int i = cp.getNumPanels() - 1; i >= 0; i--)
+	for (int i = cp.getNumPanels() - 1; i >= 0; i--) {
+        if (cp.getPanel(i) == tunerEditor) tunerIsVisible = false;;
 		cp.removePanel(cp.getPanel(i));
+    }
 	cp.setBounds(0, 0, edtw, winh);
 	inputEditor.clear();
 
