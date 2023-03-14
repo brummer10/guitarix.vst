@@ -351,6 +351,12 @@ void PluginEditor::create(int edx, int edy, int &w, int &h)
     h = rect.getHeight()+2;
     setBounds(edx, edy, w, h);
     //ed->addAndMakeVisible(this);
+    //ScalableEQ needs to be reduced a bit to fit into rack size
+    if (pid == "eqs") {
+        for (int i = 0; i < this->getNumChildComponents(); ++i) {
+            this->getChildComponent(i)->setTransform(AffineTransform::scale(0.82));
+        }
+    }
 }
 
 bool PluginEditor::is_factory_IR(const std::string& dir) {

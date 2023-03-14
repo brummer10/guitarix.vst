@@ -32,6 +32,7 @@ TunerDisplay::TunerDisplay(gx_engine::GxMachine *machine_) :
     font ("FreeMono", 20 , juce::Font::bold )
 {
     // set default values
+    setOpaque(true);
     freq = 0.f;
     ref_freq = machine->get_parameter_value<float>("ui.tuner_reference_pitch");
     tunning = machine->get_parameter_value<int>("racktuner.temperament");
@@ -62,7 +63,7 @@ void TunerDisplay::paint(juce::Graphics& g)
     auto bounds = getLocalBounds().toFloat();
     g.setFont (font);
     g.setColour(juce::Colours::white.withBrightness(0.4f));
-    g.fillRoundedRectangle(bounds, 4.f);
+    g.fillAll();
 
     float value = freq;
     float c = 0.3f;
