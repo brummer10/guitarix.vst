@@ -100,6 +100,8 @@ void TunerDisplay::paint(juce::Graphics& g)
 
     // paint the recults to screen
     c = std::max(0.0,1.0-(std::fabs(scale)*6.0));
+    float b = scale > -0.005 ? 0.3 : 1.0;
+    float d = scale < 0.005 ? 0.3 : 1.0;
     g.setColour (juce::Colours::white.withAlpha (c));
     g.setFont(36);
     g.drawSingleLineText(juce::String::fromUTF8(get_note_set()[vis]), bounds.getWidth()*0.50, bounds.getHeight()-10,  juce::Justification::Flags::right);
@@ -107,17 +109,16 @@ void TunerDisplay::paint(juce::Graphics& g)
     g.drawSingleLineText(juce::String(octave[indicate_oc]), bounds.getWidth()*0.52, bounds.getHeight()-8);
     g.setColour (juce::Colours::white.withAlpha (0.9f));
     g.drawSingleLineText((juce::String(freq, 2) + juce::String("Hz")), bounds.getWidth()-20, bounds.getHeight()-5,  juce::Justification::Flags::right);
-    draw_triangle(g, bounds.getWidth()/3.0, bounds.getHeight()/2 , -30, 20, c );
-    draw_triangle(g, std::max(bounds.getWidth()/3.0, bounds.getWidth()/3.5-(300*scale)), bounds.getHeight()/2 , -30, 20, c );
-    draw_triangle(g, std::max(bounds.getWidth()/3.0, bounds.getWidth()/3.5-(600*scale)), bounds.getHeight()/2 , -30, 20, c );
-    draw_triangle(g, bounds.getWidth()/1.5, bounds.getHeight()/2, 30, 20, c );
-    draw_triangle(g, std::min(bounds.getWidth()/1.5, bounds.getWidth()/1.5 -(300*scale)), bounds.getHeight()/2, 30, 20, c );
-    draw_triangle(g, std::min(bounds.getWidth()/1.5, bounds.getWidth()/1.5 -(600*scale)), bounds.getHeight()/2, 30, 20, c );
+    draw_triangle(g, bounds.getWidth()/3.0, bounds.getHeight()/2 , -30, 20, b );
+    draw_triangle(g, std::max(bounds.getWidth()/3.0, bounds.getWidth()/3.5-(300*scale)), bounds.getHeight()/2 , -30, 20, b );
+    draw_triangle(g, std::max(bounds.getWidth()/3.0, bounds.getWidth()/3.5-(600*scale)), bounds.getHeight()/2 , -30, 20, b );
+    draw_triangle(g, bounds.getWidth()/1.5, bounds.getHeight()/2, 30, 20, d );
+    draw_triangle(g, std::min(bounds.getWidth()/1.5, bounds.getWidth()/1.5 -(300*scale)), bounds.getHeight()/2, 30, 20, d );
+    draw_triangle(g, std::min(bounds.getWidth()/1.5, bounds.getWidth()/1.5 -(600*scale)), bounds.getHeight()/2, 30, 20, d );
 }
 
 void TunerDisplay::draw_triangle(juce::Graphics& g, int x, int y, int w, int h, float c) {
-    if (c < 0.99) g.setColour(juce::Colour::fromRGBA(66*c, 162*c, 200*c, 188*c));
-    else  g.setColour(juce::Colour::fromRGBA(66, 162, 200, 255));
+    g.setColour(juce::Colour::fromRGBA(66*c, 162*c, 200*c, 188*c));
     juce::Path triangle; 
     triangle.addTriangle(x, y, x + w, y+h, x + w, y - h); 
     g.fillPath(triangle);
