@@ -43,6 +43,8 @@ private:
     int temp_adjust;
     bool use;
     juce::Font font;
+    int move;
+    int smove;
 
     void draw_triangle(juce::Graphics& g, int x, int y, int w, int h, float c);
     void on_tuner_freq_changed();

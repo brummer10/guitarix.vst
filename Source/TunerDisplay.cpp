@@ -65,17 +65,27 @@ void TunerDisplay::paint(juce::Graphics& g)
     g.setColour(juce::Colours::white.withBrightness(0.4f));
     g.fillAll();
 
+    int width = bounds.getWidth();
+    int height = bounds.getHeight();
     float value = freq;
     float c = 0.3f;
-    draw_triangle(g, bounds.getWidth()/3.0, bounds.getHeight()/2 , -30, 20, c );
-    draw_triangle(g, bounds.getWidth()/1.5, bounds.getHeight()/2, 30, 20, c );
+    draw_triangle(g, width/3.0, height/1.6 , -30, 15, c );
+    draw_triangle(g, width/1.5, height/1.6, 30, 15, c );
+
+    int i = 0;
+    for (; i < width/20; ++i) {
+        g.fillRect ((width/2)+i*10.0f, 5.0f, 5.0f, 5.0f);
+    }
+    for (; i >0; --i) {
+        g.fillRect ((width/2)-i*10.0f, 5.0f, 5.0f, 5.0f);
+    }
 
     if (value < 20.0f || !use) {
         g.setColour(juce::Colour::fromRGBA(66*c, 162*c, 200*c, 188*c));
         g.setFont(36);
-        g.drawSingleLineText(juce::String("#"), bounds.getWidth()*0.50, bounds.getHeight()-10,  juce::Justification::Flags::right);
+        g.drawSingleLineText(juce::String("#"), width*0.50, height-10,  juce::Justification::Flags::right);
         g.setFont(16);
-        g.drawSingleLineText((juce::String("0.00") + juce::String("Hz")), bounds.getWidth()-20, bounds.getHeight()-5,  juce::Justification::Flags::right);
+        g.drawSingleLineText((juce::String("0.00") + juce::String("Hz")), width-20, height-5,  juce::Justification::Flags::right);
         return;
     }
 
@@ -104,17 +114,43 @@ void TunerDisplay::paint(juce::Graphics& g)
     float d = scale < 0.005 ? 0.3 : 1.0;
     g.setColour (juce::Colours::white.withAlpha (c));
     g.setFont(36);
-    g.drawSingleLineText(juce::String::fromUTF8(get_note_set()[vis]), bounds.getWidth()*0.50, bounds.getHeight()-10,  juce::Justification::Flags::right);
+    g.drawSingleLineText(juce::String::fromUTF8(get_note_set()[vis]), width*0.50, height-10,  juce::Justification::Flags::right);
     g.setFont(16);
-    g.drawSingleLineText(juce::String(octave[indicate_oc]), bounds.getWidth()*0.52, bounds.getHeight()-8);
+    g.drawSingleLineText(juce::String(octave[indicate_oc]), width*0.52, height-8);
     g.setColour (juce::Colours::white.withAlpha (0.9f));
-    g.drawSingleLineText((juce::String(freq, 2) + juce::String("Hz")), bounds.getWidth()-20, bounds.getHeight()-5,  juce::Justification::Flags::right);
-    draw_triangle(g, bounds.getWidth()/3.0, bounds.getHeight()/2 , -30, 20, b );
-    draw_triangle(g, std::max(bounds.getWidth()/3.0, bounds.getWidth()/3.5-(300*scale)), bounds.getHeight()/2 , -30, 20, b );
-    draw_triangle(g, std::max(bounds.getWidth()/3.0, bounds.getWidth()/3.5-(600*scale)), bounds.getHeight()/2 , -30, 20, b );
-    draw_triangle(g, bounds.getWidth()/1.5, bounds.getHeight()/2, 30, 20, d );
-    draw_triangle(g, std::min(bounds.getWidth()/1.5, bounds.getWidth()/1.5 -(300*scale)), bounds.getHeight()/2, 30, 20, d );
-    draw_triangle(g, std::min(bounds.getWidth()/1.5, bounds.getWidth()/1.5 -(600*scale)), bounds.getHeight()/2, 30, 20, d );
+    g.drawSingleLineText((juce::String(freq, 2) + juce::String("Hz")), width-20, height-5,  juce::Justification::Flags::right);
+    draw_triangle(g, width/3.0, height/1.6 , -30, 15, b );
+    draw_triangle(g, std::max(width/3.0, width/3.5-(300*scale)), height/1.6 , -30, 15, b );
+    draw_triangle(g, std::max(width/3.0, width/3.5-(600*scale)), height/1.6 , -30, 15, b );
+    draw_triangle(g, width/1.5, height/1.6, 30, 15, d );
+    draw_triangle(g, std::min(width/1.5, width/1.5 -(300*scale)), height/1.6, 30, 15, d );
+    draw_triangle(g, std::min(width/1.5, width/1.5 -(600*scale)), height/1.6, 30, 15, d );
+
+    int m = 100*scale;
+    if (m==0 && smove !=0) move=width/20;
+    smove = m;
+    move +=m;
+    if(move<-width/20) move=width/20;
+    if(move>width/20) move=-width/20;
+    if (m==0) {
+        if(move<0) move+=1;
+        if(move>0) move-=1;
+    }
+    g.setGradientFill (juce::ColourGradient (juce::Colours::green.withBrightness(0.8f),
+        width/2, height/2, juce::Colours::red.withBrightness(0.8f),
+        width, height/2, true));
+    for (int i = 0; i < 4; ++i) {
+        if (m==0) {
+            if(move<0) move+=1;
+            if(move>0) move-=1;
+            g.fillRect((width/2)+10 + (move)*10.0f, 5.0f, 5.0f, 5.0f);
+            g.fillRect((width/2) + (move)*10.0f, 5.0f, 5.0f, 5.0f);
+            g.fillRect((width/2)-10 - (move)*10.0f, 5.0f, 5.0f, 5.0f);
+            g.fillRect((width/2)-20 - (move)*10.0f, 5.0f, 5.0f, 5.0f);
+        } else {
+            g.fillRect((width/2)-20 + (move+i)*10.0f, 5.0f, 5.0f, 5.0f);
+        }
+    }
 }
 
 void TunerDisplay::draw_triangle(juce::Graphics& g, int x, int y, int w, int h, float c) {
