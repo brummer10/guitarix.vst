@@ -9,7 +9,7 @@ jobs:
     
     steps:
     - name: remove tag
-      uses: dev-drprasad/delete-tag-and-release@v0.2.0
+      uses: dev-drprasad/delete-tag-and-release@v0.2.1
       with:
         delete_release: false
         tag_name: Latest
