@@ -108,16 +108,17 @@ void TunerDisplay::paint(juce::Graphics& g)
         vis += get_tuner_temperament();
     }
 
-    // paint the recults to screen
+    // paint the results to screen
     c = std::max(0.0,1.0-(std::fabs(scale)*6.0));
-    float b = scale > -0.005 ? 0.3 : 1.0;
-    float d = scale < 0.005 ? 0.3 : 1.0;
+    float b = scale > -0.004 ? 0.3 : 1.0;
+    float d = scale < 0.004 ? 0.3 : 1.0;
     g.setColour (juce::Colours::white.withAlpha (c));
     g.setFont(36);
     g.drawSingleLineText(juce::String::fromUTF8(get_note_set()[vis]), width*0.50, height-10,  juce::Justification::Flags::right);
     g.setFont(16);
     g.drawSingleLineText(juce::String(octave[indicate_oc]), width*0.52, height-8);
     g.setColour (juce::Colours::white.withAlpha (0.9f));
+    g.drawSingleLineText(cents(scale), 100, height-5,  juce::Justification::Flags::right);
     g.drawSingleLineText((juce::String(freq, 2) + juce::String("Hz")), width-20, height-5,  juce::Justification::Flags::right);
     draw_triangle(g, width/3.0, height/1.6 , -30, 15, b );
     draw_triangle(g, std::max(width/3.0, width/3.5-(300*scale)), height/1.6 , -30, 15, b );
@@ -126,7 +127,7 @@ void TunerDisplay::paint(juce::Graphics& g)
     draw_triangle(g, std::min(width/1.5, width/1.5 -(300*scale)), height/1.6, 30, 15, d );
     draw_triangle(g, std::min(width/1.5, width/1.5 -(600*scale)), height/1.6, 30, 15, d );
 
-    int m = 100*scale;
+    int m = 1000*scale;
     if (m==0 && smove !=0) move=width/20;
     smove = m;
     move +=m;
@@ -153,6 +154,12 @@ void TunerDisplay::paint(juce::Graphics& g)
     }
 }
 
+juce::String TunerDisplay::cents(float scale) {
+    float cent = (scale * 10000) / 25;
+    if(cent>0.0) return (juce::String("+") + juce::String(cent,2) + juce::String::fromUTF8(" ₵"));
+    else return (juce::String(cent,2) + juce::String::fromUTF8(" ₵"));
+}
+
 void TunerDisplay::draw_triangle(juce::Graphics& g, int x, int y, int w, int h, float c) {
     g.setColour(juce::Colour::fromRGBA(66*c, 162*c, 200*c, 188*c));
     juce::Path triangle; 
@@ -160,26 +167,26 @@ void TunerDisplay::draw_triangle(juce::Graphics& g, int x, int y, int w, int h, 
     g.fillPath(triangle);
 }
 
-void TunerDisplay::on_tuner_freq_changed() {
+void TunerDisplay::on_tuner_freq_changed() noexcept {
     freq = machine->get_tuner_freq();
     repaint();
 }
 
-void TunerDisplay::on_ref_freq_changed(float value) {
+void TunerDisplay::on_ref_freq_changed(float value) noexcept {
     ref_freq = value;
 }
 
-void TunerDisplay::on_tunning_changed(int value) {
+void TunerDisplay::on_tunning_changed(int value) noexcept {
     tunning = value;
     tuner_set_temp_adjust();
 }
 
-void TunerDisplay::on_use_changed(bool value) {
+void TunerDisplay::on_use_changed(bool value) noexcept {
     use = value;
     repaint();
 }
 
-int TunerDisplay::get_tuner_temperament() {
+int TunerDisplay::get_tuner_temperament() noexcept {
     if(tunning == 0) return 12;
     else if(tunning == 1) return 19;
     else if(tunning == 2) return 24;
@@ -189,7 +196,7 @@ int TunerDisplay::get_tuner_temperament() {
     else return 12;
 }
 
-void TunerDisplay::tuner_set_temp_adjust() {
+void TunerDisplay::tuner_set_temp_adjust() noexcept {
     switch (tunning) {
         case 0: temp_adjust = 3;
         break;
@@ -208,7 +215,7 @@ void TunerDisplay::tuner_set_temp_adjust() {
     }
 }
 
-const char **TunerDisplay::get_note_set() {
+const char **TunerDisplay::get_note_set() noexcept {
     if(tunning == 0) return note_sharp;
     else if(tunning == 1) return note_19;
     else if(tunning == 2) return note_24;

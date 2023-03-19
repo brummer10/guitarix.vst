@@ -47,13 +47,14 @@ private:
     int smove;
 
     void draw_triangle(juce::Graphics& g, int x, int y, int w, int h, float c);
-    void on_tuner_freq_changed();
-    void on_ref_freq_changed(float value);
-    void on_tunning_changed(int value);
-    void on_use_changed(bool value);
-    int get_tuner_temperament();
-    void tuner_set_temp_adjust();
-    const char **get_note_set();
+    juce::String cents(float scale);
+    void on_tuner_freq_changed() noexcept;
+    void on_ref_freq_changed(float value) noexcept;
+    void on_tunning_changed(int value) noexcept;
+    void on_use_changed(bool value) noexcept;
+    int get_tuner_temperament() noexcept;
+    void tuner_set_temp_adjust() noexcept;
+    const char **get_note_set() noexcept;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(TunerDisplay)
 };
