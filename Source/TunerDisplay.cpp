@@ -69,8 +69,8 @@ void TunerDisplay::paint(juce::Graphics& g)
     int height = bounds.getHeight();
     float value = freq;
     float c = 0.3f;
-    draw_triangle(g, width/3.0, height/1.6 , -30, 15, c );
-    draw_triangle(g, width/1.5, height/1.6, 30, 15, c );
+    draw_triangle(g, width/3.0, height/1.6 , -30, 15, c, 1 );
+    draw_triangle(g, width/1.5, height/1.6, 30, 15, c, 1 );
 
     int i = 0;
     for (; i < width/20; ++i) {
@@ -110,6 +110,7 @@ void TunerDisplay::paint(juce::Graphics& g)
 
     // paint the results to screen
     c = std::max(0.0,1.0-(std::fabs(scale)*6.0));
+    int m = 1000*scale;
     float b = scale > -0.004 ? 0.3 : 1.0;
     float d = scale < 0.004 ? 0.3 : 1.0;
     g.setColour (juce::Colours::white.withAlpha (c));
@@ -120,14 +121,13 @@ void TunerDisplay::paint(juce::Graphics& g)
     g.setColour (juce::Colours::white.withAlpha (0.9f));
     g.drawSingleLineText(cents(scale), 100, height-5,  juce::Justification::Flags::right);
     g.drawSingleLineText((juce::String(freq, 2) + juce::String("Hz")), width-20, height-5,  juce::Justification::Flags::right);
-    draw_triangle(g, width/3.0, height/1.6 , -30, 15, b );
-    draw_triangle(g, std::max(width/3.0, width/3.5-(300*scale)), height/1.6 , -30, 15, b );
-    draw_triangle(g, std::max(width/3.0, width/3.5-(600*scale)), height/1.6 , -30, 15, b );
-    draw_triangle(g, width/1.5, height/1.6, 30, 15, d );
-    draw_triangle(g, std::min(width/1.5, width/1.5 -(300*scale)), height/1.6, 30, 15, d );
-    draw_triangle(g, std::min(width/1.5, width/1.5 -(600*scale)), height/1.6, 30, 15, d );
+    draw_triangle(g, width/3.0, height/1.6 , -30, 15, b, m );
+    draw_triangle(g, std::max(width/3.0, width/3.5-(300*scale)), height/1.6 , -30, 15, b, m );
+    draw_triangle(g, std::max(width/3.0, width/3.5-(600*scale)), height/1.6 , -30, 15, b, m );
+    draw_triangle(g, width/1.5, height/1.6, 30, 15, d, m );
+    draw_triangle(g, std::min(width/1.5, width/1.5 -(300*scale)), height/1.6, 30, 15, d, m );
+    draw_triangle(g, std::min(width/1.5, width/1.5 -(600*scale)), height/1.6, 30, 15, d, m );
 
-    int m = 1000*scale;
     if (m==0 && smove !=0) move=width/20;
     smove = m;
     move +=m;
@@ -160,8 +160,9 @@ juce::String TunerDisplay::cents(float scale) {
     else return (juce::String(cent,2) + juce::String::fromUTF8(" ₵"));
 }
 
-void TunerDisplay::draw_triangle(juce::Graphics& g, int x, int y, int w, int h, float c) {
-    g.setColour(juce::Colour::fromRGBA(66*c, 162*c, 200*c, 188*c));
+void TunerDisplay::draw_triangle(juce::Graphics& g, int x, int y, int w, int h, float c, int match) {
+    if (!match) g.setColour(juce::Colours::green.withBrightness(0.7f));
+    else g.setColour(juce::Colour::fromRGBA(66*c, 162*c, 200*c, 188*c));
     juce::Path triangle; 
     triangle.addTriangle(x, y, x + w, y+h, x + w, y - h); 
     g.fillPath(triangle);

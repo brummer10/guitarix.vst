@@ -46,7 +46,7 @@ private:
     int move;
     int smove;
 
-    void draw_triangle(juce::Graphics& g, int x, int y, int w, int h, float c);
+    void draw_triangle(juce::Graphics& g, int x, int y, int w, int h, float c, int match);
     juce::String cents(float scale);
     void on_tuner_freq_changed() noexcept;
     void on_ref_freq_changed(float value) noexcept;
