@@ -37,6 +37,7 @@ TunerDisplay::TunerDisplay(gx_engine::GxMachine *machine_) :
     ref_freq = machine->get_parameter_value<float>("ui.tuner_reference_pitch");
     tunning = machine->get_parameter_value<int>("racktuner.temperament");
     use = machine->get_parameter_value<bool>("ui.racktuner");
+    //machine->get_jack()->get_engine().tuner.set_fast_note_detection(false);
     tuner_set_temp_adjust();
     // connect variables with parameters to fetch changes
     freq_conn = machine->get_jack()->get_engine().tuner.signal_freq_changed().connect(
@@ -69,9 +70,8 @@ void TunerDisplay::paint(juce::Graphics& g)
     int height = bounds.getHeight();
     float value = freq;
     float c = 0.3f;
-    draw_triangle(g, width/3.0, height/1.6 , -30, 15, c, 1 );
-    draw_triangle(g, width/1.5, height/1.6, 30, 15, c, 1 );
 
+    g.setColour(juce::Colour::fromRGBA(66*c, 162*c, 200*c, 188*c));
     int i = 0;
     for (; i < width/20; ++i) {
         g.fillRect ((width/2)+i*10.0f, 5.0f, 5.0f, 5.0f);
@@ -81,11 +81,7 @@ void TunerDisplay::paint(juce::Graphics& g)
     }
 
     if (value < 20.0f || !use) {
-        g.setColour(juce::Colour::fromRGBA(66*c, 162*c, 200*c, 188*c));
-        g.setFont(36);
-        g.drawSingleLineText(juce::String("#"), width*0.50, height-10,  juce::Justification::Flags::right);
-        g.setFont(16);
-        g.drawSingleLineText((juce::String("0.00") + juce::String("Hz")), width-20, height-5,  juce::Justification::Flags::right);
+        draw_empty_freq(g, width, height);
         return;
     }
 
@@ -103,6 +99,8 @@ void TunerDisplay::paint(juce::Graphics& g)
     }
 
     scale = (fvis-vis) / 4;
+    int m = 1000*scale;
+
     vis = vis % get_tuner_temperament();
     if (vis < 0) {
         vis += get_tuner_temperament();
@@ -110,7 +108,6 @@ void TunerDisplay::paint(juce::Graphics& g)
 
     // paint the results to screen
     c = std::max(0.0,1.0-(std::fabs(scale)*6.0));
-    int m = 1000*scale;
     float b = scale > -0.004 ? 0.3 : 1.0;
     float d = scale < 0.004 ? 0.3 : 1.0;
     g.setColour (juce::Colours::white.withAlpha (c));
@@ -121,15 +118,26 @@ void TunerDisplay::paint(juce::Graphics& g)
     g.setColour (juce::Colours::white.withAlpha (0.9f));
     g.drawSingleLineText(cents(scale), 100, height-5,  juce::Justification::Flags::right);
     g.drawSingleLineText((juce::String(freq, 2) + juce::String("Hz")), width-20, height-5,  juce::Justification::Flags::right);
-    draw_triangle(g, width/3.0, height/1.6 , -30, 15, b, m );
-    draw_triangle(g, std::max(width/3.0, width/3.5-(300*scale)), height/1.6 , -30, 15, b, m );
-    draw_triangle(g, std::max(width/3.0, width/3.5-(600*scale)), height/1.6 , -30, 15, b, m );
-    draw_triangle(g, width/1.5, height/1.6, 30, 15, d, m );
-    draw_triangle(g, std::min(width/1.5, width/1.5 -(300*scale)), height/1.6, 30, 15, d, m );
-    draw_triangle(g, std::min(width/1.5, width/1.5 -(600*scale)), height/1.6, 30, 15, d, m );
+    draw_triangle(g, width/3.0, height/1.6 , -30, 15, b, m*0.25 );
+    draw_triangle(g, std::max(width/3.0, width/3.0-(300*scale)), height/1.6 , -30, 15, b, m*0.25 );
+    draw_triangle(g, std::max(width/3.0, width/3.0-(600*scale)), height/1.6 , -30, 15, b, m*0.25 );
+    draw_triangle(g, width/1.5, height/1.6, 30, 15, d, m*0.25 );
+    draw_triangle(g, std::min(width/1.5, width/1.5 -(300*scale)), height/1.6, 30, 15, d, m*0.25 );
+    draw_triangle(g, std::min(width/1.5, width/1.5 -(600*scale)), height/1.6, 30, 15, d, m*0.25 );
 
+    draw_dots(g, width, height, m);
+}
+
+juce::String TunerDisplay::cents(float scale) {
+    float cent = (scale * 10000) / 25;
+    if(cent>0.0) return (juce::String("+") + juce::String(cent,2) + juce::String::fromUTF8("₵"));
+    else return (juce::String(cent,2) + juce::String::fromUTF8("₵"));
+}
+
+void TunerDisplay::draw_dots(juce::Graphics& g, int width, int height, int m)  noexcept {
     if (m==0 && smove !=0) move=width/20;
     smove = m;
+    m *=0.5;
     move +=m;
     if(move<-width/20) move=width/20;
     if(move>width/20) move=-width/20;
@@ -154,10 +162,14 @@ void TunerDisplay::paint(juce::Graphics& g)
     }
 }
 
-juce::String TunerDisplay::cents(float scale) {
-    float cent = (scale * 10000) / 25;
-    if(cent>0.0) return (juce::String("+") + juce::String(cent,2) + juce::String::fromUTF8(" ₵"));
-    else return (juce::String(cent,2) + juce::String::fromUTF8(" ₵"));
+void TunerDisplay::draw_empty_freq(juce::Graphics& g, int width, int height)  noexcept {
+    draw_triangle(g, width/3.0, height/1.6 , -30, 15, 0.3f, 1 );
+    draw_triangle(g, width/1.5, height/1.6, 30, 15, 0.3f, 1 );
+    g.setFont(36);
+    g.drawSingleLineText(juce::String("#"), width*0.50, height-10,  juce::Justification::Flags::right);
+    g.setFont(16);
+    g.drawSingleLineText((juce::String("0.00") + juce::String::fromUTF8("₵")), 100, height-5,  juce::Justification::Flags::right);
+    g.drawSingleLineText((juce::String("0.00") + juce::String("Hz")), width-20, height-5,  juce::Justification::Flags::right);
 }
 
 void TunerDisplay::draw_triangle(juce::Graphics& g, int x, int y, int w, int h, float c, int match) {

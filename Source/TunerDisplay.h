@@ -46,6 +46,8 @@ private:
     int move;
     int smove;
 
+    void draw_dots(juce::Graphics& g, int width, int height, int m)  noexcept;
+    void draw_empty_freq(juce::Graphics& g, int width, int height) noexcept;
     void draw_triangle(juce::Graphics& g, int x, int y, int w, int h, float c, int match);
     juce::String cents(float scale);
     void on_tuner_freq_changed() noexcept;
