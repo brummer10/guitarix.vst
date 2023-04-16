@@ -19,6 +19,7 @@
 #pragma once
 
 #include <JuceHeader.h>
+#include <sigc++/sigc++.h>
 namespace gx_jack { class GxJack; }
 namespace gx_engine { class GxMachine; class Parameter; }
 namespace gx_system { class CmdlineOptions; }
@@ -82,7 +83,7 @@ public:
 #endif
 
 	void processBlock(juce::AudioBuffer<float>&, juce::MidiBuffer&) override;
-
+	void process_midi(juce::MidiBuffer& midiMessages);
 	//==============================================================================
 	juce::AudioProcessorEditor* createEditor() override;
 	bool hasEditor() const override;
@@ -140,6 +141,8 @@ private:
 
 	void saveState(std::ostream &os, bool right);
 	void loadState(std::istream &is, bool right);
+	void do_program_change(int pgm);
+	void do_bank_change(int pgm);
 	void cloneSettingsToMachineR();
 
 	void refreshPrograms();
@@ -150,7 +153,9 @@ private:
 	void on_param_value_changed(gx_engine::Parameter *p, bool right);
 	void on_param_insert_remove(gx_engine::Parameter *p, bool inserted, bool right);
 	void on_rack_unit_changed(bool stereo, bool right);
-
+	sigc::signal<void,int> pgm_chg;
+	sigc::signal<void,int> bank_chg;
+    std::string switch_bank;
 	bool mLoading;
 
     int buffersize, quantum, delay, tdelay;

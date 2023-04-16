@@ -137,6 +137,7 @@ public:
 
 	void createPluginEditors(bool l=true, bool r=true, bool s=true);
 	void updateModeButtons();
+    void load_preset_list();
 
 	bool GetAlternateDouble() const { return ed.GetAlternateDouble()/* || ed_r.GetAlternateDouble()*/; }
 
@@ -165,7 +166,6 @@ private:
     std::string new_preset;
     void on_preset_save();
     void on_preset_select();
-    void load_preset_list();
     static void loadLV2PlugCallback(int i, GuitarixEditor* ge);
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(GuitarixEditor)

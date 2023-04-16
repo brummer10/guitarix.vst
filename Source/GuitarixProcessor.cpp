@@ -119,6 +119,8 @@ GuitarixProcessor::GuitarixProcessor()
 	, mLoading(false)
 	, mPresetsVisible(false)
 	, currentPreset(-1)
+    , pgm_chg()
+    , bank_chg()
 {
     out[0]=out[1]=0;
     
@@ -179,9 +181,11 @@ GuitarixProcessor::GuitarixProcessor()
 	for (gx_engine::ParamMap::iterator i = pmap.begin(); i != pmap.end(); ++i) {
 		connect_value_changed_signal(i->second, false);
 	}
+    switch_bank = settings->get_current_bank();
 	settings->signal_rack_unit_order_changed().connect(
 		sigc::bind(sigc::mem_fun(*this, &GuitarixProcessor::on_rack_unit_changed), false));
-	
+	pgm_chg.connect(sigc::mem_fun(this, &GuitarixProcessor::do_program_change));
+	bank_chg.connect(sigc::mem_fun(this, &GuitarixProcessor::do_bank_change));
 	/*
 	gx_preset::GxSettings *settings_r = &(machine_r->get_settings());
 	gx_engine::ParamMap& pmap_r = settings_r->get_param();
@@ -405,6 +409,36 @@ void GuitarixProcessor::load_preset(std::string _bank, std::string _preset) {
 
 void GuitarixProcessor::save_preset(std::string _bank, std::string _preset) {
     gx->gx_save_preset(machine, _bank.c_str(), _preset.c_str());
+}
+
+void GuitarixProcessor::do_program_change(int pgm) {
+    gx_preset::GxSettings *settings = &(machine->get_settings());
+    std::string bank = settings->get_current_bank();
+    if ((bank != switch_bank) && !switch_bank.empty()) {
+        bank = switch_bank;
+	}
+    bool in_preset = !bank.empty();
+    gx_system::PresetFile *f;
+    if (in_preset) {
+        f = settings->banks.get_file(bank);
+        in_preset = pgm < f->size();
+    }
+    if (in_preset) {
+        juce::MessageManagerLock *mmLock;
+        mmLock = new juce::MessageManagerLock;
+        load_preset(bank, f->get_name(pgm));
+        editor->load_preset_list();
+        delete mmLock;
+    }
+}
+
+void GuitarixProcessor::do_bank_change(int pgm) {
+    gx_preset::GxSettings *settings = &(machine->get_settings());
+	if (!machine->get_bank_name(pgm).empty()) {
+		switch_bank = machine->get_bank_name(pgm);
+	} else {
+		switch_bank = settings->get_current_bank();
+	}
 }
 
 void GuitarixProcessor::connect_value_changed_signal(gx_engine::Parameter *p, bool right)
@@ -686,12 +720,32 @@ float GuitarixProcessor::getRMSLevel(float* data, int len) const
 
 #define DBGRT(x)
 
+void GuitarixProcessor::process_midi(juce::MidiBuffer& midiMessages)
+{
+    uint8_t midi_buffer[3];
+    for (const auto metadata : midiMessages)
+    {
+        auto message = metadata.getMessage();
+        midi_buffer[0] = message.getRawData()[0];
+        midi_buffer[1] = message.getRawData()[1];
+        midi_buffer[2] = message.getRawData()[2];
+        if ((midi_buffer[0] & 0xf0) == 0xc0 ) { // program change on any midi channel
+            pgm_chg(int(midi_buffer[1]));
+        } else if ((midi_buffer[0] & 0xf0) == 0xb0 ) { // controller
+            if ((midi_buffer[1]== 32 || midi_buffer[1]== 0) ) { // bank change (LSB/MSB) on any midi channel
+                bank_chg(int(midi_buffer[2]));
+            }
+        }
+    }
+}
+
 void GuitarixProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
 {
 	gx_inited();
 	juce::ScopedNoDenormals noDenormals;
     auto totalNumInputChannels  = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
+    process_midi(midiMessages);
 
     // In case we have more outputs than inputs, this code clears any output
     // channels that didn't contain input data, (because these aren't

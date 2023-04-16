@@ -48,7 +48,7 @@ void cat2color(const char* cat, juce::Colour &col)
 
 //==============================================================================
 PluginEditor::PluginEditor(MachineEditor* ed, const char* id, const char* cat, PluginSelector *ps) :
-    ed(ed), pid(id), ps(ps), cat(cat), lastDirectory("none")
+    ed(ed), pid(id), ps(ps), cat(cat), lastDirectory("./")
 {
     cat2color(cat, col);
     col = col.withAlpha((uint8)30);
@@ -508,7 +508,7 @@ void PluginEditor::open_file_browser(juce::Button* button, const std::string& id
         lastDirectory : juce::File::getSpecialLocation(juce::File::userMusicDirectory), "*.wav", false);
 
     fc->launchAsync (juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles,
-                                            [this, id, button] (const juce::FileChooser& chooser) {
+                                            [this, id, button, fc] (const juce::FileChooser& chooser) {
         juce::String chosen;
         auto result = chooser.getURLResult();
         chosen << (result.isLocalFile() ? result.getLocalFile().getFullPathName()
@@ -519,6 +519,7 @@ void PluginEditor::open_file_browser(juce::Button* button, const std::string& id
             this->load_IR(id, button, chosen);
         }
         button->setToggleState(false, juce::dontSendNotification);
+        delete fc;
     });
 }
 

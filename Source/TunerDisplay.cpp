@@ -182,7 +182,10 @@ void TunerDisplay::draw_triangle(juce::Graphics& g, int x, int y, int w, int h, 
 
 void TunerDisplay::on_tuner_freq_changed() noexcept {
     freq = machine->get_tuner_freq();
+    juce::MessageManagerLock *mmLock;
+    mmLock = new juce::MessageManagerLock;
     repaint();
+    delete mmLock;
 }
 
 void TunerDisplay::on_ref_freq_changed(float value) noexcept {
@@ -196,7 +199,10 @@ void TunerDisplay::on_tunning_changed(int value) noexcept {
 
 void TunerDisplay::on_use_changed(bool value) noexcept {
     use = value;
+    juce::MessageManagerLock *mmLock;
+    mmLock = new juce::MessageManagerLock;
     repaint();
+    delete mmLock;
 }
 
 int TunerDisplay::get_tuner_temperament() noexcept {
