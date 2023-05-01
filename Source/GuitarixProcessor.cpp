@@ -119,8 +119,8 @@ GuitarixProcessor::GuitarixProcessor()
 	, mLoading(false)
 	, mPresetsVisible(false)
 	, currentPreset(-1)
-    , pgm_chg()
-    , bank_chg()
+	, pgm_chg()
+	, bank_chg()
 {
     out[0]=out[1]=0;
     
@@ -181,7 +181,7 @@ GuitarixProcessor::GuitarixProcessor()
 	for (gx_engine::ParamMap::iterator i = pmap.begin(); i != pmap.end(); ++i) {
 		connect_value_changed_signal(i->second, false);
 	}
-    switch_bank = settings->get_current_bank();
+	switch_bank = settings->get_current_bank();
 	settings->signal_rack_unit_order_changed().connect(
 		sigc::bind(sigc::mem_fun(*this, &GuitarixProcessor::on_rack_unit_changed), false));
 	pgm_chg.connect(sigc::mem_fun(this, &GuitarixProcessor::do_program_change));
@@ -427,7 +427,8 @@ void GuitarixProcessor::do_program_change(int pgm) {
         juce::MessageManagerLock *mmLock;
         mmLock = new juce::MessageManagerLock;
         load_preset(bank, f->get_name(pgm));
-        editor->load_preset_list();
+		if(editor)
+			editor->load_preset_list();
         delete mmLock;
     }
 }

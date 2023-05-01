@@ -40,7 +40,7 @@ GuitarixEditor::GuitarixEditor(GuitarixProcessor& p)
     ed_s(p, false, MachineEditor::mn_Stereo),
 	monoButton("MONO"), stereoButton("STEREO"),
     pluginButton("LV2 plugs"), presetFileMenu(""),
-    aboutButton("i"), tunerButton("TUNER"),
+    aboutButton("i"), tunerButton("TUNER"), onlineButton("Online"),
     topBox(),
     ml(),
     new_bank(""),
@@ -51,7 +51,6 @@ GuitarixEditor::GuitarixEditor(GuitarixProcessor& p)
 	audioProcessor.set_editor(this);
     
     //mIsVSTPlugin=audioProcessor.wrapperType==juce::AudioProcessor::WrapperType::wrapperType_VST3;
-    
     p.get_machine_jack(jack_r, machine, true);
     p.get_machine_jack(jack, machine, false);
     settings = &(machine->get_settings());
@@ -134,8 +133,14 @@ GuitarixEditor::GuitarixEditor(GuitarixProcessor& p)
     presetFileMenu.setBounds(tunerButton.getRight() + 8, 4, 250, texth);
     topBox.addAndMakeVisible(&presetFileMenu);
 
+	onlineButton.setComponentID("Online");
+	onlineButton.setBounds(presetFileMenu.getRight() + 8, 4, 20, texth);
+	onlineButton.changeWidthToFitText();
+	onlineButton.addListener(this);
+	topBox.addAndMakeVisible(onlineButton);
+
 	pluginButton.setComponentID("LV2PLUGS");
-	pluginButton.setBounds(presetFileMenu.getRight() + 8, 4, 20, texth);
+	pluginButton.setBounds(onlineButton.getRight() + 8, 4, 20, texth);
 	pluginButton.changeWidthToFitText();
 	pluginButton.addListener(this);
 	topBox.addAndMakeVisible(pluginButton);
@@ -290,6 +295,9 @@ void GuitarixEditor::buttonClicked(juce::Button * b)
         alertWindow.setUsingNativeTitleBar(true);
             
         alertWindow.runModalLoop();
+    }
+    else if (b == &onlineButton) {
+        on_online_preset();
     }
     else if (b == &pluginButton) {
         PopupMenu menu;
@@ -464,6 +472,164 @@ void GuitarixEditor::on_preset_select()
     if (!new_bank.empty() && !new_preset.empty())
         audioProcessor.load_preset(new_bank, new_preset);
     else on_preset_save();
+}
+
+void GuitarixEditor::read_online_preset_menu() {
+    ifstream is(audioProcessor.get_options()->get_online_config_filename());
+    olp.clear();
+    gx_system::JsonParser jp(&is);
+    try {
+	jp.next(gx_system::JsonParser::begin_array);
+	do {
+	    std::string NAME_;
+	    std::string FILE_;
+	    std::string INFO_;
+	    std::string AUTHOR_;
+	    jp.next(gx_system::JsonParser::begin_object);
+	    do {
+		jp.next(gx_system::JsonParser::value_key);
+		if (jp.current_value() == "name") {
+		    jp.read_kv("name", NAME_);
+		} else if (jp.current_value() == "description") {
+		    jp.read_kv("description", INFO_);
+		} else if (jp.current_value() == "author") {
+		    jp.read_kv("author", AUTHOR_);
+		} else if (jp.current_value() == "file") {
+		    jp.read_kv("file", FILE_);
+		} else {
+		    jp.skip_object();
+		}
+	    } while (jp.peek() == gx_system::JsonParser::value_key);
+	    jp.next(gx_system::JsonParser::end_object);
+	    INFO_ += "Author : " + AUTHOR_;
+	    olp.push_back(std::tuple<std::string,std::string,std::string>(NAME_,FILE_,INFO_));
+	} while (jp.peek() == gx_system::JsonParser::begin_object);
+    } catch (gx_system::JsonException& e) {
+	cerr << "JsonException: " << e.what() << ": '" << jp.current_value() << "'" << endl;
+	assert(false);
+    }
+}
+
+void GuitarixEditor::downloadPreset(std::string uri) {
+
+    std::string::size_type n = uri.find_last_of('/');
+    if (n != std::string::npos) {
+        std::string fn = uri.substr(n);
+        std::string ff = "/tmp"+fn;
+
+        if (download_file(uri, ff)) {
+            machine->bank_insert_uri(Glib::filename_to_uri(ff, "localhost"), false, 0);
+            machine->bank_check_reparse();
+            load_preset_list();
+        }
+    }
+}
+
+void GuitarixEditor::handleOnlineMenu(int choice, GuitarixEditor* ge){
+    if (choice > 0) {
+        std::vector<std::tuple<std::string,std::string,std::string> >::iterator it = ge->olp.begin()+choice -1;
+        //fprintf(stderr, "%i %s \n",choice, get<1>(*it).c_str());
+        ge->downloadPreset(get<1>(*it));
+    }
+}
+
+void GuitarixEditor::on_online_preset_select(int choice, GuitarixEditor* ge)
+{
+    if (choice > 0) {
+        std::vector<std::tuple<std::string,std::string,std::string> >::iterator it = ge->olp.begin()+choice -1;
+        juce::AlertWindow *w = new juce::AlertWindow("Download Online Preset", "", juce::AlertWindow::NoIcon);
+        w->setMessage(juce::String(get<2>(*it)));
+        w->addButton("Download", 1, juce::KeyPress(juce::KeyPress::returnKey, 0, 0));
+        w->addButton("Cancel", 0, juce::KeyPress(juce::KeyPress::escapeKey, 0, 0));
+
+        auto checkPresets = ([&, w, choice, ge](int result) {
+            if (result == 1) {
+                handleOnlineMenu(choice, ge);
+            }
+        });
+
+        auto callback = juce::ModalCallbackFunction::create(checkPresets);
+        w->enterModalState(true, callback, true);
+    }
+}
+
+void GuitarixEditor::create_online_preset_menu() {
+
+    static bool read_new = true;
+    if (read_new) {
+        read_online_preset_menu();
+        read_new = false;
+    }
+
+    juce::PopupMenu menu;
+    int i = 1;
+    for(std::vector<std::tuple<std::string,std::string,std::string> >::iterator it = olp.begin(); it != olp.end(); it++) {
+        menu.addItem(i, juce::String(get<0>(*it)));
+        i++;
+    }
+
+    menu.showMenuAsync (PopupMenu::Options()
+        .withTargetComponent(&onlineButton)
+        .withMaximumNumColumns(1),
+         ModalCallbackFunction::forComponent (on_online_preset_select, this));
+}
+
+bool GuitarixEditor::download_file(std::string from_uri, std::string to_path) {
+
+    curl_global_init(CURL_GLOBAL_DEFAULT);
+    CURL *curl = curl_easy_init();
+    CURLcode res;
+    FILE *out;
+    out = fopen(to_path.c_str(), "wb");
+
+    curl_easy_setopt(curl, CURLOPT_WRITEDATA, out);
+    curl_easy_setopt(curl, CURLOPT_URL, from_uri.c_str());
+    res = curl_easy_perform(curl);
+    if(CURLE_OK == res) {
+        char *ct = NULL;
+        res = curl_easy_getinfo(curl, CURLINFO_CONTENT_TYPE, &ct);
+        if (strstr(ct, "application/json")!= NULL ) {
+            res = CURLE_OK;
+        } else if (strstr(ct, "application/octet-stream")!= NULL) {
+            res = CURLE_OK;
+        } else {
+            res = CURLE_CONV_FAILED;
+        }
+    }
+    curl_easy_reset(curl);
+    fclose(out);
+    curl_easy_cleanup(curl);
+    curl_global_cleanup();
+    if(res != CURLE_OK) {
+        remove(to_path.c_str());
+        //gx_print_error( "download_file", Glib::ustring::compose("curl_easy_perform() failed: %1", curl_easy_strerror(res)));
+        return false;
+    }
+    return true;
+}
+
+void GuitarixEditor::on_online_preset()
+{
+    static bool read_new = true;
+    if (read_new) {
+        read_new = false;
+        juce::AlertWindow *w = new juce::AlertWindow("Download Online Preset List", "", juce::AlertWindow::NoIcon);
+        w->setMessage("Check for new online Presets?");
+        w->addButton("OK", 1, juce::KeyPress(juce::KeyPress::returnKey, 0, 0));
+        w->addButton("Cancel", 0, juce::KeyPress(juce::KeyPress::escapeKey, 0, 0));
+
+        auto checkPresets = ([&, w, this](int result) {
+            if (result == 1) {
+                download_file("https://musical-artifacts.com/artifacts.json?apps=guitarix", audioProcessor.get_options()->get_online_config_filename());
+            }
+            create_online_preset_menu();
+        });
+
+        auto callback = juce::ModalCallbackFunction::create(checkPresets);
+        w->enterModalState(true, callback, true);
+    } else {
+        create_online_preset_menu();
+    }
 }
 
 void GuitarixEditor::paint(juce::Graphics& g)

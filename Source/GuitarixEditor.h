@@ -23,6 +23,7 @@
 #include <glibmm.h>
 #include "PluginEditor.h"
 #include "guitarix.h"
+#include <curl/curl.h>
 
 namespace gx_jack { class GxJack; }
 namespace gx_engine { class GxMachine; class Parameter; class Plugin; class ParamMap;  }
@@ -151,7 +152,7 @@ private:
     gx_engine::GxMachine *machine;
     gx_preset::GxSettings *settings;
 
-	juce::TextButton monoButton, stereoButton, aboutButton, pluginButton, tunerButton /*, singleButton, multiButton, mute1Button, mute2Button*/;
+	juce::TextButton monoButton, stereoButton, aboutButton, pluginButton, tunerButton , onlineButton /*, singleButton, multiButton, mute1Button, mute2Button*/;
 	void buttonClicked(juce::Button* b) override;
     bool tuner_on;
 
@@ -166,7 +167,15 @@ private:
     std::string new_preset;
     void on_preset_save();
     void on_preset_select();
+    void on_online_preset();
     static void loadLV2PlugCallback(int i, GuitarixEditor* ge);
+    void downloadPreset(std::string uri);
+    void read_online_preset_menu();
+    static void handleOnlineMenu(int choice, GuitarixEditor* ge);
+    static void on_online_preset_select(int choice, GuitarixEditor* ge);
+    void create_online_preset_menu();
+    bool download_file(std::string from_uri, std::string to_path);
+    std::vector< std::tuple<std::string,std::string,std::string> > olp;
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(GuitarixEditor)
 };

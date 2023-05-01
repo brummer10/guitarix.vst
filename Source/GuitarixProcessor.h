@@ -128,12 +128,13 @@ public:
     void load_preset(std::string _bank, std::string _preset);
     void save_preset(std::string _bank, std::string _preset);
     void update_plugin_list(bool add);
+    gx_system::CmdlineOptions *get_options() { return options; }
 private:
 	bool mStereoMode, mMultiMode;
 	bool mMono1Mute, mMono2Mute;
 
-    GuitarixStart *gx;
-    gx_system::CmdlineOptions *options;
+	GuitarixStart *gx;
+	gx_system::CmdlineOptions *options;
 	gx_jack::GxJack *jack, *jack_r;
 	gx_engine::GxMachine *machine, *machine_r;
 	gx_engine::GxMachine *get_machine(bool right = false) { return right ? machine_r: machine; }
@@ -141,7 +142,7 @@ private:
 
 	void saveState(std::ostream &os, bool right);
 	void loadState(std::istream &is, bool right);
-	void do_program_change(int pgm);
+    void do_program_change(int pgm);
 	void do_bank_change(int pgm);
 	void cloneSettingsToMachineR();
 
@@ -155,7 +156,7 @@ private:
 	void on_rack_unit_changed(bool stereo, bool right);
 	sigc::signal<void,int> pgm_chg;
 	sigc::signal<void,int> bank_chg;
-    std::string switch_bank;
+	std::string switch_bank;
 	bool mLoading;
 
     int buffersize, quantum, delay, tdelay;
