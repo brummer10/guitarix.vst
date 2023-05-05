@@ -40,6 +40,8 @@ public:
     ~MachineEditor() override;
     std::vector<std::string> clist;
 
+    void get_host_menu_for_parameter(juce::AudioProcessorParameter* param);
+    void getParameterContext(const char* id);
     //==============================================================================
 
 	void createPluginEditors();
@@ -56,6 +58,7 @@ public:
 	void pluginMenuChanged(PluginEditor *ped, juce::ComboBox *c, bool stereo);
 	void updateMuteButton(juce::ToggleButton *b, const char* id);
 	void muteButtonClicked(juce::ToggleButton *b, const char* id);
+	void muteButtonContext(juce::ToggleButton *b, const char* id);
 	void addButtonClicked(PluginEditor *ped, bool stereo);
 	void removeButtonClicked(PluginEditor *ped, bool stereo);
 	void SetAlternateDouble(bool alternateDouble) {mAlternateDouble = alternateDouble;}
@@ -97,6 +100,7 @@ private:
 	std::list<ParListener*> editors;
 	PluginEditor inputEditor;
 	PluginEditor* tunerEditor;
+	GuitarixProcessor& audioProcessor;
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MachineEditor)
 };

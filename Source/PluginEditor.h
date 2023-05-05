@@ -27,6 +27,25 @@ namespace gx_system { class CmdlineOptions; }
 class MachineEditor;
 class PluginSelector;
 
+class MuteButton : public juce::ToggleButton
+{
+public:
+    MuteButton() : juce::ToggleButton() {}
+
+    std::function<void()> rightClick;
+
+    void mouseUp(const juce::MouseEvent& e) override {
+        if (e.mods.isRightButtonDown()) {
+            rightClick();
+            return;
+        }
+        setToggleState(!getToggleState(), juce::sendNotification);
+    }
+
+private:
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MuteButton)
+};
+
 class ParListener
 {
 public:
@@ -63,6 +82,7 @@ public:
 	void on_param_value_changed(gx_engine::Parameter *p) override;
     void subscribe_timer(std::string id);
 
+    void getParameterContext(const char* id);
     gx_system::CmdlineOptions& get_options();
 
 private:
@@ -102,6 +122,7 @@ public:
 private:
 	void pluginMenuChanged();
 	void muteButtonClicked();
+	void muteButtonContext();
 	void addButtonClicked();
 	void removeButtonClicked();
 
@@ -110,7 +131,7 @@ private:
 	MachineEditor *ed;
 	PluginEditor *ped;
 	juce::ComboBox combo;
-	juce::ToggleButton mute;
+	MuteButton mute;
 	juce::TextButton add, remove;
 
 	std::string pid;

@@ -47,6 +47,29 @@ const char* get_label(const char *sw_type) {
     else return "";
 }
 
+// get host context Menu on right click if available
+
+void AutoSlider::mouseUp (const juce::MouseEvent& e)
+{
+    if (e.mods.isRightButtonDown())
+        ed->getParameterContext(id);
+}
+
+void SpinBox::mouseUp (const juce::MouseEvent& e)
+{
+    if (e.mods.isRightButtonDown())
+        ed->getParameterContext(id);
+}
+
+void AutoButton::mouseUp (const juce::MouseEvent& e)
+{
+    if (e.mods.isRightButtonDown()) {
+        ed->getParameterContext(id);
+        return;
+    }
+    setToggleState(!getToggleState(), juce::sendNotification);
+}
+
 //==============================================================================
 JuceUiBuilder::JuceUiBuilder(PluginEditor *ed, PluginDef *pd, juce::Rectangle<int> *rect)
 	: UiBuilder() {
@@ -132,7 +155,7 @@ void JuceUiBuilder::create_slider(const char *id, const char *label, juce::Slide
 	if (inHide) return;
 
 	gx_engine::Parameter *p = ed->get_parameter(id);
-	
+
 	if (p == 0) 
 		return;
 
@@ -148,23 +171,21 @@ void JuceUiBuilder::create_slider(const char *id, const char *label, juce::Slide
 
 	additem(l);
 
-	juce::Slider *s = new juce::Slider(label);
+    AutoSlider *s = new AutoSlider(label, ed, id);
+    s->setComponentID(id);
+    s->setSliderStyle(style);
+    s->setTextBoxStyle(juce::Slider::TextBoxBelow, false, 40, texth);
+    //s->setPopupDisplayEnabled(true, false, ed);
+    //s->setTextValueSuffix(label);
+    s->setBounds(edx+(ww-w)/2, edy + texth, w, h + texth);
+    lastslider = s;
+    s->setRange(p->getLowerAsFloat(), p->getUpperAsFloat(), p->getStepAsFloat());
+    if (p->isFloat()) s->setValue(p->getFloat().get_value(), juce::dontSendNotification);
+    else if (p->isInt()) s->setValue(p->getInt().get_value(), juce::dontSendNotification);
+    //s->setTooltip(p->desc());
 
-	s->setComponentID(id);
-	s->setSliderStyle(style);
-	s->setTextBoxStyle(juce::Slider::TextBoxBelow, false, 40, texth);
-	//s->setPopupDisplayEnabled(true, false, ed);
-	//s->setTextValueSuffix(label);
-	s->setBounds(edx+(ww-w)/2, edy + texth, w, h + texth);
-
-	lastslider = s;
-	s->setRange(p->getLowerAsFloat(), p->getUpperAsFloat(), p->getStepAsFloat());
-	if (p->isFloat()) s->setValue(p->getFloat().get_value(), juce::dontSendNotification);
-	else if (p->isInt()) s->setValue(p->getInt().get_value(), juce::dontSendNotification);
-	//s->setTooltip(p->desc());
-
-	s->addListener(ed);
-	additem(s);
+    s->addListener(ed);
+    additem(s);
 
 	edx += h + 2 * texth;
 	closebox();
@@ -190,7 +211,7 @@ void JuceUiBuilder::create_spin_box(const char *id, const char *label, juce::Sli
 
 	additem(l);
 
-	SpinBox *s = new SpinBox(label);
+	SpinBox *s = new SpinBox(label, ed, id);
 
 	s->setComponentID(id);
     s->setSliderSnapsToMousePosition(false);
@@ -286,7 +307,7 @@ void JuceUiBuilder::create_text_button(const char *id, const char *label) {
 
 	additem(l);
 
-	juce::ToggleButton *b = new juce::ToggleButton("");
+	AutoButton *b = new AutoButton("", ed, id);
 
 	b->setComponentID(id);
 	b->setBounds(edx+(ww-w)/2, edy + texth, w, h + texth);
@@ -309,7 +330,7 @@ void JuceUiBuilder::create_button(const char *id, const char *label) {
 
 	gx_engine::Parameter *p = ed->get_parameter(id);
 
-	juce::ToggleButton *b = new juce::ToggleButton(label);
+	AutoButton *b = new AutoButton(label, ed, id);
 
 	b->setComponentID(id);
 	b->setBounds(0, 0, 60, texth);

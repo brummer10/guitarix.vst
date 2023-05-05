@@ -58,6 +58,9 @@ PluginEditor::PluginEditor(MachineEditor* ed, const char* id, const char* cat, P
 
 gx_engine::GxMachine *PluginEditor::get_machine() { return ed->machine;}
 
+void PluginEditor::getParameterContext(const char* id) {
+    ed->getParameterContext(id);
+}
 
 void PluginEditor::recreate(const char *id, const char *cat, int edx, int edy, int &w, int &h)
 {
@@ -734,6 +737,7 @@ PluginSelector::PluginSelector(MachineEditor* ed, bool stereo, const char* id, c
         mute.setClickingTogglesState(true);
         ed->updateMuteButton(&mute, id);
         mute.onClick = [this] { muteButtonClicked(); };
+        mute.rightClick = [this] { muteButtonContext(); };
         //mute.setComponentID(juce::String(id) + ".on_off");
         addAndMakeVisible(&mute);
     }
@@ -744,6 +748,7 @@ PluginSelector::PluginSelector(MachineEditor* ed, bool stereo, const char* id, c
         mute.setClickingTogglesState(true);
         ed->updateMuteButton(&mute, "ui.racktuner");
         mute.onClick = [this, ed] { ed->muteButtonClicked(&mute, "ui.racktuner");; };
+        mute.rightClick = [this, ed] { ed->muteButtonClicked(&mute, "ui.racktuner");; };
         //mute.setComponentID(juce::String("ui.racktuner"));
         addAndMakeVisible(&mute);
         plus = false;
@@ -791,6 +796,11 @@ void PluginSelector::muteButtonClicked()
     ed->SetAlternateDouble(ModifierKeys::getCurrentModifiers().testFlags(ModifierKeys::shiftModifier));
     ed->muteButtonClicked(&mute, pid.c_str());
     ed->SetAlternateDouble(false);
+}
+
+void PluginSelector::muteButtonContext()
+{
+    ed->muteButtonContext(&mute, pid.c_str());
 }
 
 void PluginSelector::addButtonClicked()

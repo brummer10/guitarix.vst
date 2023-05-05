@@ -86,9 +86,11 @@ public:
 	void process_midi(juce::MidiBuffer& midiMessages);
 	//==============================================================================
 	juce::AudioProcessorEditor* createEditor() override;
+	juce::AudioProcessorEditor* editorIn;
+	juce::AudioProcessorEditor* getEditor() ;
 	bool hasEditor() const override;
 
-	void set_editor(GuitarixEditor* ed) { editor = ed; timer.set_editor(ed); }
+	void set_editor(GuitarixEditor* ed) { editor = ed; timer.set_editor(ed); compareParameters(); }
 	double scale;
 	//==============================================================================
 	const juce::String getName() const override;
@@ -129,6 +131,7 @@ public:
     void save_preset(std::string _bank, std::string _preset);
     void update_plugin_list(bool add);
     gx_system::CmdlineOptions *get_options() { return options; }
+    juce::RangedAudioParameter* findParamForID(const char *id);
 private:
 	bool mStereoMode, mMultiMode;
 	bool mMono1Mute, mMono2Mute;
@@ -168,6 +171,9 @@ private:
 	PluginUpdateTimer timer;
 
 	juce::AudioParameterBool* par_stereo;
+    std::map<int, juce::RangedAudioParameter*> parameterMap;
+    void forwardParameters();
+    void compareParameters();
 	void parameterValueChanged(int parameterIndex, float newValue) override;
 	void parameterGestureChanged(int, bool) override {}
 

@@ -167,9 +167,11 @@ GuitarixProcessor::GuitarixProcessor()
 	jack_r->buffersize_callback(512);
 	jack_r->srate_callback((int)22050);
 
-	par_stereo = new AudioParameterBool({"stereo",1}, "Stereo In", false);
+	par_stereo = new AudioParameterBool(juce::ParameterID("stereo",1), "Stereo In", false);
 	par_stereo->addListener(this);
 	addParameter(par_stereo);
+    parameterMap.emplace(par_stereo->getParameterIndex(), par_stereo);
+	forwardParameters();
 	gx_preset::GxSettings *settings = &(machine->get_settings());
 	gx_engine::ParamMap& pmap = settings->get_param();
     gx_engine::BoolParameter& mStereo = pmap.reg_par(
@@ -199,7 +201,6 @@ GuitarixProcessor::GuitarixProcessor()
 	*/
 
 	refreshPrograms();
-
 	timer.set_machine(machine, machine_r);
 	timer.startTimer(100);
 }
@@ -241,10 +242,102 @@ GuitarixProcessor::~GuitarixProcessor()
     delete gx;
 }
 
+void GuitarixProcessor::compareParameters() {
+    gx_preset::GxSettings *settings = &(machine->get_settings());
+    gx_engine::ParamMap& pmap = settings->get_param();
+    for (gx_engine::ParamMap::iterator i = pmap.begin(); i != pmap.end(); ++i) {
+        gx_engine::Parameter *p = i->second;
+        juce::RangedAudioParameter* para = findParamForID(p->id().c_str());
+        if (para) {
+            float val = para->getValue();
+            float newValue = 0.0;
+            if (p->isFloat()) {
+                newValue = (p->getFloat().get_value() -
+                    p->getLowerAsFloat()) / (p->getUpperAsFloat() - p->getLowerAsFloat());
+            } else if (p->isInt()) {
+                newValue = (float(p->getInt().get_value()) -
+                    p->getLowerAsFloat()) / (p->getUpperAsFloat() - p->getLowerAsFloat());
+            } else if (p->isBool()) {
+                newValue = float(p->getBool().get_value());
+            }
+            if (std::fabs(val - newValue) > 0.001)
+                para->setValueNotifyingHost(newValue);
+       }
+    }
+}
+
+juce::RangedAudioParameter* GuitarixProcessor::findParamForID(const char *id) {
+    for (const auto& [key, param] : parameterMap) {
+        if (param->getParameterID() == id) return param;
+    }
+    return nullptr;
+}
+
+static inline bool endswith(const std::string& s, int n, const char *t) {
+    return s.compare(std::max<int>(0, s.size()-n), n, t) == 0;
+}
+
+void GuitarixProcessor::forwardParameters() {
+    gx_preset::GxSettings *settings = &(machine->get_settings());
+    gx_engine::ParamMap& pmap = settings->get_param();
+    int a = 0;
+    for (gx_engine::ParamMap::iterator i = pmap.begin(); i != pmap.end(); ++i) {
+        gx_engine::Parameter *p = i->second;
+        if (p->id().find("engine") != std::string::npos) continue;
+        else if (p->id().find("system") != std::string::npos) continue;
+        else if (endswith(p->id(), 3, ".pp")) continue;
+        else if (!p->isControllable() || !p->isSavable() || p->isOutput() || p->get_blocked()) continue;
+        else if (p->isInt()) {
+            juce::AudioParameterInt *b = new juce::AudioParameterInt(juce::ParameterID(p->id(),1), p->group() + ":" + p->name(),
+                p->getLowerAsFloat(), p->getUpperAsFloat(), p->getInt().get_value());
+            b->addListener(this);
+            addParameter(b);
+            parameterMap.emplace(b->getParameterIndex(), b);
+            a++;
+        } else if (p->isBool()) {
+            juce::AudioParameterBool *b = new juce::AudioParameterBool(juce::ParameterID(p->id(),1),  p->group() + ":" + p->name(),
+                p->getBool().get_value());
+            b->addListener(this);
+            addParameter(b);
+            parameterMap.emplace(b->getParameterIndex(), b);
+            a++;
+        } else if (p->isFloat()) {
+            juce::AudioParameterFloat *b = new juce::AudioParameterFloat(juce::ParameterID(p->id(),1),  p->group() + ":" + p->name(),
+                p->getLowerAsFloat(), p->getUpperAsFloat(), p->getFloat().get_value());
+            b->addListener(this);
+            addParameter(b);
+            parameterMap.emplace(b->getParameterIndex(), b);
+            a++;
+        } else if (p->isString()) {
+            //fprintf(stderr, "string %s\n", i->first.c_str());
+        } else if (dynamic_cast<gx_engine::JConvParameter*>(p) != 0) {
+            //fprintf(stderr, "jconv %s\n", i->first.c_str());
+        } else if (dynamic_cast<gx_engine::SeqParameter*>(p) != 0) {
+            //fprintf(stderr, "seq %s\n", i->first.c_str());
+        }
+	}
+    //fprintf(stderr, "%i\n", a);
+}
+
 void GuitarixProcessor::parameterValueChanged(int parameterIndex, float newValue)
 {
-	mStereoMode = newValue > 0.5;
-	timer.update_mode(); 
+    auto* parameter = parameterMap.find (parameterIndex)->second;
+    if (parameter->getParameterID() == "stereo") mStereoMode = newValue > 0.5;
+    else {
+        gx_preset::GxSettings *settings = &((right?machine:machine_r)->get_settings());
+        gx_engine::ParamMap& param = settings->get_param();
+        gx_engine::Parameter& p1 = param[parameter->getParameterID().toStdString()];
+        if (&p1) {
+            if (p1.isFloat())
+                p1.getFloat().set(p1.getLowerAsFloat() +(newValue * (p1.getUpperAsFloat() - p1.getLowerAsFloat())));
+            else if (p1.isInt())
+                p1.getInt().set(int(p1.getLowerAsFloat() +(newValue * (p1.getUpperAsFloat() - p1.getLowerAsFloat()))));
+            else if (p1.isBool())
+                p1.getBool().set(newValue > 0.5);
+            //on_param_value_changed(&p1, false);
+        }
+    }
+    timer.update_mode();
 }
 
 void GuitarixProcessor::SetStereoMode(bool on)
@@ -286,13 +379,17 @@ void GuitarixProcessor::on_param_value_changed(gx_engine::Parameter *p, bool rig
 		gx_preset::GxSettings *settings = &((right?machine:machine_r)->get_settings());
 		gx_engine::ParamMap& param = settings->get_param();
 		gx_engine::Parameter& p1 = param[p->id()];
+        juce::RangedAudioParameter* para = findParamForID(p->id().c_str());
+        float newValue = 0.0f;
 		p1.set_blocked(true);
-		if (p1.isFloat())
-			p1.getFloat().set(p->getFloat().get_value());
-		else if (p1.isInt())
+		if (p1.isFloat()) {
+            newValue = p->getFloat().get_value();
+			p1.getFloat().set(newValue);
+		} else if (p1.isInt()) {
+            newValue = float(p->getInt().get_value());
 			p1.getInt().set(p->getInt().get_value());
-		else if (p1.isBool())
-		{
+		} else if (p1.isBool()) {
+            newValue = float(p->getBool().get_value());
 			p1.getBool().set(p->getBool().get_value());
 			if (p->id().substr(0, 3) == "ui.")
 			{
@@ -318,6 +415,13 @@ void GuitarixProcessor::on_param_value_changed(gx_engine::Parameter *p, bool rig
 			pp1->set(pp->get_value());
 		}
 		p1.set_blocked(false);
+        // forward internal value changes to the host parameters
+        if (para) {
+            if (p1.isBool()) para->setValueNotifyingHost(newValue);
+            else if ((p1.isInt()) || (p1.isFloat()))
+                para->setValueNotifyingHost((newValue -
+                    p1.getLowerAsFloat()) / (p1.getUpperAsFloat() - p1.getLowerAsFloat()));
+        }
 	}
 	);
 }
@@ -1070,6 +1174,11 @@ bool GuitarixProcessor::hasEditor() const
 juce::AudioProcessorEditor* GuitarixProcessor::createEditor()
 {
 	return new GuitarixEditor(*this);
+}
+
+juce::AudioProcessorEditor* GuitarixProcessor::getEditor()
+{
+	return editor;
 }
 
 //==============================================================================

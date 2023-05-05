@@ -676,7 +676,8 @@ MachineEditor::MachineEditor(GuitarixProcessor& p, bool right, MonoT mono) :
 	mRight(right),
 	mMono(mono),
 	mAlternateDouble(false),
-    tunerIsVisible(false)
+    tunerIsVisible(false),
+    audioProcessor(p)
 {
 	p.get_machine_jack(jack, machine, right);
 	settings = &(machine->get_settings());
@@ -1205,4 +1206,27 @@ gx_engine::Parameter* MachineEditor::get_parameter(const char* pid) {
 	if (param.hasId(id))
 		return &param[id];
 	return 0;
+}
+
+//==============Get host provided context menu =========================
+
+void MachineEditor::get_host_menu_for_parameter(juce::AudioProcessorParameter* param) {
+    if (auto* c = audioProcessor.getEditor()->getHostContext())
+        if (auto menuInfo = c->getContextMenuForParameter (param))
+            menuInfo->getEquivalentPopupMenu().showMenuAsync(
+                juce::PopupMenu::Options{}.withTargetComponent(this).withMousePosition());
+}
+
+void MachineEditor::getParameterContext(const char* id) {
+    juce::RangedAudioParameter* param = audioProcessor.findParamForID(id);
+    if (param) get_host_menu_for_parameter(param);
+}
+
+void MachineEditor::muteButtonContext(juce::ToggleButton *b, const char* id)
+{
+	gx_engine::Plugin *pl = jack->get_engine().pluginlist.find_plugin(id);
+	if (!pl) return;
+
+	juce::RangedAudioParameter* param = audioProcessor.findParamForID(pl->id_on_off().c_str());
+    if (param) get_host_menu_for_parameter(param);
 }

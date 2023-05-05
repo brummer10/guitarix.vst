@@ -46,13 +46,42 @@ private:
 	float level = -60.f;
 };
 
+class AutoButton : public juce::ToggleButton
+{
+public:
+    AutoButton(const char *label, PluginEditor *ed_, const char* id_)
+    : ed (ed_), id (id_), juce::ToggleButton(label){}
+
+    void mouseUp (const juce::MouseEvent& e) override;
+
+private:
+    PluginEditor *ed;
+    const char* id;
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AutoButton)
+};
+
+class AutoSlider : public juce::Slider
+{
+public:
+    AutoSlider(const char *label, PluginEditor *ed_, const char* id_)
+    : ed (ed_), id (id_), juce::Slider(label){}
+
+    void mouseUp (const juce::MouseEvent& e) override;
+
+private:
+    PluginEditor *ed;
+    const char* id;
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AutoSlider)
+};
+
 class SpinBox : public juce::Slider
 {
 public:
-    SpinBox(const char *label) :juce::Slider(label){}
-   ~SpinBox(){}
+    SpinBox(const char *label, PluginEditor *ed_, const char* id_)
+    : ed (ed_), id (id_), juce::Slider(label){}
 
     void setSnappingVal(float val) noexcept { m_snapVal = val; };
+    void mouseUp (const juce::MouseEvent& e) override;
     void mouseWheelMove(const juce::MouseEvent& e, const juce::MouseWheelDetails& wheel) override{
         juce::MouseWheelDetails w(wheel);
         w.deltaY = wheel.deltaY > 0 ? m_snapVal : -m_snapVal;
@@ -61,7 +90,8 @@ public:
 
 private:
     float m_snapVal{0.001f};
-
+    PluginEditor *ed;
+    const char* id;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SpinBox)
 };
 
