@@ -171,7 +171,6 @@ GuitarixProcessor::GuitarixProcessor()
 	par_stereo->addListener(this);
 	addParameter(par_stereo);
     parameterMap.emplace(par_stereo->getParameterIndex(), par_stereo);
-	forwardParameters();
 	gx_preset::GxSettings *settings = &(machine->get_settings());
 	gx_engine::ParamMap& pmap = settings->get_param();
     gx_engine::BoolParameter& mStereo = pmap.reg_par(
@@ -201,22 +200,40 @@ GuitarixProcessor::GuitarixProcessor()
 	*/
 
 	refreshPrograms();
+    sel_preset = new juce::AudioParameterChoice(juce::ParameterID("selPreset",1), "Preset:Select", choices, 0);
+	sel_preset->addListener(this);
+	addParameter(sel_preset);
+    parameterMap.emplace(sel_preset->getParameterIndex(), sel_preset);
+
+	forwardParameters();
 	timer.set_machine(machine, machine_r);
-	timer.startTimer(100);
+    timer.newProgram.store(0, std::memory_order_release);
+    timer.oldProgram.store(0, std::memory_order_release);
+	timer.program_chg.connect(sigc::mem_fun(this, &GuitarixProcessor::setCurrentProgram));
+
+	timer.startTimer(1,100);
+	timer.startTimer(2,1000);
 }
 
-void PluginUpdateTimer::timerCallback()
+void PluginUpdateTimer::timerCallback(int id)
 {
     const ScopedLock lock (timer_cs);
-	if (machine)
-		machine->timerUpdate();
-	if (machine_r)
-		machine_r->timerUpdate();
-	if (mUpdateMode)
-	{
-		mUpdateMode = false;
-		if (editor) editor->updateModeButtons();
-	}
+    if (id == 1) {
+        if (machine)
+            machine->timerUpdate();
+        if (machine_r)
+            machine_r->timerUpdate();
+        if (mUpdateMode)
+        {
+            mUpdateMode = false;
+            if (editor) editor->updateModeButtons();
+        }
+    } else if (id == 2) {
+        if(newProgram.load(std::memory_order_acquire) !=
+                oldProgram.load(std::memory_order_acquire)) {
+            program_chg(newProgram.load(std::memory_order_acquire));
+        }
+    }
 }
 
 GuitarixProcessor::~GuitarixProcessor()
@@ -235,7 +252,8 @@ GuitarixProcessor::~GuitarixProcessor()
 	
 	{
     const ScopedLock lock (timer.timer_cs);
-    timer.stopTimer();
+    timer.stopTimer(1);
+    timer.stopTimer(2);
     }
     delete out[0]; out[0]=0;
     delete out[1]; out[1]=0;
@@ -323,6 +341,9 @@ void GuitarixProcessor::parameterValueChanged(int parameterIndex, float newValue
 {
     auto* parameter = parameterMap.find (parameterIndex)->second;
     if (parameter->getParameterID() == "stereo") mStereoMode = newValue > 0.5;
+    else if (parameter->getParameterID() == "byps") return; // not implemented
+    else if (parameter->getParameterID() == "selPreset")
+        timer.newProgram.store(int(newValue * presets.size()), std::memory_order_release);
     else {
         gx_preset::GxSettings *settings = &((right?machine:machine_r)->get_settings());
         gx_engine::ParamMap& param = settings->get_param();
@@ -506,8 +527,16 @@ void GuitarixProcessor::load_preset(std::string _bank, std::string _preset) {
     bool stereo = mStereoMode;
     SetStereoMode(false);
     gx->gx_load_preset(machine, _bank.c_str(), _preset.c_str());
+    timer.oldProgram.store(int(getProgramsIndexValue() * presets.size()), std::memory_order_release);
 	if(editor)
 		editor->createPluginEditors();
+    juce::RangedAudioParameter* param = findParamForID("selPreset");
+    if (param) {
+        float val = param->getValue();
+        float newValue = getProgramsIndexValue();
+        if (std::fabs(val - newValue) > 0.001)
+            param->setValueNotifyingHost(newValue);
+    }
     SetStereoMode(stereo);
 }
 
@@ -635,6 +664,38 @@ double GuitarixProcessor::getTailLengthSeconds() const
     return 0.0;
 }
 
+float GuitarixProcessor::getProgramsIndexValue() {
+	gx_preset::GxSettings* settings = &(machine->get_settings());
+
+	std::string bp;
+	std::string bank;
+	std::string preset;
+	if (settings->setting_is_preset()) {
+		bank = settings->get_current_bank();
+		preset = settings->get_current_name();
+	} else {
+		bank = "";
+		preset = "";
+        return 0.0;
+	}
+
+    int i = 0;
+	gx_system::PresetBanks* bb = &settings->banks;
+	if (bb)
+		for (auto b = bb->begin(); b != bb->end(); ++b)
+		{
+			gx_system::PresetFile* pp = settings->banks.get_file(b->get_name());
+			if (pp) {
+				for (auto p = pp->begin(); p != pp->end(); ++p) {
+					if (b->get_name().raw() == bank && p->name.raw() == preset)
+						return float(float(i)/ float(presets.size() - 1));
+                        i++;
+				}
+            }
+		}
+    return 0.0;
+}
+
 void GuitarixProcessor::refreshPrograms()
 {
 	gx_preset::GxSettings* settings = &(machine->get_settings());
@@ -664,6 +725,7 @@ void GuitarixProcessor::refreshPrograms()
 				for (auto p = pp->begin(); p != pp->end(); ++p)
 				{
 					int idx = bi * 1000 + (pi++) + 1;
+                    choices.add(p->name.raw());
 					presets.push_back(make_pair(b->get_name().raw(),p->name.raw()));
 					if (b->get_name().raw() == bank && p->name.raw() == preset)
 						currentPreset = presets.size() - 1;//sel = idx;
@@ -701,18 +763,15 @@ void GuitarixProcessor::changeProgramName(int index, const juce::String& newName
 }
 
 void GuitarixProcessor::setCurrentProgram (int index)
-{/*
+{
 	if (index < 0 || index >= presets.size()) return;
 
-	gx_preset::GxSettings* settings = &(machine->get_settings());
-	gx_system::PresetBanks* bb = &settings->banks;
-	if (!bb) return;
-	gx_system::PresetFile* pf = bb->get_file(presets[index].first);
-	if (pf)
-		settings->load_preset(pf, presets[index].second);
+    load_preset(presets[index].first, presets[index].second);
 
-	if(editor)
-		editor->createPluginEditors();*/
+	if(editor) {
+        editor->load_preset_list();
+		editor->createPluginEditors();
+    }
 }
 
 //==============================================================================

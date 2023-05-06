@@ -51,15 +51,18 @@ private:
     static gx_system::CmdlineOptions *options;
 };
 
-class PluginUpdateTimer : public juce::Timer
+class PluginUpdateTimer : public juce::MultiTimer
 {
 public:
-	PluginUpdateTimer() : machine(0), editor(0), mUpdateMode(false) {}
+	PluginUpdateTimer() : machine(0), editor(0), mUpdateMode(false), program_chg() {}
 	void set_machine(gx_engine::GxMachine *m, gx_engine::GxMachine *m_r) { machine = m; machine_r = m_r; }
 	void set_editor(GuitarixEditor* ed) { editor = ed; }
 	void update_mode() { mUpdateMode = true; }
-	void timerCallback() override;
+	void timerCallback(int id) override;
     juce::CriticalSection timer_cs;
+    std::atomic<int> newProgram;
+    std::atomic<int> oldProgram;
+    sigc::signal<void,int> program_chg;
 
 private:
 	gx_engine::GxMachine *machine, *machine_r;
@@ -171,12 +174,15 @@ private:
 	PluginUpdateTimer timer;
 
 	juce::AudioParameterBool* par_stereo;
+	juce::AudioParameterChoice* sel_preset;
+    juce::StringArray choices;
     std::map<int, juce::RangedAudioParameter*> parameterMap;
     void forwardParameters();
     void compareParameters();
 	void parameterValueChanged(int parameterIndex, float newValue) override;
 	void parameterGestureChanged(int, bool) override {}
 
+    float getProgramsIndexValue();
 	juce::String currentFile;
 	juce::File defaultPath;
 

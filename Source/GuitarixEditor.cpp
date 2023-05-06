@@ -130,6 +130,7 @@ GuitarixEditor::GuitarixEditor(GuitarixProcessor& p)
 	updateModeButtons();
     load_preset_list();
     presetFileMenu.onChange = [this] { on_preset_select(); };
+    presetFileMenu.rightClick = [this] { ed.presetFileMenuContext(); };
     presetFileMenu.setBounds(tunerButton.getRight() + 8, 4, 250, texth);
     topBox.addAndMakeVisible(&presetFileMenu);
 
@@ -1228,5 +1229,10 @@ void MachineEditor::muteButtonContext(juce::ToggleButton *b, const char* id)
 	if (!pl) return;
 
 	juce::RangedAudioParameter* param = audioProcessor.findParamForID(pl->id_on_off().c_str());
+    if (param) get_host_menu_for_parameter(param);
+}
+
+void MachineEditor::presetFileMenuContext() {
+	juce::RangedAudioParameter* param = audioProcessor.findParamForID("selPreset");
     if (param) get_host_menu_for_parameter(param);
 }

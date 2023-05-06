@@ -59,6 +59,7 @@ public:
 	void updateMuteButton(juce::ToggleButton *b, const char* id);
 	void muteButtonClicked(juce::ToggleButton *b, const char* id);
 	void muteButtonContext(juce::ToggleButton *b, const char* id);
+    void presetFileMenuContext();
 	void addButtonClicked(PluginEditor *ped, bool stereo);
 	void removeButtonClicked(PluginEditor *ped, bool stereo);
 	void SetAlternateDouble(bool alternateDouble) {mAlternateDouble = alternateDouble;}
@@ -127,6 +128,23 @@ private:
     float level = -60.f;
 };
 
+class PresetSelect: public juce::ComboBox
+{
+public:
+    PresetSelect(const char *label) : juce::ComboBox(label) {}
+    std::function<void()> rightClick;
+
+    void mouseUp(const juce::MouseEvent& e) override {
+        if (e.mods.isRightButtonDown()) {
+            rightClick();
+            return;
+        }
+    }
+
+private:
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PresetSelect)
+};
+
 //==============================================================================
 class GuitarixEditor : public juce::AudioProcessorEditor, public juce::Button::Listener, public juce::MultiTimer
 {
@@ -160,7 +178,7 @@ private:
 	void buttonClicked(juce::Button* b) override;
     bool tuner_on;
 
-	juce::ComboBox presetFileMenu;
+	PresetSelect presetFileMenu;
     HorizontalMeter meters[4];
     juce::Component topBox;
     gx_system::PresetFile* get_bank(const std::string& id);
