@@ -278,8 +278,11 @@ void GuitarixProcessor::compareParameters() {
             } else if (p->isBool()) {
                 newValue = float(p->getBool().get_value());
             }
-            if (std::fabs(val - newValue) > 0.001)
+            if (std::fabs(val - newValue) > 0.001) {
+                para->beginChangeGesture();
                 para->setValueNotifyingHost(newValue);
+                para->endChangeGesture();
+            }
        }
     }
 }
@@ -339,7 +342,9 @@ void GuitarixProcessor::forwardParameters() {
 
 void GuitarixProcessor::parameterValueChanged(int parameterIndex, float newValue)
 {
-    auto* parameter = parameterMap.find (parameterIndex)->second;
+    auto ii = parameterMap.find (parameterIndex);
+    if (ii == parameterMap.end()) return; // parameter is not in list
+    auto* parameter = ii->second;
     if (parameter->getParameterID() == "stereo") mStereoMode = newValue > 0.5;
     else if (parameter->getParameterID() == "byps") return; // not implemented
     else if (parameter->getParameterID() == "selPreset")
@@ -438,10 +443,12 @@ void GuitarixProcessor::on_param_value_changed(gx_engine::Parameter *p, bool rig
 		p1.set_blocked(false);
         // forward internal value changes to the host parameters
         if (para) {
+            para->beginChangeGesture();
             if (p1.isBool()) para->setValueNotifyingHost(newValue);
             else if ((p1.isInt()) || (p1.isFloat()))
                 para->setValueNotifyingHost((newValue -
                     p1.getLowerAsFloat()) / (p1.getUpperAsFloat() - p1.getLowerAsFloat()));
+            para->endChangeGesture();
         }
 	}
 	);
@@ -534,8 +541,11 @@ void GuitarixProcessor::load_preset(std::string _bank, std::string _preset) {
     if (param) {
         float val = param->getValue();
         float newValue = getProgramsIndexValue();
-        if (std::fabs(val - newValue) > 0.001)
+        if (std::fabs(val - newValue) > 0.001) {
+            param->beginChangeGesture();
             param->setValueNotifyingHost(newValue);
+            param->endChangeGesture();
+        }
     }
     SetStereoMode(stereo);
 }

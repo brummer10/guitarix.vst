@@ -456,7 +456,7 @@ void JuceUiBuilder::create_ir_combo(const char *id, const char *label) {
 		c->setSelectedId(sel, juce::dontSendNotification);
 
 	//c->setTooltip(label);
-	c->setBounds(edx, edy, 240, texth);
+	c->setBounds(edx, edy, 220, texth);
 	edy += texth;
 	c->setComponentID(id);
 	c->addListener(ed);
@@ -710,7 +710,7 @@ void JuceUiBuilder::create_feedback_switch_(const char *sw_type, const char * id
 }
 
 void JuceUiBuilder::create_fload_switch_(const char *sw_type, const char * id, const char * idf) {
-    if (id) create_fload_button(id, idf, 240, texth+4);
+    if (id) create_fload_button(id, idf, 220, texth+4);
 }
 
 void JuceUiBuilder::create_switch_(const char *sw_type, const char * id, const char *label) {

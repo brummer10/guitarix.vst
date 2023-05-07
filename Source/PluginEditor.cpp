@@ -48,7 +48,7 @@ void cat2color(const char* cat, juce::Colour &col)
 
 //==============================================================================
 PluginEditor::PluginEditor(MachineEditor* ed, const char* id, const char* cat, PluginSelector *ps) :
-    ed(ed), pid(id), ps(ps), cat(cat), lastDirectory("./")
+    ed(ed), pid(id), ps(ps), cat(cat), lastDirectory(juce::File::getSpecialLocation(juce::File::userMusicDirectory))
 {
     cat2color(cat, col);
     col = col.withAlpha((uint8)30);
