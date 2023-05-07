@@ -56,12 +56,6 @@ ifndef CONFIG
   CONFIG=Release
 endif
 
-#@defines
-PREFIX ?= /usr
-SHARE_DIR ?= $(PREFIX)/share
-IR_DIR ?= $(SHARE_DIR)/gx_head/sounds/
-CONFIG_H := $(shell cat config.h 2>/dev/null | grep GX_SOUND_DIR | grep -oP '[^"]*"\K[^"]*')
-
 JUCE_VST3DESTDIR := $(HOME)/.vst3
 
 ifneq ($(MAKECMDGOALS),install)
@@ -118,7 +112,7 @@ ifeq ($(CONFIG),Debug)
   JUCE_CPPFLAGS_SHARED_CODE :=  "-DJUCE_SHARED_CODE=1"
   JUCE_TARGET_SHARED_CODE := Guitarix.a
 
-  JUCE_CFLAGS += $(JUCE_CPPFLAGS) $(TARGET_ARCH) -fPIC -g -ggdb -O0 -I . -I../../guitarix/trunk/src/headers -I../../guitarix/trunk/libgxwmm -I../../guitarix/trunk/libgxw -I../../guitarix/trunk -I../../guitarix/trunk/src/faust-generated -I../../guitarix/trunk/src/gx_head/engine -I../../guitarix/trunk/src/gx_head/engine/tabels -I../../guitarix/trunk/src/zita-convolver -I../../guitarix/trunk/src/zita-resampler-1.1.0 -I../../guitarix/trunk/src/zita-resampler-1.1.0/zita-resampler -I../../guitarix/trunk/src/plugins -I../../guitarix/trunk/src/plugins/genarated -I/usr/lib/x86_64-linux-gnu/ $(CFLAGS)
+  JUCE_CFLAGS += $(JUCE_CPPFLAGS) $(TARGET_ARCH) -fPIC -g -ggdb -O0 -I../../guitarix/trunk/src/headers -I../../guitarix/trunk/libgxwmm -I../../guitarix/trunk/libgxw -I../../guitarix/trunk -I../../guitarix/trunk/src/faust-generated -I../../guitarix/trunk/src/gx_head/engine -I../../guitarix/trunk/src/gx_head/engine/tabels -I../../guitarix/trunk/src/zita-convolver -I../../guitarix/trunk/src/zita-resampler-1.1.0 -I../../guitarix/trunk/src/zita-resampler-1.1.0/zita-resampler -I../../guitarix/trunk/src/plugins -I../../guitarix/trunk/src/plugins/genarated -I/usr/lib/x86_64-linux-gnu/ $(CFLAGS)
   JUCE_CXXFLAGS += $(JUCE_CFLAGS) -std=gnu++17 $(CXXFLAGS)
   JUCE_LDFLAGS += $(TARGET_ARCH) -L$(JUCE_BINDIR) -L$(JUCE_LIBDIR) $(shell $(PKG_CONFIG) --libs alsa freetype2 libcurl glibmm-2.4 giomm-2.4 avahi-gobject avahi-glib avahi-client fftw3f sndfile eigen3 lilv-0 ) -fvisibility=hidden -I../../guitarix/trunk/src/headers -lrt -ldl -lpthread $(SYS_INCLUDE_FLAGS) $(LDFLAGS)
 
@@ -173,7 +167,7 @@ ifeq ($(CONFIG),Release)
   JUCE_CPPFLAGS_SHARED_CODE :=  "-DJUCE_SHARED_CODE=1"
   JUCE_TARGET_SHARED_CODE := Guitarix.a
 
-  JUCE_CFLAGS += $(JUCE_CPPFLAGS) $(TARGET_ARCH) -fPIC -O3 -I . -I../../guitarix/trunk/src/headers -I../../guitarix/trunk/libgxwmm -I../../guitarix/trunk/libgxw -I../../guitarix/trunk -I../../guitarix/trunk/src/faust-generated -I../../guitarix/trunk/src/gx_head/engine -I../../guitarix/trunk/src/gx_head/engine/tabels -I../../guitarix/trunk/src/zita-convolver -I../../guitarix/trunk/src/zita-resampler-1.1.0 -I../../guitarix/trunk/src/zita-resampler-1.1.0/zita-resampler -I../../guitarix/trunk/src/plugins -I../../guitarix/trunk/src/plugins/genarated -I/usr/lib/x86_64-linux-gnu/ $(CFLAGS)
+  JUCE_CFLAGS += $(JUCE_CPPFLAGS) $(TARGET_ARCH) -fPIC -O3 -I../../guitarix/trunk/src/headers -I../../guitarix/trunk/libgxwmm -I../../guitarix/trunk/libgxw -I../../guitarix/trunk -I../../guitarix/trunk/src/faust-generated -I../../guitarix/trunk/src/gx_head/engine -I../../guitarix/trunk/src/gx_head/engine/tabels -I../../guitarix/trunk/src/zita-convolver -I../../guitarix/trunk/src/zita-resampler-1.1.0 -I../../guitarix/trunk/src/zita-resampler-1.1.0/zita-resampler -I../../guitarix/trunk/src/plugins -I../../guitarix/trunk/src/plugins/genarated -I/usr/lib/x86_64-linux-gnu/ $(CFLAGS)
   JUCE_CXXFLAGS += $(JUCE_CFLAGS) -std=gnu++17 $(CXXFLAGS) $(SSE_CFLAGS)
 
   JUCE_LDFLAGS += $(TARGET_ARCH) -L$(JUCE_BINDIR) -L$(JUCE_LIBDIR) $(shell $(PKG_CONFIG) --libs alsa freetype2 libcurl glibmm-2.4 giomm-2.4 avahi-gobject avahi-glib avahi-client fftw3f sndfile eigen3 lilv-0 ) -fvisibility=hidden -I../../guitarix/trunk/src/headers -lrt -ldl -lpthread $(SYS_INCLUDE_FLAGS) $(LDFLAGS)
@@ -295,23 +289,13 @@ JUCE_SHARED_CODE := \
 all : VST3 # Standalone
 
 VST3 : $(JUCE_OUTDIR)/$(JUCE_TARGET_VST3)
-Standalone : config_check $(JUCE_OUTDIR)/$(JUCE_TARGET_STANDALONE_PLUGIN)
+Standalone : $(JUCE_OUTDIR)/$(JUCE_TARGET_STANDALONE_PLUGIN)
 
 inform :
 	@echo "$(yellow)INFO:$(reset) Compiling modules $(purple)\n"
 
 finish:
 	@echo "$(ceol)$(ceol)$(yellow)INFO:$(reset) Compiling modules - $(purple)done$(reset)"
-
-config_check:
-ifneq ($(CONFIG_H), $(IR_DIR))
-	@rm -rf config.h 
-endif
-
-config.h: 
-ifneq ($(CONFIG_H), $(IR_DIR))
-	@echo '#define GX_SOUND_DIR  "$(IR_DIR)"' > config.h 
-endif
 
 # tracking header files
 -include $(JUCE_UI_SHARED_CODE:%.o=%.d)
@@ -343,7 +327,7 @@ endif
 install :
 	$(V_AT)[ ! "$(JUCE_VST3DESTDIR)" ] || (mkdir -p $(JUCE_VST3DESTDIR) && cp -R $(JUCE_COPYCMD_VST3))
 
-$(JUCE_OUTDIR)/$(JUCE_TARGET_STANDALONE_PLUGIN) : inform config.h $(OBJECTS_STANDALONE_PLUGIN) $(RESOURCES) $(JUCE_OUTDIR)/$(JUCE_TARGET_SHARED_CODE)
+$(JUCE_OUTDIR)/$(JUCE_TARGET_STANDALONE_PLUGIN) : inform $(OBJECTS_STANDALONE_PLUGIN) $(RESOURCES) $(JUCE_OUTDIR)/$(JUCE_TARGET_SHARED_CODE)
 	@command -v $(PKG_CONFIG) >/dev/null 2>&1 || { echo >&2 "pkg-config not installed. Please, install it."; exit 1; }
 	@$(PKG_CONFIG) --print-errors alsa freetype2 libcurl glibmm-2.4 giomm-2.4 avahi-gobject avahi-glib avahi-client fftw3f sndfile eigen3 lilv-0 
 	@echo "$(blue)Linking Guitarix - Standalone Plugin$(reset)"
