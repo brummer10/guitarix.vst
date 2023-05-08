@@ -539,11 +539,32 @@ void GuitarixEditor::on_online_preset_select(int choice, GuitarixEditor* ge)
     if (choice > 0) {
         std::vector<std::tuple<std::string,std::string,std::string> >::iterator it = ge->olp.begin()+choice -1;
         juce::AlertWindow *w = new juce::AlertWindow("Download Online Preset", "", juce::AlertWindow::NoIcon);
-        w->setMessage(juce::String(get<2>(*it)));
+        juce::String m = get<2>(*it);
+        int a = m.indexOf("https");
+        int o = m.indexOf(a, "\n");
+        juce::HyperlinkButton* button = nullptr;
+        if (a>0 && o>0) {
+            juce::String n = m.substring(a,o);
+            juce::String message = m.substring(0, a-1);
+            juce::String message2 = m.substring(o+1);
+            w->setMessage(message);
+            if (n.isNotEmpty ()) {
+                button = new juce::HyperlinkButton(n, URL(n));
+                button->setBounds(0, 0, 400, 25);
+                button->setName("");
+                w->addCustomComponent(button);
+            }
+            w->addTextBlock(message2);
+            
+        } else {
+            w->setMessage(m);
+        }
         w->addButton("Download", 1, juce::KeyPress(juce::KeyPress::returnKey, 0, 0));
         w->addButton("Cancel", 0, juce::KeyPress(juce::KeyPress::escapeKey, 0, 0));
 
-        auto checkPresets = ([&, w, choice, ge](int result) {
+        auto checkPresets = ([&, w, button, choice, ge](int result) {
+            w->removeCustomComponent(w->getNumCustomComponents()-1);
+            if (button) delete button;
             if (result == 1) {
                 handleOnlineMenu(choice, ge);
             }

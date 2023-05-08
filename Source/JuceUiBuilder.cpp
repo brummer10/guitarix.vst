@@ -433,9 +433,15 @@ void JuceUiBuilder::create_ir_combo(const char *id, const char *label) {
 	gx_engine::JConvParameter& e = *dynamic_cast<gx_engine::JConvParameter*>(p);
 	const gx_engine::GxJConvSettings &j = e.get_value();
 
+	if (juce::JUCEApplication::isStandaloneApp()) {
+#ifdef IRPATH
+        std::string sIRpath = IRPATH;
+        ed->get_options().replace_sysIRDir(sIRpath);
+#endif
+    }
+
 	std::string spath = j.getIRDir();
 	std::string sname = j.getIRFile();
-	
 	int sel = 0;
 	for (int f = 0; f < sizeof(ir_combo_folders) / sizeof(ir_combo_folders[0]); f++)
 	{
