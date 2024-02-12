@@ -12,11 +12,11 @@ jobs:
       uses: dev-drprasad/delete-tag-and-release@v0.2.1
       with:
         delete_release: false
-        tag_name: Latest
+        tag_name: ${{ github.ref_name }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v1
     - name: submodule update
       run: git submodule update --init
     - name: make vst3
@@ -36,7 +36,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: Latest
+        tag_name: ${{ github.ref_name }}
         release_name: Release latest
         draft: false
         prerelease: true

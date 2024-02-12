@@ -15,7 +15,7 @@ Host could save a state as usual in the VST preset format.
 
 [![build](https://github.com/brummer10/guitarix.vst/actions/workflows/build.yml/badge.svg)](https://github.com/brummer10/guitarix.vst/actions/workflows/build.yml)
 
-[Guitarix.vst3.zip](https://github.com/brummer10/guitarix.vst/releases/download/Latest/Guitarix.vst3.zip)
+[Guitarix.vst3.zip](https://github.com/brummer10/guitarix.vst/releases/download/main/Guitarix.vst3.zip)
 
 ## Dependencies
 
