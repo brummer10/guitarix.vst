@@ -9,7 +9,6 @@ jobs:
     
     steps:
     - name: remove tag
-      if: ${{ ! contains(github.ref_name, 'v') }}
       uses: dev-drprasad/delete-tag-and-release@v0.2.1
       with:
         delete_release: false
@@ -37,13 +36,13 @@ jobs:
       uses: actions/create-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      if: contains(github.ref_name, 'v')
       with:
+        if: contains(github.ref_name, 'v')
         tag_name: ${{github.ref_name}}
         release_name: ${{github.ref_name}}
         draft: false
         prerelease: true
-      if: ${{ ! contains(github.ref_name, 'v') }}
+        if: ${{ ! contains(github.ref_name, 'v') }}
         tag_name: Latest
         release_name: Release latest
         draft: false
