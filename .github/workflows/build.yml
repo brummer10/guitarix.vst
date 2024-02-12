@@ -31,9 +31,9 @@ jobs:
         cd /home/runner/work/guitarix.vst/guitarix.vst/Builds/LinuxMakefile/build
         zip -r /home/runner/work/guitarix.vst/guitarix.vst/Builds/LinuxMakefile/build/Guitarix.vst3.zip ./Guitarix.vst3
 
+      if: ${{ ! contains(github.ref_name, 'v') }}
     - name: Create Latest
       id: create_latest
-      if: ${{ ! contains(github.ref_name, 'v') }}
       uses: actions/create-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -43,9 +43,9 @@ jobs:
         draft: false
         prerelease: true
 
+      if: contains(github.ref_name, 'v')
     - name: Create Release
       id: create_release
-      if: contains(github.ref_name, 'v')
       uses: actions/create-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
