@@ -12,6 +12,9 @@ jobs:
       uses: dev-drprasad/delete-tag-and-release@v0.2.1
       with:
         delete_release: false
+        if: contains(github.ref_name, 'v')
+        tag_name: ${{github.ref_name}}
+        if: ${{ ! contains(github.ref_name, 'v') }}
         tag_name: Latest
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -36,6 +39,9 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
+        if: contains(github.ref_name, 'v')
+        tag_name: ${{github.ref_name}}
+        if: ${{ ! contains(github.ref_name, 'v') }}
         tag_name: Latest
         release_name: Release latest
         draft: false
