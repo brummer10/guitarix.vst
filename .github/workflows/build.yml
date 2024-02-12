@@ -31,7 +31,6 @@ jobs:
         zip -r /home/runner/work/guitarix.vst/guitarix.vst/Builds/LinuxMakefile/build/Guitarix.vst3.zip ./Guitarix.vst3
 
     - name: Create Release
-      if: ${{ ! contains(github.ref_name, 'v') }}
       id: create_release
       uses: actions/create-release@v1
       env:
@@ -41,8 +40,6 @@ jobs:
         release_name: Release latest
         draft: false
         prerelease: true
-        
-
 
     - name: Upload Release Asset
       id: upload-release-asset
