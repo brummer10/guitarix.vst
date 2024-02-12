@@ -49,6 +49,20 @@ const char* get_label(const char *sw_type) {
 
 // get host context Menu on right click if available
 
+void AutoComboBox::mouseUp (const juce::MouseEvent& e)
+{
+    if (e.mods.isRightButtonDown()) {
+        ed->getParameterContext(id);
+        return;
+    }
+    juce::ComboBox::mouseDown(e);
+}
+
+void AutoComboBox::mouseDown (const juce::MouseEvent& e)
+{
+    return;
+}
+
 void AutoSlider::mouseUp (const juce::MouseEvent& e)
 {
     if (e.mods.isRightButtonDown())
@@ -173,6 +187,7 @@ void JuceUiBuilder::create_slider(const char *id, const char *label, juce::Slide
 
     AutoSlider *s = new AutoSlider(label, ed, id);
     s->setComponentID(id);
+    //s->set_color(ed->get_component_color());
     s->setSliderStyle(style);
     s->setTextBoxStyle(juce::Slider::TextBoxBelow, false, 40, texth);
     //s->setPopupDisplayEnabled(true, false, ed);
@@ -363,7 +378,7 @@ void JuceUiBuilder::create_fload_button(const char *id, const char *label, int w
 
 void JuceUiBuilder::create_combo(const char *id, const char *label) {
 	if (inHide) return;
-	juce::ComboBox *c = new juce::ComboBox();
+	AutoComboBox *c = new AutoComboBox(ed, id);
 	lastcombo = c;
 
 	gx_engine::Parameter *p = ed->get_parameter(id);

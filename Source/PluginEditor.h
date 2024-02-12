@@ -46,6 +46,26 @@ private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MuteButton)
 };
 
+class PlugSelect: public juce::ComboBox
+{
+public:
+    PlugSelect() : juce::ComboBox() {}
+
+    void mouseUp(const juce::MouseEvent& e) override {
+        if (e.mods.isRightButtonDown()) {
+            return;
+        }
+        juce::ComboBox::mouseDown(e);
+    }
+
+    void mouseDown (const juce::MouseEvent& e) override {
+        return;
+    }
+
+private:
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PlugSelect)
+};
+
 class ParListener
 {
 public:
@@ -74,6 +94,7 @@ public:
 	void addControl(juce::Component *c, juce::Component* parent = 0);
 	gx_engine::Parameter* get_parameter(const char* parid);
     gx_engine::GxMachine *get_machine();
+    juce::Colour& get_component_color() { return col;}
 
 	const char* getID() const { return pid.c_str(); }
 //	int edx, edy;
@@ -130,7 +151,7 @@ private:
 
 	MachineEditor *ed;
 	PluginEditor *ped;
-	juce::ComboBox combo;
+	PlugSelect combo;
 	MuteButton mute;
 	juce::TextButton add, remove;
 

@@ -24,6 +24,8 @@
 
 class PluginEditor;
 
+//==============================================================================
+
 class VerticalMeter : public juce::Component
 {
 public:
@@ -44,6 +46,21 @@ public:
 
 private:
 	float level = -60.f;
+};
+
+class AutoComboBox : public juce::ComboBox
+{
+public:
+    AutoComboBox(PluginEditor *ed_, const char* id_)
+    : ed (ed_), id (id_), juce::ComboBox(){}
+
+    void mouseUp (const juce::MouseEvent& e) override;
+    void mouseDown (const juce::MouseEvent& e) override;
+
+private:
+    PluginEditor *ed;
+    const char* id;
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AutoComboBox)
 };
 
 class AutoButton : public juce::ToggleButton

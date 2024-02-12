@@ -139,6 +139,11 @@ public:
             rightClick();
             return;
         }
+        juce::ComboBox::mouseDown(e);
+    }
+
+    void mouseDown (const juce::MouseEvent& e) override {
+        return;
     }
 
 private:

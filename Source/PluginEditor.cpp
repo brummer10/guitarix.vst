@@ -692,6 +692,8 @@ void PluginEditor::paint(juce::Graphics& g)
 {
     // (Our component is opaque, so we must completely fill the background with a solid colour)
     g.fillAll(col);
+    g.setColour(col.darker());
+    g.drawRect(getLocalBounds(), 3);
     
     /*
     g.setColour(juce::Colours::white);
