@@ -9,12 +9,10 @@ jobs:
     
     steps:
     - name: remove tag
+      if: ${{ ! contains(github.ref_name, 'v') }}
       uses: dev-drprasad/delete-tag-and-release@v0.2.1
       with:
         delete_release: false
-        if: contains(github.ref_name, 'v')
-        tag_name: ${{github.ref_name}}
-        if: ${{ ! contains(github.ref_name, 'v') }}
         tag_name: Latest
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -33,17 +31,27 @@ jobs:
         cd /home/runner/work/guitarix.vst/guitarix.vst/Builds/LinuxMakefile/build
         zip -r /home/runner/work/guitarix.vst/guitarix.vst/Builds/LinuxMakefile/build/Guitarix.vst3.zip ./Guitarix.vst3
 
-    - name: Create Release
+    - name: Create Latest
+      if: ${{ ! contains(github.ref_name, 'v') }}
       id: create_release
       uses: actions/create-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        if: contains(github.ref_name, 'v')
-        tag_name: ${{github.ref_name}}
-        if: ${{ ! contains(github.ref_name, 'v') }}
         tag_name: Latest
         release_name: Release latest
+        draft: false
+        prerelease: true
+
+    - name: Create Release
+      if: contains(github.ref_name, 'v')
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{github.ref_name}}
+        release_name: ${{github.ref_name}}
         draft: false
         prerelease: true
 
