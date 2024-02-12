@@ -31,29 +31,25 @@ jobs:
         cd /home/runner/work/guitarix.vst/guitarix.vst/Builds/LinuxMakefile/build
         zip -r /home/runner/work/guitarix.vst/guitarix.vst/Builds/LinuxMakefile/build/Guitarix.vst3.zip ./Guitarix.vst3
 
-      if: ${{ ! contains(github.ref_name, 'v') }}
-    - name: Create Latest
-      id: create_latest
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: Latest
-        release_name: Release latest
-        draft: false
-        prerelease: true
-
-      if: contains(github.ref_name, 'v')
     - name: Create Release
+      if: ${{ ! contains(github.ref_name, 'v') }}
       id: create_release
       uses: actions/create-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      if: contains(github.ref_name, 'v')
       with:
         tag_name: ${{github.ref_name}}
         release_name: ${{github.ref_name}}
         draft: false
-        prerelease: false
+        prerelease: true
+      if: ${{ ! contains(github.ref_name, 'v') }}
+        tag_name: Latest
+        release_name: Release latest
+        draft: false
+        prerelease: true
+        
+
 
     - name: Upload Release Asset
       id: upload-release-asset
