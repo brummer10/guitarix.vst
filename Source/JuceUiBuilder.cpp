@@ -431,7 +431,7 @@ const char* folder_names[3] = { "Impulse Responses","Amplifiers", "Bands" };
 
 void JuceUiBuilder::create_ir_combo(const char *id, const char *label) {
 	if (inHide) return;
-	juce::ComboBox *c = new juce::ComboBox();
+	PlugSelect *c = new PlugSelect();
 	lastcombo = c;
 
 	gx_engine::Parameter *p = ed->get_parameter(id);
@@ -625,6 +625,7 @@ void JuceUiBuilder::openTabBox_(const char* label) {
 	//addbox(true);
 	juce::TabbedComponent* t = new juce::TabbedComponent(TabbedButtonBar::Orientation::TabsAtTop);
     t->getTabbedButtonBar().setColour (juce::TabbedButtonBar::ColourIds::frontTextColourId, juce::Colours::white);
+    t->getTabbedButtonBar().setColour (juce::TabbedButtonBar::ColourIds::tabTextColourId, juce::Colour::fromRGBA(165, 165, 165, 255));
 	boxstack.push_front(decltype(boxstack)::value_type(boxkey_t(0, t), juce::Point<int>()));
 }
 
