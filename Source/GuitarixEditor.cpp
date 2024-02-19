@@ -172,6 +172,7 @@ GuitarixEditor::~GuitarixEditor()
 
 void GuitarixEditor::timerCallback(int id)
 {
+    if (!audioProcessor.HasSampleRate()) return;
     if (id == 1) {
         auto rms=audioProcessor.getRMSValues();
         for(int i=0; i<4; i++) {
@@ -365,6 +366,7 @@ void GuitarixEditor::loadLV2PlugCallback(int i, GuitarixEditor* ge)
 void GuitarixEditor::load_preset_list()
 {
     presetFileMenu.clear(dontSendNotification);
+    PopupMenu* pr = presetFileMenu.getRootMenu();
     std::string bank;
     std::string preset;
     if (settings->setting_is_preset()) {
@@ -382,15 +384,10 @@ void GuitarixEditor::load_preset_list()
             int pi = 0;
             int in_factory = false;
             if (pp) {
-                if (!in_factory && pp->get_type() == gx_system::PresetFile::PRESET_FACTORY) {
-                    in_factory = true;
-                    presetFileMenu.addSectionHeading(b->get_name().raw() + " - Factory Presets");
-                } else {
-                    presetFileMenu.addSectionHeading(b->get_name().raw());
-                }
+                PopupMenu sub;
                 for (auto p = pp->begin(); p != pp->end(); ++p) {
                     int idx = bi * 1000 + (pi++) + 1;
-                    presetFileMenu.addItem(p->name.raw(), idx);
+                    sub.addItem(idx, p->name.raw());
                     if (b->get_name().raw() == bank && p->name.raw() == preset) {
                         sel = idx;
                         new_bank = bank;
@@ -399,8 +396,16 @@ void GuitarixEditor::load_preset_list()
                 }
                 if (!in_factory) {
                     int idx = bi * 1000 + (pi++) + 1;
-                    presetFileMenu.addItem("<New>", idx);
+                    sub.addItem(idx, "<New>");
                     bi++;
+                }
+                if (!in_factory && pp->get_type() == gx_system::PresetFile::PRESET_FACTORY) {
+                    in_factory = true;
+                    pr->addSubMenu(b->get_name().raw() + " - Factory Presets", sub);
+                    //presetFileMenu.addSectionHeading(b->get_name().raw() + " - Factory Presets");
+                } else {
+                    pr->addSubMenu(b->get_name().raw(), sub);
+                    //presetFileMenu.addSectionHeading(b->get_name().raw());
                 }
             }
         }
@@ -763,11 +768,12 @@ void MachineEditor::buildPluginCombo(juce::ComboBox *c, std::list<gx_engine::Plu
 {
 	const char* categories[] = { "Tone Control","Distortion","Fuzz","Reverb","Echo / Delay","Modulation","Guitar Effects","Misc" ,"External"};
 	int cl = sizeof(categories) / sizeof(categories[0]);
-
+    PopupMenu* pl = c->getRootMenu();
 	int sel = 0;
 	for (int ci = 0; ci < cl; ci++)
 	{
-		bool createHeading = true;
+		//bool createHeading = true;
+        PopupMenu sub;
 		int id = 1;
 		for (auto v = lv.begin(); v != lv.end(); v++, id++)
 		{
@@ -780,13 +786,14 @@ void MachineEditor::buildPluginCombo(juce::ComboBox *c, std::list<gx_engine::Plu
 				gx_engine::ParamMap& pmap = settings->get_param();
 				if (pmap.hasId(uid))
 				{
-					if (createHeading)
+					/*if (createHeading)
 					{
 						c->addSectionHeading(categories[ci]);
+                        
 						createHeading = false;
-					}
+					}*/
 					const char* n = pd->name;
-					c->addItem(n, id);
+					sub.addItem(id, n);
 					if (strcmp(pd->id, selid) == 0)
 						sel = id;
 				}
@@ -794,6 +801,7 @@ void MachineEditor::buildPluginCombo(juce::ComboBox *c, std::list<gx_engine::Plu
 					;
 			}
 		}
+        pl->addSubMenu(categories[ci], sub);
 	}
 	
 	if (sel > 0)

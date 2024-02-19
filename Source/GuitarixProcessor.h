@@ -122,6 +122,7 @@ public:
 	bool GetMultiMode() const { return mMultiMode; }
 	void SetMonoMute(bool m1, bool m2) { mMono1Mute = m1; mMono2Mute = m2; }
 	void GetMonoMute(bool &m1, bool &m2) const { m1 = mMono1Mute; m2 = mMono2Mute; }
+    bool HasSampleRate() { return SampleRate;}
 
 	void SetPresetsVisible(bool vis) { mPresetsVisible = vis; }
 	bool GetPresetsVisible() const { return mPresetsVisible; }
@@ -168,6 +169,7 @@ private:
     int buffersize, quantum, delay, tdelay;
     float *out[2];
     int olen, wpos, rpos, ppos;
+    int SampleRate;
     
     void process(float *out[2], int n);
 

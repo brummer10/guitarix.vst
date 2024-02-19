@@ -123,6 +123,7 @@ GuitarixProcessor::GuitarixProcessor()
 	, bank_chg()
 {
     out[0]=out[1]=0;
+    SampleRate = 0;
     
 #ifdef _WINDOWS
 	static CHAR sModulePath[2048];

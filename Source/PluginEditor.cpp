@@ -727,6 +727,7 @@ PluginSelector::PluginSelector(MachineEditor* ed, bool stereo, const char* id, c
     if (strncmp(id, "COMMON", 6) != 0 && strcmp(id, "ampstack") != 0 && strcmp(id, "tuner") != 0)
     {
         ed->fillPluginCombo(&combo, stereo, id);
+        combo.onClick = [this] { this->ed->fillPluginCombo(&combo, this->stereo, this->pid.c_str()); };
         combo.onChange = [this] { pluginMenuChanged(); };
         combo.setBounds(texth + 8, 4, 250, texth);
         addAndMakeVisible(&combo);

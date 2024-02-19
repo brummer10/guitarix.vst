@@ -431,7 +431,8 @@ const char* folder_names[3] = { "Impulse Responses","Amplifiers", "Bands" };
 
 void JuceUiBuilder::create_ir_combo(const char *id, const char *label) {
 	if (inHide) return;
-	PlugSelect *c = new PlugSelect();
+	IRSelect *c = new IRSelect();
+    PopupMenu* pl = c->getRootMenu();
 	lastcombo = c;
 
 	gx_engine::Parameter *p = ed->get_parameter(id);
@@ -464,13 +465,15 @@ void JuceUiBuilder::create_ir_combo(const char *id, const char *label) {
 
 		gx_system::IRFileListing l(path);
 		int n = 1000*f;
-		c->addSectionHeading(folder_names[f]);
+		//c->addSectionHeading(folder_names[f]);
+        PopupMenu sub;
 		for (std::vector<gx_system::FileName>::iterator i = l.get_listing().begin(); i != l.get_listing().end(); ++i)
 		{
-			c->addItem(i->filename.c_str(), ++n);
+			sub.addItem(++n, i->filename.c_str());
 			if ((path == spath || path.empty()) && i->filename == sname)
 				sel = n;
 		}
+        pl->addSubMenu(folder_names[f], sub);
 	}
 
 	if(sel)

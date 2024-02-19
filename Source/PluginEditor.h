@@ -50,6 +50,28 @@ class PlugSelect: public juce::ComboBox
 {
 public:
     PlugSelect() : juce::ComboBox() {}
+    std::function<void()> onClick;
+
+    void mouseUp(const juce::MouseEvent& e) override {
+        if (e.mods.isRightButtonDown()) {
+            return;
+        }
+        juce::ComboBox::mouseDown(e);
+    }
+
+    void mouseDown (const juce::MouseEvent& e) override {
+        onClick();
+        return;
+    }
+
+private:
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PlugSelect)
+};
+
+class IRSelect: public juce::ComboBox
+{
+public:
+    IRSelect() : juce::ComboBox() {}
 
     void mouseUp(const juce::MouseEvent& e) override {
         if (e.mods.isRightButtonDown()) {
@@ -63,7 +85,7 @@ public:
     }
 
 private:
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PlugSelect)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (IRSelect)
 };
 
 class ParListener
