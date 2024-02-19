@@ -22,7 +22,8 @@ jobs:
     - name: make vst3
       run: |
         sudo apt-get update
-        sudo apt-get install libcurl4-gnutls-dev libfreetype6-dev libglibmm-2.4-dev libglib2.0-dev libsigc++-2.0-dev libfftw3-dev libsndfile1-dev liblilv-dev liblrdf0-dev libboost-iostreams-dev libstdc++6 libc6-dev libgcc-s1 libasound2-dev libgtk-3-dev libavahi-gobject-dev libavahi-glib-dev libavahi-client-dev libeigen3-dev libboost-system-dev
+        sudo apt-get install -yqq --allow-downgrades libcurl4-gnutls-dev/focal libfreetype6-dev/focal libglibmm-2.4-dev/focal libglib2.0-dev/focal libsigc++-2.0-dev/focal libfftw3-dev/focal libsndfile1-dev/focal liblilv-dev/focal liblrdf0-dev/focal libboost-iostreams-dev/focal libstdc++6/focal libc6-dev/focal libgcc-s1/focal libasound2-dev/focal libgtk-3-dev/focal libavahi-gobject-dev/focal libavahi-glib-dev/focal libavahi-client-dev/focal libeigen3-dev/focal libboost-system-dev/focal
+        sudo apt-get clean
     - name: build 
       run: make
     - name: compress
