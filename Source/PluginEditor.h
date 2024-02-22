@@ -137,6 +137,9 @@ private:
     void load_IR(const std::string& attr, juce::Button* button, juce::String fname);
     void set_ir_load_button_text(const std::string& attr, bool set);
     juce::File lastDirectory;
+    void open_nam_file_browser(juce::Button* button, const std::string& id);
+    void load_NAM(const std::string& attr, juce::Button* button, juce::String fname);
+    void set_nam_load_button_text(const std::string& attr, bool set);
 	void paint(juce::Graphics& g) override;
     juce::Component* findChildByID(juce::Component* parent, const std::string parid);
 	std::list<juce::Component*> edlist;

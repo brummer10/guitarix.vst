@@ -346,6 +346,19 @@ void PluginEditor::create(int edx, int edy, int &w, int &h)
         rect.setWidth(0);
         rect.setHeight(0);
     }
+    else if (pid == "nam")//Convolver Mono
+    {
+#define PARAM(p) ("nam" "." p)
+        b.openHorizontalBox("");
+        b.create_mid_rackknob(PARAM("input"), _("Input"));
+        b.openVerticalBox("");
+        b.create_fload_switch(sw_fbutton, "nam.", "Load File");
+        b.closeBox();
+        b.create_mid_rackknob(PARAM("output"), _("Output"));
+        b.closeBox();
+#undef PARAM
+        set_nam_load_button_text("nam.", true);
+    }
     else {
         pd->load_ui(b, UI_FORM_STACK);
     }
@@ -371,6 +384,29 @@ bool PluginEditor::is_factory_IR(const std::string& dir) {
         it++;
     }
     return false;
+}
+
+void PluginEditor::set_nam_load_button_text(const std::string& attr, bool set)
+{
+    std::string parid = attr.substr(0,attr.find_last_of(".")+1);
+    if (parid.compare("nam.") == 0) {
+        juce::Component *b = findChildByID(this, parid.c_str());
+        parid.append("loadfile");
+        gx_engine::Parameter *p = ed->get_parameter(parid.c_str());
+        if (dynamic_cast<gx_engine::StringParameter*>(p) && dynamic_cast<juce::Button*>(b)) {
+            juce::Button* button = dynamic_cast<juce::Button*>(b);
+            if (!set) {
+                button->setButtonText("Load File");
+                return;
+            }
+
+            auto set_nam_filename = [=](juce::String s) 
+                { button->setButtonText(s); };
+            set_nam_filename(juce::File(juce::String(
+                dynamic_cast<gx_engine::StringParameter*>(p)->getString().get_value())).getFileNameWithoutExtension());
+
+        }
+    }
 }
 
 void PluginEditor::set_ir_load_button_text(const std::string& attr, bool set)
@@ -485,6 +521,44 @@ void PluginEditor::sliderValueChanged(juce::Slider* slider)
     }
 }
 
+void PluginEditor::load_NAM(const std::string& attr, juce::Button* button, juce::String fname) {
+    gx_engine::ParamMap& param = ed->get_param();
+    if (param.hasId(attr)) {
+        gx_engine::Parameter& p = param[attr];
+        ed->SetAlternateDouble(ModifierKeys::getCurrentModifiers().testFlags(ModifierKeys::shiftModifier));
+        p.set_blocked(true);
+        
+        if (dynamic_cast<gx_engine::StringParameter*>(&p))
+        {
+            std::string filename = fname.toStdString();
+            ed->machine->set_parameter_value(attr, filename);
+            set_nam_load_button_text(attr, true);
+        }
+        p.set_blocked(false);
+        ed->SetAlternateDouble(false);
+    }    
+}
+
+void PluginEditor::open_nam_file_browser(juce::Button* button, const std::string& id) {
+    auto fc = new juce::FileChooser ("Choose NAM file to load...", lastDirectory.isDirectory() ?
+        lastDirectory : juce::File::getSpecialLocation(juce::File::userMusicDirectory), "*.nam", false);
+
+    fc->launchAsync (juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles,
+                                            [this, id, button, fc] (const juce::FileChooser& chooser) {
+        juce::String chosen;
+        auto result = chooser.getURLResult();
+        chosen << (result.isLocalFile() ? result.getLocalFile().getFullPathName()
+                                                        : result.toString (false)) ;
+
+        if(chosen.isNotEmpty()) {
+            this->lastDirectory = result.getLocalFile().getParentDirectory();
+            this->load_NAM(id, button, chosen);
+        }
+        button->setToggleState(false, juce::dontSendNotification);
+        delete fc;
+    });
+}
+
 void PluginEditor::load_IR(const std::string& attr, juce::Button* button, juce::String fname) {
     gx_engine::ParamMap& param = ed->get_param();
     if (param.hasId(attr)) {
@@ -532,7 +606,10 @@ void PluginEditor::buttonClicked(juce::Button* button)
     std::string attr = button->getComponentID().toStdString();
     if ((attr.compare("jconv_mono.") == 0) || (attr.compare("jconv.") == 0)) {
         attr.append("convolver");
+    } else if (attr.compare("nam.") == 0) {
+        attr.append("loadfile");
     }
+
     if (param.hasId(attr)) {
         gx_engine::Parameter& p = param[attr];
         ed->SetAlternateDouble(ModifierKeys::getCurrentModifiers().testFlags(ModifierKeys::shiftModifier));
@@ -541,8 +618,10 @@ void PluginEditor::buttonClicked(juce::Button* button)
             if (attr.compare("jconv_mono.convolver") == 0) {
                 open_file_browser(button, attr);
             } else if (attr.compare("jconv.convolver") == 0) {
-                open_file_browser(button, attr);
+                open_nam_file_browser(button, attr);
             }
+        } else if (attr.compare("nam.loadfile") == 0) {
+            open_nam_file_browser(button, attr);
         } else if (p.isFloat()) {
             p.getFloat().set(button->getToggleState() ? 1 : 0);
         }

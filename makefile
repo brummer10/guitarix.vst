@@ -28,7 +28,7 @@ ifeq (,$(filter $(NOGOAL),$(MAKECMDGOALS)))
 ifeq (,$(findstring clean,$(MAKECMDGOALS)))
 	@if git submodule status 2>/dev/null | egrep -q '^[-]|^[+]' ; then \
 		echo "$(yellow)INFO: $(red)Need to reinitialize git submodules$(reset)"; \
-		git submodule update --init; \
+		git submodule update --init --recursive; \
 		echo "$(ceol)$(yellow)INFO: $(reset)Need to reinitialize git submodules - $(blue)Done$(reset)"; \
 	else echo "$(yellow)INFO: $(reset)Submodule up to date"; \
 	fi

@@ -59,6 +59,13 @@ endif
 STANDALONE_IR_PATH ?= /usr/share/gx_head/sounds/
 JUCE_VST3DESTDIR := $(HOME)/.vst3
 
+NAM_FLAGS := "-DDSP_SAMPLE_FLOAT" "-DNAM_SAMPLE_FLOAT" "-Dneural_amp_modeler_EXPORTS"
+
+NAM_INCLUD_DIRS := \
+        -I../../guitarix/trunk/src/NAM/NeuralAmpModelerCore/NAM/ \
+        -I../../guitarix/trunk/src/NAM/NeuralAmpModelerCore/Dependencies/eigen/ \
+        -I../../guitarix/trunk/src/NAM/NeuralAmpModelerCore/Dependencies/nlohmann/ \
+
 ifneq ($(MAKECMDGOALS),install)
 ifneq ($(MAKECMDGOALS),clean)
 ifndef JUCE_DIR
@@ -96,7 +103,7 @@ ifeq ($(CONFIG),Debug)
     TARGET_ARCH := 
   endif
 
-  JUCE_CPPFLAGS := $(DEPFLAGS) "-DIRPATH=\"$(STANDALONE_IR_PATH)\"" "-DLINUX=1" "-DDEBUG=1" "-D_DEBUG=1" "-DJUCE_USE_CURL=0" "-DJUCE_DISABLE_CAUTIOUS_PARAMETER_ID_CHECKING=1" "-DJUCE_DISPLAY_SPLASH_SCREEN=0" "-DJUCE_USE_DARK_SPLASH_SCREEN=1" "-DJUCE_MODULE_AVAILABLE_juce_audio_basics=1" "-DJUCE_MODULE_AVAILABLE_juce_audio_devices=1" "-DJUCE_MODULE_AVAILABLE_juce_audio_formats=1" "-DJUCE_MODULE_AVAILABLE_juce_audio_plugin_client=1" "-DJUCE_MODULE_AVAILABLE_juce_audio_processors=1" "-DJUCE_MODULE_AVAILABLE_juce_audio_utils=1" "-DJUCE_MODULE_AVAILABLE_juce_core=1" "-DJUCE_MODULE_AVAILABLE_juce_data_structures=1" "-DJUCE_MODULE_AVAILABLE_juce_events=1" "-DJUCE_MODULE_AVAILABLE_juce_graphics=1" "-DJUCE_MODULE_AVAILABLE_juce_gui_basics=1" "-DJUCE_MODULE_AVAILABLE_juce_gui_extra=0" "-DJUCE_GLOBAL_MODULE_SETTINGS_INCLUDED=1" "-DJUCE_VST3_CAN_REPLACE_VST2=0" "-DJUCE_STRICT_REFCOUNTEDPOINTER=1" "-DJucePlugin_Build_VST=0" "-DJucePlugin_Build_VST3=1" "-DJucePlugin_Build_AU=0" "-DJucePlugin_Build_AUv3=0" "-DJucePlugin_Build_AAX=0" "-DJucePlugin_Build_Standalone=1" "-DJucePlugin_Build_Unity=0" "-DJucePlugin_Build_LV2=0" "-DJucePlugin_Enable_IAA=0" "-DJucePlugin_Enable_ARA=0" "-DJucePlugin_Name=\"Guitarix\"" "-DJucePlugin_Desc=\"Guitarix\"" "-DJucePlugin_Manufacturer=\"brummer\"" "-DJucePlugin_ManufacturerWebsite=\"www.brummer.com\"" "-DJucePlugin_ManufacturerEmail=\"\"" "-DJucePlugin_ManufacturerCode=0x4d616e75" "-DJucePlugin_PluginCode=0x4c736166" "-DJucePlugin_IsSynth=0" "-DJucePlugin_WantsMidiInput=1" "-DJucePlugin_ProducesMidiOutput=0" "-DJucePlugin_IsMidiEffect=0" "-DJucePlugin_EditorRequiresKeyboardFocus=0" "-DJucePlugin_Version=1.0.0" "-DJucePlugin_VersionCode=0x10000" "-DJucePlugin_VersionString=\"1.0.0\"" "-DJucePlugin_VSTUniqueID=JucePlugin_PluginCode" "-DJucePlugin_VSTCategory=kPlugCategEffect" "-DJucePlugin_Vst3Category=\"Fx\"" "-DJucePlugin_AUMainType='aufx'" "-DJucePlugin_AUSubType=JucePlugin_PluginCode" "-DJucePlugin_AUExportPrefix=GuitarixAU" "-DJucePlugin_AUExportPrefixQuoted=\"GuitarixAU\"" "-DJucePlugin_AUManufacturerCode=JucePlugin_ManufacturerCode" "-DJucePlugin_CFBundleIdentifier=https://guitarix.org/" "-DJucePlugin_AAXIdentifier=https://guitarix.org/" "-DJucePlugin_AAXManufacturerCode=JucePlugin_ManufacturerCode" "-DJucePlugin_AAXProductId=JucePlugin_PluginCode" "-DJucePlugin_AAXCategory=0" "-DJucePlugin_AAXDisableBypass=0" "-DJucePlugin_AAXDisableMultiMono=0" "-DJucePlugin_IAAType=0x61757278" "-DJucePlugin_IAASubType=JucePlugin_PluginCode" "-DJucePlugin_IAAName=\"brummer: Guitarix\"" "-DJucePlugin_VSTNumMidiInputs=16" "-DJucePlugin_VSTNumMidiOutputs=16" "-DJucePlugin_ARAContentTypes=0" "-DJucePlugin_ARATransformationFlags=0" "-DJucePlugin_ARAFactoryID=\"https://guitarix.org/.factory\"" "-DJucePlugin_ARADocumentArchiveID=\"https://guitarix.org/.aradocumentarchive.1.0.0\"" "-DJucePlugin_ARACompatibleArchiveIDs=\"\"" "-DJUCE_STANDALONE_APPLICATION=JucePlugin_Build_Standalone" "-DJUCE_MODAL_LOOPS_PERMITTED=1" "-DGUITARIX_AS_PLUGIN=1" "-DJUCER_LINUX_MAKE_6D53C8B4=1" "-DJUCE_APP_VERSION=1.0.0" "-DJUCE_APP_VERSION_HEX=0x10000" $(shell $(PKG_CONFIG) --cflags alsa freetype2 libcurl gtk+-x11-3.0 glibmm-2.4 giomm-2.4 avahi-gobject avahi-glib avahi-client fftw3f sndfile eigen3 lilv-0 ) -pthread -I$(JUCE_DIR)/modules/juce_audio_processors/format_types/VST3_SDK -I$(VST3_DIR) -I../../JuceLibraryCode -I$(JUCE_DIR)/modules $(CPPFLAGS)
+  JUCE_CPPFLAGS := $(DEPFLAGS) $(NAM_FLAGS) "-DIRPATH=\"$(STANDALONE_IR_PATH)\"" "-DLINUX=1" "-DDEBUG=1" "-D_DEBUG=1" "-DJUCE_USE_CURL=0" "-DJUCE_DISABLE_CAUTIOUS_PARAMETER_ID_CHECKING=1" "-DJUCE_DISPLAY_SPLASH_SCREEN=0" "-DJUCE_USE_DARK_SPLASH_SCREEN=1" "-DJUCE_MODULE_AVAILABLE_juce_audio_basics=1" "-DJUCE_MODULE_AVAILABLE_juce_audio_devices=1" "-DJUCE_MODULE_AVAILABLE_juce_audio_formats=1" "-DJUCE_MODULE_AVAILABLE_juce_audio_plugin_client=1" "-DJUCE_MODULE_AVAILABLE_juce_audio_processors=1" "-DJUCE_MODULE_AVAILABLE_juce_audio_utils=1" "-DJUCE_MODULE_AVAILABLE_juce_core=1" "-DJUCE_MODULE_AVAILABLE_juce_data_structures=1" "-DJUCE_MODULE_AVAILABLE_juce_events=1" "-DJUCE_MODULE_AVAILABLE_juce_graphics=1" "-DJUCE_MODULE_AVAILABLE_juce_gui_basics=1" "-DJUCE_MODULE_AVAILABLE_juce_gui_extra=0" "-DJUCE_GLOBAL_MODULE_SETTINGS_INCLUDED=1" "-DJUCE_VST3_CAN_REPLACE_VST2=0" "-DJUCE_STRICT_REFCOUNTEDPOINTER=1" "-DJucePlugin_Build_VST=0" "-DJucePlugin_Build_VST3=1" "-DJucePlugin_Build_AU=0" "-DJucePlugin_Build_AUv3=0" "-DJucePlugin_Build_AAX=0" "-DJucePlugin_Build_Standalone=1" "-DJucePlugin_Build_Unity=0" "-DJucePlugin_Build_LV2=0" "-DJucePlugin_Enable_IAA=0" "-DJucePlugin_Enable_ARA=0" "-DJucePlugin_Name=\"Guitarix\"" "-DJucePlugin_Desc=\"Guitarix\"" "-DJucePlugin_Manufacturer=\"brummer\"" "-DJucePlugin_ManufacturerWebsite=\"www.brummer.com\"" "-DJucePlugin_ManufacturerEmail=\"\"" "-DJucePlugin_ManufacturerCode=0x4d616e75" "-DJucePlugin_PluginCode=0x4c736166" "-DJucePlugin_IsSynth=0" "-DJucePlugin_WantsMidiInput=1" "-DJucePlugin_ProducesMidiOutput=0" "-DJucePlugin_IsMidiEffect=0" "-DJucePlugin_EditorRequiresKeyboardFocus=0" "-DJucePlugin_Version=1.0.0" "-DJucePlugin_VersionCode=0x10000" "-DJucePlugin_VersionString=\"1.0.0\"" "-DJucePlugin_VSTUniqueID=JucePlugin_PluginCode" "-DJucePlugin_VSTCategory=kPlugCategEffect" "-DJucePlugin_Vst3Category=\"Fx\"" "-DJucePlugin_AUMainType='aufx'" "-DJucePlugin_AUSubType=JucePlugin_PluginCode" "-DJucePlugin_AUExportPrefix=GuitarixAU" "-DJucePlugin_AUExportPrefixQuoted=\"GuitarixAU\"" "-DJucePlugin_AUManufacturerCode=JucePlugin_ManufacturerCode" "-DJucePlugin_CFBundleIdentifier=https://guitarix.org/" "-DJucePlugin_AAXIdentifier=https://guitarix.org/" "-DJucePlugin_AAXManufacturerCode=JucePlugin_ManufacturerCode" "-DJucePlugin_AAXProductId=JucePlugin_PluginCode" "-DJucePlugin_AAXCategory=0" "-DJucePlugin_AAXDisableBypass=0" "-DJucePlugin_AAXDisableMultiMono=0" "-DJucePlugin_IAAType=0x61757278" "-DJucePlugin_IAASubType=JucePlugin_PluginCode" "-DJucePlugin_IAAName=\"brummer: Guitarix\"" "-DJucePlugin_VSTNumMidiInputs=16" "-DJucePlugin_VSTNumMidiOutputs=16" "-DJucePlugin_ARAContentTypes=0" "-DJucePlugin_ARATransformationFlags=0" "-DJucePlugin_ARAFactoryID=\"https://guitarix.org/.factory\"" "-DJucePlugin_ARADocumentArchiveID=\"https://guitarix.org/.aradocumentarchive.1.0.0\"" "-DJucePlugin_ARACompatibleArchiveIDs=\"\"" "-DJUCE_STANDALONE_APPLICATION=JucePlugin_Build_Standalone" "-DJUCE_MODAL_LOOPS_PERMITTED=1" "-DGUITARIX_AS_PLUGIN=1" "-DJUCER_LINUX_MAKE_6D53C8B4=1" "-DJUCE_APP_VERSION=1.0.0" "-DJUCE_APP_VERSION_HEX=0x10000" $(shell $(PKG_CONFIG) --cflags alsa freetype2 libcurl gtk+-x11-3.0 glibmm-2.4 giomm-2.4 avahi-gobject avahi-glib avahi-client fftw3f sndfile  lilv-0 ) -pthread -I$(JUCE_DIR)/modules/juce_audio_processors/format_types/VST3_SDK -I$(VST3_DIR) -I../../JuceLibraryCode -I$(JUCE_DIR)/modules $(CPPFLAGS)
 
   JUCE_CPPFLAGS_VST3 := 
   JUCE_CFLAGS_VST3 := -fPIC -fvisibility=hidden
@@ -113,9 +120,9 @@ ifeq ($(CONFIG),Debug)
   JUCE_CPPFLAGS_SHARED_CODE :=  "-DJUCE_SHARED_CODE=1"
   JUCE_TARGET_SHARED_CODE := Guitarix.a
 
-  JUCE_CFLAGS += $(JUCE_CPPFLAGS) $(TARGET_ARCH) -fPIC -g -ggdb -O0 -I../../guitarix/trunk/src/headers -I../../guitarix/trunk/libgxwmm -I../../guitarix/trunk/libgxw -I../../guitarix/trunk -I../../guitarix/trunk/src/faust-generated -I../../guitarix/trunk/src/gx_head/engine -I../../guitarix/trunk/src/gx_head/engine/tabels -I../../guitarix/trunk/src/zita-convolver -I../../guitarix/trunk/src/zita-resampler-1.1.0 -I../../guitarix/trunk/src/zita-resampler-1.1.0/zita-resampler -I../../guitarix/trunk/src/plugins -I../../guitarix/trunk/src/plugins/genarated -I/usr/lib/x86_64-linux-gnu/ $(CFLAGS)
+  JUCE_CFLAGS += $(JUCE_CPPFLAGS) $(TARGET_ARCH) -fPIC -g -ggdb -O0 $(NAM_INCLUD_DIRS) -I../../guitarix/trunk/src/headers -I../../guitarix/trunk/libgxwmm -I../../guitarix/trunk/libgxw -I../../guitarix/trunk -I../../guitarix/trunk/src/faust-generated -I../../guitarix/trunk/src/gx_head/engine -I../../guitarix/trunk/src/gx_head/engine/tabels -I../../guitarix/trunk/src/zita-convolver -I../../guitarix/trunk/src/zita-resampler-1.1.0 -I../../guitarix/trunk/src/zita-resampler-1.1.0/zita-resampler -I../../guitarix/trunk/src/plugins -I../../guitarix/trunk/src/plugins/genarated -I/usr/lib/x86_64-linux-gnu/ $(CFLAGS)
   JUCE_CXXFLAGS += $(JUCE_CFLAGS) -std=gnu++17 $(CXXFLAGS)
-  JUCE_LDFLAGS += $(TARGET_ARCH) -L$(JUCE_BINDIR) -L$(JUCE_LIBDIR) $(shell $(PKG_CONFIG) --libs alsa freetype2 libcurl glibmm-2.4 giomm-2.4 avahi-gobject avahi-glib avahi-client fftw3f sndfile eigen3 lilv-0 ) -fvisibility=hidden -I../../guitarix/trunk/src/headers -lrt -ldl -lpthread $(SYS_INCLUDE_FLAGS) $(LDFLAGS)
+  JUCE_LDFLAGS += $(TARGET_ARCH) -L$(JUCE_BINDIR) -L$(JUCE_LIBDIR) $(shell $(PKG_CONFIG) --libs alsa freetype2 libcurl glibmm-2.4 giomm-2.4 avahi-gobject avahi-glib avahi-client fftw3f sndfile  lilv-0 ) -fvisibility=hidden -I../../guitarix/trunk/src/headers -lrt -ldl -lpthread $(SYS_INCLUDE_FLAGS) $(LDFLAGS)
 
   CLEANCMD = rm -rf $(JUCE_OUTDIR)/$(TARGET) $(JUCE_OBJDIR)
 endif
@@ -151,7 +158,16 @@ ifeq ($(CONFIG),Release)
     SSE_CFLAGS =
   endif
 
-  JUCE_CPPFLAGS := $(DEPFLAGS) "-DIRPATH=\"$(STANDALONE_IR_PATH)\"" "-DLINUX=1" "-DNDEBUG=1" "-DJUCE_USE_CURL=0" "-DJUCE_DISABLE_CAUTIOUS_PARAMETER_ID_CHECKING=1" "-DJUCE_DISPLAY_SPLASH_SCREEN=0" "-DJUCE_USE_DARK_SPLASH_SCREEN=1" "-DJUCE_MODULE_AVAILABLE_juce_audio_basics=1" "-DJUCE_MODULE_AVAILABLE_juce_audio_devices=1" "-DJUCE_MODULE_AVAILABLE_juce_audio_formats=1" "-DJUCE_MODULE_AVAILABLE_juce_audio_plugin_client=1" "-DJUCE_MODULE_AVAILABLE_juce_audio_processors=1" "-DJUCE_MODULE_AVAILABLE_juce_audio_utils=1" "-DJUCE_MODULE_AVAILABLE_juce_core=1" "-DJUCE_MODULE_AVAILABLE_juce_data_structures=1" "-DJUCE_MODULE_AVAILABLE_juce_events=1" "-DJUCE_MODULE_AVAILABLE_juce_graphics=1" "-DJUCE_MODULE_AVAILABLE_juce_gui_basics=1" "-DJUCE_MODULE_AVAILABLE_juce_gui_extra=0" "-DJUCE_GLOBAL_MODULE_SETTINGS_INCLUDED=1" "-DJUCE_VST3_CAN_REPLACE_VST2=0" "-DJUCE_STRICT_REFCOUNTEDPOINTER=1" "-DJucePlugin_Build_VST=0" "-DJucePlugin_Build_VST3=1" "-DJucePlugin_Build_AU=0" "-DJucePlugin_Build_AUv3=0" "-DJucePlugin_Build_AAX=0" "-DJucePlugin_Build_Standalone=1" "-DJucePlugin_Build_Unity=0" "-DJucePlugin_Build_LV2=0" "-DJucePlugin_Enable_IAA=0" "-DJucePlugin_Enable_ARA=0" "-DJucePlugin_Name=\"Guitarix\"" "-DJucePlugin_Desc=\"Guitarix\"" "-DJucePlugin_Manufacturer=\"brummer\"" "-DJucePlugin_ManufacturerWebsite=\"www.brummer.com\"" "-DJucePlugin_ManufacturerEmail=\"\"" "-DJucePlugin_ManufacturerCode=0x4d616e75" "-DJucePlugin_PluginCode=0x4c736166" "-DJucePlugin_IsSynth=0" "-DJucePlugin_WantsMidiInput=1" "-DJucePlugin_ProducesMidiOutput=0" "-DJucePlugin_IsMidiEffect=0" "-DJucePlugin_EditorRequiresKeyboardFocus=0" "-DJucePlugin_Version=1.0.0" "-DJucePlugin_VersionCode=0x10000" "-DJucePlugin_VersionString=\"1.0.0\"" "-DJucePlugin_VSTUniqueID=JucePlugin_PluginCode" "-DJucePlugin_VSTCategory=kPlugCategEffect" "-DJucePlugin_Vst3Category=\"Fx\"" "-DJucePlugin_AUMainType='aufx'" "-DJucePlugin_AUSubType=JucePlugin_PluginCode" "-DJucePlugin_AUExportPrefix=GuitarixAU" "-DJucePlugin_AUExportPrefixQuoted=\"GuitarixAU\"" "-DJucePlugin_AUManufacturerCode=JucePlugin_ManufacturerCode" "-DJucePlugin_CFBundleIdentifier=https://guitarix.org/" "-DJucePlugin_AAXIdentifier=https://guitarix.org/" "-DJucePlugin_AAXManufacturerCode=JucePlugin_ManufacturerCode" "-DJucePlugin_AAXProductId=JucePlugin_PluginCode" "-DJucePlugin_AAXCategory=0" "-DJucePlugin_AAXDisableBypass=0" "-DJucePlugin_AAXDisableMultiMono=0" "-DJucePlugin_IAAType=0x61757278" "-DJucePlugin_IAASubType=JucePlugin_PluginCode" "-DJucePlugin_IAAName=\"brummer: Guitarix\"" "-DJucePlugin_VSTNumMidiInputs=16" "-DJucePlugin_VSTNumMidiOutputs=16" "-DJucePlugin_ARAContentTypes=0" "-DJucePlugin_ARATransformationFlags=0" "-DJucePlugin_ARAFactoryID=\"https://guitarix.org/.factory\"" "-DJucePlugin_ARADocumentArchiveID=\"https://guitarix.org/.aradocumentarchive.1.0.0\"" "-DJucePlugin_ARACompatibleArchiveIDs=\"\"" "-DJUCE_STANDALONE_APPLICATION=JucePlugin_Build_Standalone" "-DJUCE_MODAL_LOOPS_PERMITTED=1" "-DGUITARIX_AS_PLUGIN=1" "-DJUCER_LINUX_MAKE_6D53C8B4=1" "-DJUCE_APP_VERSION=1.0.0" "-DJUCE_APP_VERSION_HEX=0x10000" $(shell $(PKG_CONFIG) --cflags alsa freetype2 libcurl gtk+-x11-3.0 glibmm-2.4 giomm-2.4 avahi-gobject avahi-glib avahi-client fftw3f sndfile eigen3 lilv-0 ) -Wl,-Bstatic -pthread -I$(JUCE_DIR)/modules/juce_audio_processors/format_types/VST3_SDK -I$(VST3_DIR) -I../../JuceLibraryCode -I$(JUCE_DIR)/modules $(CPPFLAGS)
+ifneq ($(MAKECMDGOALS),install)
+ifneq ($(MAKECMDGOALS),clean)
+  ifneq ($(shell getconf LONG_BIT | grep 64 ) , )
+    JUCE_CXXFLAGS += -march=x86-64-v3
+    $(info $(yellow)INFO: $(reset)optimised for $(blue)x86_64$(reset))
+  endif
+endif
+endif
+
+  JUCE_CPPFLAGS := $(DEPFLAGS) $(NAM_FLAGS) "-DIRPATH=\"$(STANDALONE_IR_PATH)\"" "-DLINUX=1" "-DNDEBUG=1" "-DJUCE_USE_CURL=0" "-DJUCE_DISABLE_CAUTIOUS_PARAMETER_ID_CHECKING=1" "-DJUCE_DISPLAY_SPLASH_SCREEN=0" "-DJUCE_USE_DARK_SPLASH_SCREEN=1" "-DJUCE_MODULE_AVAILABLE_juce_audio_basics=1" "-DJUCE_MODULE_AVAILABLE_juce_audio_devices=1" "-DJUCE_MODULE_AVAILABLE_juce_audio_formats=1" "-DJUCE_MODULE_AVAILABLE_juce_audio_plugin_client=1" "-DJUCE_MODULE_AVAILABLE_juce_audio_processors=1" "-DJUCE_MODULE_AVAILABLE_juce_audio_utils=1" "-DJUCE_MODULE_AVAILABLE_juce_core=1" "-DJUCE_MODULE_AVAILABLE_juce_data_structures=1" "-DJUCE_MODULE_AVAILABLE_juce_events=1" "-DJUCE_MODULE_AVAILABLE_juce_graphics=1" "-DJUCE_MODULE_AVAILABLE_juce_gui_basics=1" "-DJUCE_MODULE_AVAILABLE_juce_gui_extra=0" "-DJUCE_GLOBAL_MODULE_SETTINGS_INCLUDED=1" "-DJUCE_VST3_CAN_REPLACE_VST2=0" "-DJUCE_STRICT_REFCOUNTEDPOINTER=1" "-DJucePlugin_Build_VST=0" "-DJucePlugin_Build_VST3=1" "-DJucePlugin_Build_AU=0" "-DJucePlugin_Build_AUv3=0" "-DJucePlugin_Build_AAX=0" "-DJucePlugin_Build_Standalone=1" "-DJucePlugin_Build_Unity=0" "-DJucePlugin_Build_LV2=0" "-DJucePlugin_Enable_IAA=0" "-DJucePlugin_Enable_ARA=0" "-DJucePlugin_Name=\"Guitarix\"" "-DJucePlugin_Desc=\"Guitarix\"" "-DJucePlugin_Manufacturer=\"brummer\"" "-DJucePlugin_ManufacturerWebsite=\"www.brummer.com\"" "-DJucePlugin_ManufacturerEmail=\"\"" "-DJucePlugin_ManufacturerCode=0x4d616e75" "-DJucePlugin_PluginCode=0x4c736166" "-DJucePlugin_IsSynth=0" "-DJucePlugin_WantsMidiInput=1" "-DJucePlugin_ProducesMidiOutput=0" "-DJucePlugin_IsMidiEffect=0" "-DJucePlugin_EditorRequiresKeyboardFocus=0" "-DJucePlugin_Version=1.0.0" "-DJucePlugin_VersionCode=0x10000" "-DJucePlugin_VersionString=\"1.0.0\"" "-DJucePlugin_VSTUniqueID=JucePlugin_PluginCode" "-DJucePlugin_VSTCategory=kPlugCategEffect" "-DJucePlugin_Vst3Category=\"Fx\"" "-DJucePlugin_AUMainType='aufx'" "-DJucePlugin_AUSubType=JucePlugin_PluginCode" "-DJucePlugin_AUExportPrefix=GuitarixAU" "-DJucePlugin_AUExportPrefixQuoted=\"GuitarixAU\"" "-DJucePlugin_AUManufacturerCode=JucePlugin_ManufacturerCode" "-DJucePlugin_CFBundleIdentifier=https://guitarix.org/" "-DJucePlugin_AAXIdentifier=https://guitarix.org/" "-DJucePlugin_AAXManufacturerCode=JucePlugin_ManufacturerCode" "-DJucePlugin_AAXProductId=JucePlugin_PluginCode" "-DJucePlugin_AAXCategory=0" "-DJucePlugin_AAXDisableBypass=0" "-DJucePlugin_AAXDisableMultiMono=0" "-DJucePlugin_IAAType=0x61757278" "-DJucePlugin_IAASubType=JucePlugin_PluginCode" "-DJucePlugin_IAAName=\"brummer: Guitarix\"" "-DJucePlugin_VSTNumMidiInputs=16" "-DJucePlugin_VSTNumMidiOutputs=16" "-DJucePlugin_ARAContentTypes=0" "-DJucePlugin_ARATransformationFlags=0" "-DJucePlugin_ARAFactoryID=\"https://guitarix.org/.factory\"" "-DJucePlugin_ARADocumentArchiveID=\"https://guitarix.org/.aradocumentarchive.1.0.0\"" "-DJucePlugin_ARACompatibleArchiveIDs=\"\"" "-DJUCE_STANDALONE_APPLICATION=JucePlugin_Build_Standalone" "-DJUCE_MODAL_LOOPS_PERMITTED=1" "-DGUITARIX_AS_PLUGIN=1" "-DJUCER_LINUX_MAKE_6D53C8B4=1" "-DJUCE_APP_VERSION=1.0.0" "-DJUCE_APP_VERSION_HEX=0x10000" $(shell $(PKG_CONFIG) --cflags alsa freetype2 libcurl gtk+-x11-3.0 glibmm-2.4 giomm-2.4 avahi-gobject avahi-glib avahi-client fftw3f sndfile  lilv-0 ) -Wl,-Bstatic -pthread -I$(JUCE_DIR)/modules/juce_audio_processors/format_types/VST3_SDK -I$(VST3_DIR) -I../../JuceLibraryCode -I$(JUCE_DIR)/modules $(CPPFLAGS)
 
   JUCE_CPPFLAGS_VST3 := 
   JUCE_CFLAGS_VST3 := -fPIC -fvisibility=hidden
@@ -168,10 +184,10 @@ ifeq ($(CONFIG),Release)
   JUCE_CPPFLAGS_SHARED_CODE :=  "-DJUCE_SHARED_CODE=1"
   JUCE_TARGET_SHARED_CODE := Guitarix.a
 
-  JUCE_CFLAGS += $(JUCE_CPPFLAGS) $(TARGET_ARCH) -fPIC -O3 -I../../guitarix/trunk/src/headers -I../../guitarix/trunk/libgxwmm -I../../guitarix/trunk/libgxw -I../../guitarix/trunk -I../../guitarix/trunk/src/faust-generated -I../../guitarix/trunk/src/gx_head/engine -I../../guitarix/trunk/src/gx_head/engine/tabels -I../../guitarix/trunk/src/zita-convolver -I../../guitarix/trunk/src/zita-resampler-1.1.0 -I../../guitarix/trunk/src/zita-resampler-1.1.0/zita-resampler -I../../guitarix/trunk/src/plugins -I../../guitarix/trunk/src/plugins/genarated -I/usr/lib/x86_64-linux-gnu/ $(CFLAGS)
-  JUCE_CXXFLAGS += $(JUCE_CFLAGS) -std=gnu++17 $(CXXFLAGS) $(SSE_CFLAGS)
+  JUCE_CFLAGS += $(JUCE_CPPFLAGS) $(TARGET_ARCH) -fPIC -O3 $(NAM_INCLUD_DIRS) -I../../guitarix/trunk/src/headers -I../../guitarix/trunk/libgxwmm -I../../guitarix/trunk/libgxw -I../../guitarix/trunk -I../../guitarix/trunk/src/faust-generated -I../../guitarix/trunk/src/gx_head/engine -I../../guitarix/trunk/src/gx_head/engine/tabels -I../../guitarix/trunk/src/zita-convolver -I../../guitarix/trunk/src/zita-resampler-1.1.0 -I../../guitarix/trunk/src/zita-resampler-1.1.0/zita-resampler -I../../guitarix/trunk/src/plugins -I../../guitarix/trunk/src/plugins/genarated -I/usr/lib/x86_64-linux-gnu/ $(CFLAGS)
+  JUCE_CXXFLAGS += $(JUCE_CFLAGS) -std=gnu++17 -fomit-frame-pointer -ftree-loop-linear -fno-math-errno -fno-signed-zeros -fstrength-reduce -pipe $(CXXFLAGS) $(SSE_CFLAGS)
 
-  JUCE_LDFLAGS += $(TARGET_ARCH) -L$(JUCE_BINDIR) -L$(JUCE_LIBDIR) $(shell $(PKG_CONFIG) --libs alsa freetype2 libcurl glibmm-2.4 giomm-2.4 avahi-gobject avahi-glib avahi-client fftw3f sndfile eigen3 lilv-0 ) -fvisibility=hidden -I../../guitarix/trunk/src/headers -lrt -ldl -lpthread $(SYS_INCLUDE_FLAGS) $(LDFLAGS)
+  JUCE_LDFLAGS += $(TARGET_ARCH) -L$(JUCE_BINDIR) -L$(JUCE_LIBDIR) $(shell $(PKG_CONFIG) --libs alsa freetype2 libcurl glibmm-2.4 giomm-2.4 avahi-gobject avahi-glib avahi-client fftw3f sndfile  lilv-0 ) -fvisibility=hidden -I../../guitarix/trunk/src/headers -lrt -ldl -lpthread $(SYS_INCLUDE_FLAGS) $(LDFLAGS)
 
   CLEANCMD = rm -rf $(JUCE_OUTDIR)/$(TARGET) $(JUCE_OBJDIR)
 endif
@@ -183,6 +199,15 @@ OBJECTS_VST3 := \
 
 OBJECTS_STANDALONE_PLUGIN := \
   $(JUCE_OBJDIR)/include_juce_audio_plugin_client_Standalone_1a871192.o \
+
+OBJECTS_NAM_CODE := \
+  $(JUCE_OBJDIR)/activations.o \
+  $(JUCE_OBJDIR)/convnet.o \
+  $(JUCE_OBJDIR)/dsp.o \
+  $(JUCE_OBJDIR)/get_dsp.o \
+  $(JUCE_OBJDIR)/lstm.o \
+  $(JUCE_OBJDIR)/util.o \
+  $(JUCE_OBJDIR)/wavenet.o \
 
 OBJECTS_SHARED_CODE := \
   $(JUCE_OBJDIR)/abgate_3dab4bb7.o \
@@ -302,10 +327,11 @@ finish:
 -include $(JUCE_UI_SHARED_CODE:%.o=%.d)
 -include $(JUCE_SHARED_CODE:%.o=%.d)
 -include $(OBJECTS_SHARED_CODE:%.o=%.d)
+-include $(OBJECTS_NAM_CODE:%.o=%.d)
 
 $(JUCE_OUTDIR)/$(JUCE_TARGET_VST3) : inform $(OBJECTS_VST3) $(RESOURCES) $(JUCE_OUTDIR)/$(JUCE_TARGET_SHARED_CODE)
 	@command -v $(PKG_CONFIG) >/dev/null 2>&1 || { echo >&2 "pkg-config not installed. Please, install it."; exit 1; }
-	@$(PKG_CONFIG) --print-errors alsa freetype2 libcurl glibmm-2.4 giomm-2.4 avahi-gobject avahi-glib avahi-client fftw3f sndfile eigen3 lilv-0  
+	@$(PKG_CONFIG) --print-errors alsa freetype2 libcurl glibmm-2.4 giomm-2.4 avahi-gobject avahi-glib avahi-client fftw3f sndfile  lilv-0  
 	@echo "$(blue)Linking Guitarix - VST3$(reset)"
 	-$(V_AT)mkdir -p $(JUCE_BINDIR)
 	-$(V_AT)mkdir -p $(JUCE_LIBDIR)
@@ -330,7 +356,7 @@ install :
 
 $(JUCE_OUTDIR)/$(JUCE_TARGET_STANDALONE_PLUGIN) : inform $(OBJECTS_STANDALONE_PLUGIN) $(RESOURCES) $(JUCE_OUTDIR)/$(JUCE_TARGET_SHARED_CODE)
 	@command -v $(PKG_CONFIG) >/dev/null 2>&1 || { echo >&2 "pkg-config not installed. Please, install it."; exit 1; }
-	@$(PKG_CONFIG) --print-errors alsa freetype2 libcurl glibmm-2.4 giomm-2.4 avahi-gobject avahi-glib avahi-client fftw3f sndfile eigen3 lilv-0 
+	@$(PKG_CONFIG) --print-errors alsa freetype2 libcurl glibmm-2.4 giomm-2.4 avahi-gobject avahi-glib avahi-client fftw3f sndfile  lilv-0 
 	@echo "$(blue)Linking Guitarix - Standalone Plugin$(reset)"
 	-$(V_AT)mkdir -p $(JUCE_BINDIR)
 	-$(V_AT)mkdir -p $(JUCE_LIBDIR)
@@ -341,14 +367,14 @@ ifneq ($(CONFIG),Debug)
 	-$(V_AT)$(STRIP) --strip-unneeded $(JUCE_OUTDIR)/$(JUCE_TARGET_STANDALONE_PLUGIN)
 endif
 
-$(JUCE_OUTDIR)/$(JUCE_TARGET_SHARED_CODE) : $(JUCE_SHARED_CODE) $(JUCE_UI_SHARED_CODE) $(OBJECTS_SHARED_CODE) $(RESOURCES) finish
+$(JUCE_OUTDIR)/$(JUCE_TARGET_SHARED_CODE) : $(JUCE_SHARED_CODE) $(JUCE_UI_SHARED_CODE) $(OBJECTS_SHARED_CODE) $(OBJECTS_NAM_CODE) $(RESOURCES) finish
 	@command -v $(PKG_CONFIG) >/dev/null 2>&1 || { echo >&2 "pkg-config not installed. Please, install it."; exit 1; }
-	@$(PKG_CONFIG) --print-errors alsa freetype2 libcurl glibmm-2.4 giomm-2.4 avahi-gobject avahi-glib avahi-client fftw3f sndfile eigen3 lilv-0 
+	@$(PKG_CONFIG) --print-errors alsa freetype2 libcurl glibmm-2.4 giomm-2.4 avahi-gobject avahi-glib avahi-client fftw3f sndfile  lilv-0 
 	@echo "$(blue)Linking Guitarix - Shared Code"
 	-$(V_AT)mkdir -p $(JUCE_BINDIR)
 	-$(V_AT)mkdir -p $(JUCE_LIBDIR)
 	-$(V_AT)mkdir -p $(JUCE_OUTDIR)
-	$(V_AT)$(AR) -rcs $(JUCE_OUTDIR)/$(JUCE_TARGET_SHARED_CODE) $(JUCE_SHARED_CODE) $(JUCE_UI_SHARED_CODE) $(OBJECTS_SHARED_CODE)
+	$(V_AT)$(AR) -rcs $(JUCE_OUTDIR)/$(JUCE_TARGET_SHARED_CODE) $(JUCE_SHARED_CODE) $(JUCE_UI_SHARED_CODE) $(OBJECTS_SHARED_CODE) $(OBJECTS_NAM_CODE)
 
 $(JUCE_OBJDIR)/include_juce_audio_plugin_client_VST3_dd633589.o: ../../JuceLibraryCode/include_juce_audio_plugin_client_VST3.cpp
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
@@ -364,6 +390,42 @@ $(JUCE_OBJDIR)/PluginEditor_94d4fb09.o: ../../Source/PluginEditor.cpp
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
 	@$(ECHO) "Compiling PluginEditor.cpp"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
+
+$(JUCE_OBJDIR)/activations.o: ../../guitarix/trunk/src/NAM/NeuralAmpModelerCore/NAM/activations.cpp
+	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
+	@$(ECHO) "Compiling activations.cpp"
+	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) -Ofast -Wno-sign-compare -fno-fat-lto-objects $(JUCE_CPPFLAGS_SHARED_CODE) $(NAM_INCLUD_DIRS) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
+
+$(JUCE_OBJDIR)/convnet.o: ../../guitarix/trunk/src/NAM/NeuralAmpModelerCore/NAM/convnet.cpp
+	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
+	@$(ECHO) "Compiling convnet.cpp"
+	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) -Ofast -Wno-sign-compare -fno-fat-lto-objects $(JUCE_CPPFLAGS_SHARED_CODE) $(NAM_INCLUD_DIRS) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
+
+$(JUCE_OBJDIR)/dsp.o: ../../guitarix/trunk/src/NAM/NeuralAmpModelerCore/NAM/dsp.cpp
+	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
+	@$(ECHO) "Compiling dsp.cpp"
+	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) -Ofast -Wno-sign-compare -fno-fat-lto-objects $(JUCE_CPPFLAGS_SHARED_CODE) $(NAM_INCLUD_DIRS) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
+
+$(JUCE_OBJDIR)/get_dsp.o: ../../guitarix/trunk/src/NAM/NeuralAmpModelerCore/NAM/get_dsp.cpp
+	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
+	@$(ECHO) "Compiling get_dsp.cpp"
+	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) -Ofast -Wno-sign-compare -fno-fat-lto-objects $(JUCE_CPPFLAGS_SHARED_CODE) $(NAM_INCLUD_DIRS) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
+
+$(JUCE_OBJDIR)/lstm.o: ../../guitarix/trunk/src/NAM/NeuralAmpModelerCore/NAM/lstm.cpp
+	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
+	@$(ECHO) "Compiling lstm.cpp"
+	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) -Ofast -Wno-sign-compare -fno-fat-lto-objects $(JUCE_CPPFLAGS_SHARED_CODE) $(NAM_INCLUD_DIRS) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
+
+$(JUCE_OBJDIR)/util.o: ../../guitarix/trunk/src/NAM/NeuralAmpModelerCore/NAM/util.cpp
+	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
+	@$(ECHO) "Compiling util.cpp"
+	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) -Ofast -Wno-sign-compare -fno-fat-lto-objects $(JUCE_CPPFLAGS_SHARED_CODE) $(NAM_INCLUD_DIRS) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
+
+$(JUCE_OBJDIR)/wavenet.o: ../../guitarix/trunk/src/NAM/NeuralAmpModelerCore/NAM/wavenet.cpp
+	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
+	@$(ECHO) "Compiling wavenet.cpp"
+	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) -Ofast -Wno-sign-compare -fno-fat-lto-objects $(JUCE_CPPFLAGS_SHARED_CODE) $(NAM_INCLUD_DIRS) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
+
 
 $(JUCE_OBJDIR)/abgate_3dab4bb7.o: ../../guitarix/trunk/src/plugins/abgate.cc
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
@@ -841,3 +903,4 @@ strip:
 -include $(OBJECTS_VST3:%.o=%.d)
 -include $(OBJECTS_STANDALONE_PLUGIN:%.o=%.d)
 -include $(OBJECTS_SHARED_CODE:%.o=%.d)
+-include $(OBJECTS_NAM_CODE:%.o=%.d)
