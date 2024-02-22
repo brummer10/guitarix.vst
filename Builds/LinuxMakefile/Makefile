@@ -161,7 +161,7 @@ ifeq ($(CONFIG),Release)
 ifneq ($(MAKECMDGOALS),install)
 ifneq ($(MAKECMDGOALS),clean)
   ifneq ($(shell getconf LONG_BIT | grep 64 ) , )
-    JUCE_CXXFLAGS += -march=x86-64-v3
+    JUCE_CXXFLAGS += -march=x86-64
     $(info $(yellow)INFO: $(reset)optimised for $(blue)x86_64$(reset))
   endif
 endif
