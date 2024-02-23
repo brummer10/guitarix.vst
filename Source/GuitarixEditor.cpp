@@ -259,7 +259,10 @@ void GuitarixEditor::buttonClicked(juce::Button * b)
     {
         char txt[]=
         "Guitarix virtual guitar amplifier VST3 port for Linux\n"
-        "Portions (C) 2022 Hermann Meyer\n"
+        "Version v"
+        GXV
+        "\n"
+        "Portions (C) 2024 Hermann Meyer\n"
         "\n"
         "Guitarix.vst virtual guitar amplifier port for Mac/PC\n"
         "Portions (C) 2022 Maxim Alexanian\n"
