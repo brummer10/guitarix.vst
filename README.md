@@ -2,6 +2,8 @@
 
 This is a VST3 wrapper for [Guitarix](https://github.com/brummer10/guitarix)
 
+![Guitarix.vst3](https://camo.githubusercontent.com/cb7ca389f73ae1c2117d24ce407d640e26e5121cf62db4f8075e08307f6848cc/68747470733a2f2f692e696d6775722e636f6d2f556c657a47386e2e706e67)
+
 for Linux. Guitarix is implemented as git submodule.
 
 Initial development for this VST3 port was done by [Maxim Alexanian](https://www.musiclab.com/)
@@ -15,7 +17,7 @@ Host could save a state as usual in the VST preset format.
 
 [![build](https://github.com/brummer10/guitarix.vst/actions/workflows/build.yml/badge.svg)](https://github.com/brummer10/guitarix.vst/actions/workflows/build.yml)
 
-[Guitarix.vst3.zip](https://github.com/brummer10/guitarix.vst/releases/download/main/Guitarix.vst3.zip)
+[Guitarix.vst3.zip](https://github.com/brummer10/guitarix.vst/releases/download/Latest/Guitarix.vst3.zip)
 
 ## Dependencies
 
@@ -38,6 +40,7 @@ On debian based systems the following packages been needed:
 - libavahi-glib-dev
 - libavahi-client-dev
 - libeigen3-dev
+- libcurl4-gnutls-dev
 
 optional, when not use the included juce modules
 
