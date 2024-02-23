@@ -62,7 +62,7 @@ jobs:
     - name: Upload Latest Asset
       if: ${{ ! contains(github.ref_name, 'v') }}
       uses: actions/upload-release-asset@v1
-      id: upload-release-asset
+      id: upload-latest-asset
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
