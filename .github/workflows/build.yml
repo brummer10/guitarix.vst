@@ -38,7 +38,7 @@ jobs:
     - name: Create Latest
       if: ${{ ! contains(github.ref_name, 'v') }}
       uses: actions/create-release@v1
-      id: create_release
+      id: create_pre_release
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
@@ -59,9 +59,22 @@ jobs:
         draft: false
         prerelease: false
 
-    - name: Upload Release Asset
-      id: upload-release-asset
+    - name: Upload Latest Asset
+      if: ${{ ! contains(github.ref_name, 'v') }}
       uses: actions/upload-release-asset@v1
+      id: upload-release-asset
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_pre_release.outputs.upload_url }}
+        asset_path: /home/runner/work/guitarix.vst/guitarix.vst/Builds/LinuxMakefile/build/Guitarix.vst3.zip
+        asset_name: Guitarix.vst3.zip
+        asset_content_type: application/zip
+
+    - name: Upload Release Asset
+      if: ${{ contains(github.ref_name, 'v') }}
+      uses: actions/upload-release-asset@v1
+      id: upload-release-asset
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
