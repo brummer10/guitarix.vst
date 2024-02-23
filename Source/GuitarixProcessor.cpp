@@ -36,7 +36,6 @@ GuitarixStart::GuitarixStart(int argc, char *argv[])
 {
     Glib::init();
     Gio::init();
-    std::locale::global(std::locale("C"));
     if (!opt_counter)
         options=new gx_system::CmdlineOptions(argc>=1?argv[0]:"");
     if (options == 0) {
