@@ -244,6 +244,32 @@ void GuitarixEditor::createPluginEditors(bool l, bool r, bool s)
 	if(s) ed_s.createPluginEditors();
 }
 
+bool GuitarixEditor::cat_match(std::string cat_in, std::vector<std::string> to_match) {
+    return std::any_of(to_match.begin(), to_match.end(), 
+        [&cat_in](const auto& s){ return cat_in.find(s) != std::string::npos; });
+}
+
+int GuitarixEditor::get_category(std::string cat_in) {
+    std::vector<std::string> check = {"Delay", "Reverb", "Echo"};
+    if (cat_match(cat_in, check)) return 0;
+    check.clear();
+    check.assign( {"Distortion", "Waveshaper", "Amplifier" } );
+    if (cat_match(cat_in, check)) return 1;
+    check.clear();
+    check.assign( {"Dynamics", "Compressor", "Envelope", "Expander", "Gate", "Limiter"} );
+    if (cat_match(cat_in, check)) return 2;
+    check.clear();
+    check.assign( {"Filter", "Allpass", "Bandpass", "Comb", "EQ", "Highpass", "Lowpass" } );
+    if (cat_match(cat_in, check)) return 3;
+    check.clear();
+    check.assign( {"Generator", "Constant", "Instrument", "Oscillator" } );
+    if (cat_match(cat_in, check)) return 4;
+    check.clear();
+    check.assign( {"Modulator", "Chorus", "Flanger", "Phaser", "Spatial", "Spectral", "Pitch" } );
+    if (cat_match(cat_in, check)) return 5;
+    return 6;
+}
+
 void GuitarixEditor::buttonClicked(juce::Button * b)
 {
 	if (b == &monoButton)
@@ -294,8 +320,7 @@ void GuitarixEditor::buttonClicked(juce::Button * b)
         "\n \n";
 
         juce::AlertWindow alertWindow("About Guitarix.vst",
-                                                                     txt,
-                                                                     AlertWindow::InfoIcon);
+            txt, AlertWindow::InfoIcon);
         alertWindow.addButton("Ok", 0);
         alertWindow.setUsingNativeTitleBar(true);
             
@@ -305,6 +330,9 @@ void GuitarixEditor::buttonClicked(juce::Button * b)
         on_online_preset();
     }
     else if (b == &pluginButton) {
+        const char* categories[] = {"Delay", "Distortion","Dynamics","Filter","Generator","Modulator","Utility"};
+        int cl = sizeof(categories) / sizeof(categories[0]);
+        PopupMenu item[7];
         PopupMenu menu;
         static int l = 0;
         if (!l) {
@@ -317,10 +345,13 @@ void GuitarixEditor::buttonClicked(juce::Button * b)
             if ((*v)->is_lv2) {
                 bool enabled = (*v)->active;
                 std::string s = (*v)->Name;
-                menu.addItem (i, juce::String(s), true, enabled);
+                item[get_category((*v)->ladspa_category)].addItem (i, juce::String(s), true, enabled);
             }
             i++;
             //fprintf(stderr, "%s %s\n", ((*v)->Name).c_str(),((*v)->category.c_str()));
+        }
+        for (int i = 0; i < cl; i++) {
+            menu.addSubMenu(categories[i], item[i]);
         }
         menu.showMenuAsync (PopupMenu::Options()
             .withTargetComponent(&pluginButton)

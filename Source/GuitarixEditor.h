@@ -196,6 +196,8 @@ private:
     void on_preset_select();
     void on_online_preset();
     static void loadLV2PlugCallback(int i, GuitarixEditor* ge);
+    bool cat_match(std::string cat_in, std::vector<std::string> to_match);
+    int get_category(std::string cat_in);
     void downloadPreset(std::string uri);
     void read_online_preset_menu();
     static void handleOnlineMenu(int choice, GuitarixEditor* ge);

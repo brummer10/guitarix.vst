@@ -48,7 +48,9 @@ void cat2color(const char* cat, juce::Colour &col)
 
 //==============================================================================
 PluginEditor::PluginEditor(MachineEditor* ed, const char* id, const char* cat, PluginSelector *ps) :
-    ed(ed), pid(id), ps(ps), cat(cat), lastDirectory(juce::File::getSpecialLocation(juce::File::userMusicDirectory))
+    ed(ed), pid(id), ps(ps), cat(cat),
+    lastIRDirectory(juce::File::getSpecialLocation(juce::File::userMusicDirectory)),
+    lastNAMDirectory(juce::File::getSpecialLocation(juce::File::userMusicDirectory))
 {
     cat2color(cat, col);
     col = col.withAlpha((uint8)30);
@@ -402,8 +404,10 @@ void PluginEditor::set_nam_load_button_text(const std::string& attr, bool set)
 
             auto set_nam_filename = [=](juce::String s) 
                 { button->setButtonText(s); };
-            set_nam_filename(juce::File(juce::String(
-                dynamic_cast<gx_engine::StringParameter*>(p)->getString().get_value())).getFileNameWithoutExtension());
+            juce::File namFile = juce::File(juce::String(
+                dynamic_cast<gx_engine::StringParameter*>(p)->getString().get_value()));
+            this->lastNAMDirectory = namFile.getParentDirectory();
+            set_nam_filename(namFile.getFileNameWithoutExtension());
 
         }
     }
@@ -425,7 +429,7 @@ void PluginEditor::set_ir_load_button_text(const std::string& attr, bool set)
             gx_engine::GxJConvSettings j = dynamic_cast<gx_engine::JConvParameter*>(p)->get_value();
             std::string fdir = j.getIRDir();
             if (is_factory_IR(fdir)) return;
-            if (!fdir.empty()) lastDirectory = juce::File(fdir);
+            if (!fdir.empty()) lastIRDirectory = juce::File(fdir);
             std::string fname = j.getIRFile();
             if (!fname.empty()) button->setButtonText(juce::String(fname));
             juce::Component *c = findChildByID(this, parid.c_str());
@@ -540,8 +544,8 @@ void PluginEditor::load_NAM(const std::string& attr, juce::Button* button, juce:
 }
 
 void PluginEditor::open_nam_file_browser(juce::Button* button, const std::string& id) {
-    auto fc = new juce::FileChooser ("Choose NAM file to load...", lastDirectory.isDirectory() ?
-        lastDirectory : juce::File::getSpecialLocation(juce::File::userMusicDirectory), "*.nam", false);
+    auto fc = new juce::FileChooser ("Choose NAM file to load...", lastNAMDirectory.isDirectory() ?
+        lastNAMDirectory : juce::File::getSpecialLocation(juce::File::userMusicDirectory), "*.nam", false);
 
     fc->launchAsync (juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles,
                                             [this, id, button, fc] (const juce::FileChooser& chooser) {
@@ -551,7 +555,7 @@ void PluginEditor::open_nam_file_browser(juce::Button* button, const std::string
                                                         : result.toString (false)) ;
 
         if(chosen.isNotEmpty()) {
-            this->lastDirectory = result.getLocalFile().getParentDirectory();
+            this->lastNAMDirectory = result.getLocalFile().getParentDirectory();
             this->load_NAM(id, button, chosen);
         }
         button->setToggleState(false, juce::dontSendNotification);
@@ -581,8 +585,8 @@ void PluginEditor::load_IR(const std::string& attr, juce::Button* button, juce::
 }
 
 void PluginEditor::open_file_browser(juce::Button* button, const std::string& id) {
-    auto fc = new juce::FileChooser ("Choose IR file to open...", lastDirectory.isDirectory() ?
-        lastDirectory : juce::File::getSpecialLocation(juce::File::userMusicDirectory), "*.wav", false);
+    auto fc = new juce::FileChooser ("Choose IR file to open...", lastIRDirectory.isDirectory() ?
+        lastIRDirectory : juce::File::getSpecialLocation(juce::File::userMusicDirectory), "*.wav", false);
 
     fc->launchAsync (juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles,
                                             [this, id, button, fc] (const juce::FileChooser& chooser) {
@@ -592,7 +596,7 @@ void PluginEditor::open_file_browser(juce::Button* button, const std::string& id
                                                         : result.toString (false)) ;
 
         if(chosen.isNotEmpty()) {
-            this->lastDirectory = result.getLocalFile().getParentDirectory();
+            this->lastIRDirectory = result.getLocalFile().getParentDirectory();
             this->load_IR(id, button, chosen);
         }
         button->setToggleState(false, juce::dontSendNotification);
