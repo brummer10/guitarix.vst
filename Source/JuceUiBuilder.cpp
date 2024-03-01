@@ -496,8 +496,10 @@ void JuceUiBuilder::additem(juce::Component *c)
 	{
 		auto parent = boxstack.begin();
 		juce::FlexBox *b = parent->first.first;
-		if (b)
-		{
+        if (dynamic_cast<juce::TabbedComponent*>(c)) {
+			b->items.add(juce::FlexItem(c->getWidth(), c->getHeight(), *c).withAlignSelf(juce::FlexItem::AlignSelf::stretch));
+			updateparentsize(c->getWidth(), c->getHeight());
+		} else if (b) {
 			b->items.add(juce::FlexItem(c->getWidth(), c->getHeight(), *c).withAlignSelf(juce::FlexItem::AlignSelf::center));
 			updateparentsize(c->getWidth(), c->getHeight());
 		}

@@ -50,6 +50,7 @@ void cat2color(const char* cat, juce::Colour &col)
 PluginEditor::PluginEditor(MachineEditor* ed, const char* id, const char* cat, PluginSelector *ps) :
     ed(ed), pid(id), ps(ps), cat(cat),
     lastIRDirectory(juce::File::getSpecialLocation(juce::File::userMusicDirectory)),
+    lastRTNeuralDirectory(juce::File::getSpecialLocation(juce::File::userMusicDirectory)),
     lastNAMDirectory(juce::File::getSpecialLocation(juce::File::userMusicDirectory))
 {
     cat2color(cat, col);
@@ -361,6 +362,19 @@ void PluginEditor::create(int edx, int edy, int &w, int &h)
 #undef PARAM
         set_nam_load_button_text("nam.", true);
     }
+    else if (pid == "rtneural")//Convolver Mono
+    {
+#define PARAM(p) ("rtneural" "." p)
+        b.openHorizontalBox("");
+        b.create_mid_rackknob(PARAM("input"), _("Input"));
+        b.openVerticalBox("");
+        b.create_fload_switch(sw_fbutton, "rtneural.", "Load File");
+        b.closeBox();
+        b.create_mid_rackknob(PARAM("output"), _("Output"));
+        b.closeBox();
+#undef PARAM
+        set_rtneural_load_button_text("rtneural.", true);
+    }
     else {
         pd->load_ui(b, UI_FORM_STACK);
     }
@@ -388,6 +402,32 @@ bool PluginEditor::is_factory_IR(const std::string& dir) {
     return false;
 }
 
+void PluginEditor::set_rtneural_load_button_text(const std::string& attr, bool set)
+{
+    std::string parid = attr.substr(0,attr.find_last_of(".")+1);
+    if (parid.compare("rtneural.") == 0) {
+        juce::Component *b = findChildByID(this, parid.c_str());
+        parid.append("loadfile");
+        gx_engine::Parameter *p = ed->get_parameter(parid.c_str());
+        if (dynamic_cast<gx_engine::StringParameter*>(p) && dynamic_cast<juce::Button*>(b)) {
+            juce::Button* button = dynamic_cast<juce::Button*>(b);
+            if (!set) {
+                button->setButtonText("Load File");
+                return;
+            }
+
+            auto set_rtneural_filename = [=](juce::String s) 
+                { button->setButtonText(s); };
+            juce::File rtneuralFile = juce::File(juce::String(
+                dynamic_cast<gx_engine::StringParameter*>(p)->getString().get_value()));
+            if (rtneuralFile.existsAsFile())
+                this->lastRTNeuralDirectory = rtneuralFile.getParentDirectory();
+            set_rtneural_filename(rtneuralFile.getFileNameWithoutExtension());
+
+        }
+    }
+}
+
 void PluginEditor::set_nam_load_button_text(const std::string& attr, bool set)
 {
     std::string parid = attr.substr(0,attr.find_last_of(".")+1);
@@ -406,7 +446,8 @@ void PluginEditor::set_nam_load_button_text(const std::string& attr, bool set)
                 { button->setButtonText(s); };
             juce::File namFile = juce::File(juce::String(
                 dynamic_cast<gx_engine::StringParameter*>(p)->getString().get_value()));
-            this->lastNAMDirectory = namFile.getParentDirectory();
+            if (namFile.existsAsFile())
+                this->lastNAMDirectory = namFile.getParentDirectory();
             set_nam_filename(namFile.getFileNameWithoutExtension());
 
         }
@@ -525,6 +566,45 @@ void PluginEditor::sliderValueChanged(juce::Slider* slider)
     }
 }
 
+void PluginEditor::load_RTNeural(const std::string& attr, juce::Button* button, juce::String fname) {
+    gx_engine::ParamMap& param = ed->get_param();
+    if (param.hasId(attr)) {
+        gx_engine::Parameter& p = param[attr];
+        ed->SetAlternateDouble(ModifierKeys::getCurrentModifiers().testFlags(ModifierKeys::shiftModifier));
+        p.set_blocked(true);
+        
+        if (dynamic_cast<gx_engine::StringParameter*>(&p))
+        {
+            std::string filename = fname.toStdString();
+            ed->machine->set_parameter_value(attr, filename);
+            set_rtneural_load_button_text(attr, true);
+        }
+        p.set_blocked(false);
+        ed->SetAlternateDouble(false);
+    }    
+}
+
+void PluginEditor::open_rtneural_file_browser(juce::Button* button, const std::string& id) {
+    auto fc = new juce::FileChooser ("Choose RTNeural file to load...", lastRTNeuralDirectory.isDirectory() ?
+        lastRTNeuralDirectory : juce::File::getSpecialLocation(juce::File::userMusicDirectory), "*.json;*.aidax", false);
+
+    fc->launchAsync (juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles,
+                                            [this, id, button, fc] (const juce::FileChooser& chooser) {
+        juce::String chosen;
+        auto result = chooser.getURLResult();
+        chosen << (result.isLocalFile() ? result.getLocalFile().getFullPathName()
+                                                        : result.toString (false)) ;
+
+        if(chosen.isNotEmpty()) {
+            this->lastRTNeuralDirectory = result.getLocalFile().getParentDirectory();
+            this->load_RTNeural(id, button, chosen);
+        }
+        button->setToggleState(false, juce::dontSendNotification);
+        delete fc;
+    });
+}
+
+
 void PluginEditor::load_NAM(const std::string& attr, juce::Button* button, juce::String fname) {
     gx_engine::ParamMap& param = ed->get_param();
     if (param.hasId(attr)) {
@@ -612,6 +692,8 @@ void PluginEditor::buttonClicked(juce::Button* button)
         attr.append("convolver");
     } else if (attr.compare("nam.") == 0) {
         attr.append("loadfile");
+    } else if (attr.compare("rtneural.") == 0) {
+        attr.append("loadfile");
     }
 
     if (param.hasId(attr)) {
@@ -626,6 +708,8 @@ void PluginEditor::buttonClicked(juce::Button* button)
             }
         } else if (attr.compare("nam.loadfile") == 0) {
             open_nam_file_browser(button, attr);
+        } else if (attr.compare("rtneural.loadfile") == 0) {
+            open_rtneural_file_browser(button, attr);
         } else if (p.isFloat()) {
             p.getFloat().set(button->getToggleState() ? 1 : 0);
         }
