@@ -704,7 +704,7 @@ void PluginEditor::buttonClicked(juce::Button* button)
             if (attr.compare("jconv_mono.convolver") == 0) {
                 open_file_browser(button, attr);
             } else if (attr.compare("jconv.convolver") == 0) {
-                open_nam_file_browser(button, attr);
+                open_file_browser(button, attr);
             }
         } else if (attr.compare("nam.loadfile") == 0) {
             open_nam_file_browser(button, attr);
