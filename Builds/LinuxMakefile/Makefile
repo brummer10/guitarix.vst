@@ -99,7 +99,7 @@ else
 endif
 
 JUCE_ARCH_LABEL := $(shell uname -m)
-GUITARIX_VST_VERSION := 0.2
+GUITARIX_VST_VERSION := 0.3
 
 ifeq ($(CONFIG),Debug)
   JUCE_BINDIR := build
