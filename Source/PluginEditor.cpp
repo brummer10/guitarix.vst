@@ -27,6 +27,8 @@ void cat2color(const char* cat, juce::Colour &col)
 {
     if(strcmp(cat, "Tone Control")==0)
         {col = juce::Colour::fromRGBA(  0, 255,   0, 255); return;}
+    else if(strcmp(cat, "Neural")==0)
+        {col = juce::Colour::fromRGBA(255, 128, 128, 255); return;}
     else if(strcmp(cat, "Distortion")==0)
         {col = juce::Colour::fromRGBA(255,   0,   0, 255); return;}
     else if(strcmp(cat, "Fuzz")==0)
@@ -362,6 +364,35 @@ void PluginEditor::create(int edx, int edy, int &w, int &h)
 #undef PARAM
         set_nam_load_button_text("nam.", true);
     }
+    else if (pid == "snam")//Convolver Mono
+    {
+#define PARAM(p) ("snam" "." p)
+        b.openHorizontalBox("");
+        b.create_mid_rackknob(PARAM("input"), _("Input"));
+        b.openVerticalBox("");
+        b.create_fload_switch(sw_fbutton, "snam.", "Load File");
+        b.closeBox();
+        b.create_mid_rackknob(PARAM("output"), _("Output"));
+        b.closeBox();
+#undef PARAM
+        set_nam_load_button_text("snam.", true);
+    }
+    else if (pid == "mnam")//Convolver Mono
+    {
+#define PARAM(p) ("mnam" "." p)
+        b.openHorizontalBox("");
+        b.create_mid_rackknob(PARAM("input"), _("Input"));
+        b.openVerticalBox("");
+        b.create_fload_switch(sw_fbutton, "mnam.loadafile", "Load File");
+        b.create_fload_switch(sw_fbutton, "mnam.loadbfile", "Load File");
+        b.closeBox();
+        b.create_mid_rackknob(PARAM("output"), _("Output"));
+        b.create_mid_rackknob(PARAM("mix"), _("Blend A/B"));
+        b.closeBox();
+#undef PARAM
+        set_nam_load_button_text("mnam.loadafile", true);
+        set_nam_load_button_text("mnam.loadbfile", true);
+    }
     else if (pid == "rtneural")//Convolver Mono
     {
 #define PARAM(p) ("rtneural" "." p)
@@ -374,6 +405,35 @@ void PluginEditor::create(int edx, int edy, int &w, int &h)
         b.closeBox();
 #undef PARAM
         set_rtneural_load_button_text("rtneural.", true);
+    }
+    else if (pid == "srtneural")//Convolver Mono
+    {
+#define PARAM(p) ("srtneural" "." p)
+        b.openHorizontalBox("");
+        b.create_mid_rackknob(PARAM("input"), _("Input"));
+        b.openVerticalBox("");
+        b.create_fload_switch(sw_fbutton, "srtneural.", "Load File");
+        b.closeBox();
+        b.create_mid_rackknob(PARAM("output"), _("Output"));
+        b.closeBox();
+#undef PARAM
+        set_rtneural_load_button_text("srtneural.", true);
+    }
+    else if (pid == "mrtneural")//Convolver Mono
+    {
+#define PARAM(p) ("mrtneural" "." p)
+        b.openHorizontalBox("");
+        b.create_mid_rackknob(PARAM("input"), _("Input"));
+        b.openVerticalBox("");
+        b.create_fload_switch(sw_fbutton, "mrtneural.loadafile", "Load File");
+        b.create_fload_switch(sw_fbutton, "mrtneural.loadbfile", "Load File");
+        b.closeBox();
+        b.create_mid_rackknob(PARAM("output"), _("Output"));
+        b.create_mid_rackknob(PARAM("mix"), _("Blend A/B"));
+        b.closeBox();
+#undef PARAM
+        set_rtneural_load_button_text("mrtneural.loadafile", true);
+        set_rtneural_load_button_text("mrtneural.loadbfile", true);
     }
     else {
         pd->load_ui(b, UI_FORM_STACK);
@@ -405,10 +465,17 @@ bool PluginEditor::is_factory_IR(const std::string& dir) {
 void PluginEditor::set_rtneural_load_button_text(const std::string& attr, bool set)
 {
     std::string parid = attr.substr(0,attr.find_last_of(".")+1);
-    if (parid.compare("rtneural.") == 0) {
-        juce::Component *b = findChildByID(this, parid.c_str());
+    juce::Component *b = nullptr;
+    gx_engine::Parameter *p = nullptr;
+    if ((parid.compare("rtneural.") == 0) || (parid.compare("srtneural.") == 0)) {
+        b = findChildByID(this, parid.c_str());
         parid.append("loadfile");
-        gx_engine::Parameter *p = ed->get_parameter(parid.c_str());
+        p = ed->get_parameter(parid.c_str());
+    } else if ((attr.compare("mrtneural.loadafile") == 0) ||(attr.compare("mrtneural.loadbfile") == 0)) {
+        b = findChildByID(this, attr.c_str());
+        p = ed->get_parameter(attr.c_str());
+    }
+    if (b) {
         if (dynamic_cast<gx_engine::StringParameter*>(p) && dynamic_cast<juce::Button*>(b)) {
             juce::Button* button = dynamic_cast<juce::Button*>(b);
             if (!set) {
@@ -431,10 +498,17 @@ void PluginEditor::set_rtneural_load_button_text(const std::string& attr, bool s
 void PluginEditor::set_nam_load_button_text(const std::string& attr, bool set)
 {
     std::string parid = attr.substr(0,attr.find_last_of(".")+1);
-    if (parid.compare("nam.") == 0) {
-        juce::Component *b = findChildByID(this, parid.c_str());
+    juce::Component *b = nullptr;
+    gx_engine::Parameter *p = nullptr;
+    if ((parid.compare("nam.") == 0) || (parid.compare("snam.") == 0)) {
+        b = findChildByID(this, parid.c_str());
         parid.append("loadfile");
-        gx_engine::Parameter *p = ed->get_parameter(parid.c_str());
+        p = ed->get_parameter(parid.c_str());
+    } else if ((attr.compare("mnam.loadafile") == 0) || (attr.compare("mnam.loadbfile") == 0)) {
+        b = findChildByID(this, attr.c_str());
+        p = ed->get_parameter(attr.c_str());
+    }
+    if (b) {
         if (dynamic_cast<gx_engine::StringParameter*>(p) && dynamic_cast<juce::Button*>(b)) {
             juce::Button* button = dynamic_cast<juce::Button*>(b);
             if (!set) {
@@ -692,7 +766,11 @@ void PluginEditor::buttonClicked(juce::Button* button)
         attr.append("convolver");
     } else if (attr.compare("nam.") == 0) {
         attr.append("loadfile");
+    } else if (attr.compare("snam.") == 0) {
+        attr.append("loadfile");
     } else if (attr.compare("rtneural.") == 0) {
+        attr.append("loadfile");
+    } else if (attr.compare("srtneural.") == 0) {
         attr.append("loadfile");
     }
 
@@ -708,7 +786,19 @@ void PluginEditor::buttonClicked(juce::Button* button)
             }
         } else if (attr.compare("nam.loadfile") == 0) {
             open_nam_file_browser(button, attr);
+        } else if (attr.compare("snam.loadfile") == 0) {
+            open_nam_file_browser(button, attr);
+        } else if (attr.compare("mnam.loadafile") == 0) {
+            open_nam_file_browser(button, attr);
+        } else if (attr.compare("mnam.loadbfile") == 0) {
+            open_nam_file_browser(button, attr);
         } else if (attr.compare("rtneural.loadfile") == 0) {
+            open_rtneural_file_browser(button, attr);
+        } else if (attr.compare("srtneural.loadfile") == 0) {
+            open_rtneural_file_browser(button, attr);
+        } else if (attr.compare("mrtneural.loadafile") == 0) {
+            open_rtneural_file_browser(button, attr);
+        } else if (attr.compare("mrtneural.loadbfile") == 0) {
             open_rtneural_file_browser(button, attr);
         } else if (p.isFloat()) {
             p.getFloat().set(button->getToggleState() ? 1 : 0);

@@ -800,7 +800,7 @@ gx_engine::ParamMap& MachineEditor::get_param()
 
 void MachineEditor::buildPluginCombo(juce::ComboBox *c, std::list<gx_engine::Plugin*> &lv, const char* selid)
 {
-	const char* categories[] = { "Tone Control","Distortion","Fuzz","Reverb","Echo / Delay","Modulation","Guitar Effects","Misc" ,"External"};
+	const char* categories[] = { "Tone Control","Neural","Distortion","Fuzz","Reverb","Echo / Delay","Modulation","Guitar Effects","Misc" ,"External"};
 	int cl = sizeof(categories) / sizeof(categories[0]);
     PopupMenu* pl = c->getRootMenu();
 	int sel = 0;

@@ -162,7 +162,7 @@ ifeq ($(CONFIG),Release)
     else
       ARMCPU = "YES"
     endif
-  else ifeq ($(shell arch), "aarch64")
+  else ifeq ($(shell arch), aarch64)
     SSE_CFLAGS = -march=armv8-a
   else
     SSE_CFLAGS =
@@ -170,7 +170,7 @@ ifeq ($(CONFIG),Release)
 
 ifneq ($(MAKECMDGOALS),install)
 ifneq ($(MAKECMDGOALS),clean)
-  ifeq ($(shell arch) , "x86_64")
+  ifeq ($(shell arch), x86_64)
     ifneq ($(shell /usr/lib64/ld-linux-x86-64.so.2 --help 2>/dev/null | grep x86-64-v3) , )
       JUCE_CXXFLAGS += -march=x86-64-v3
       $(info $(yellow)INFO: $(reset)optimised for $(blue)x86-64-v3$(reset))
@@ -178,7 +178,7 @@ ifneq ($(MAKECMDGOALS),clean)
       JUCE_CXXFLAGS += -march=x86-64
       $(info $(yellow)INFO: $(reset)optimised for $(blue)x86_64$(reset))
     endif
-  else ifeq ($(shell arch), "aarch64")
+  else ifeq ($(shell arch), aarch64)
       JUCE_CXXFLAGS += -march=armv8
       $(info $(yellow)INFO: $(reset)optimised for $(blue)aarch64$(reset))
   endif
