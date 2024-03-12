@@ -34,59 +34,13 @@ On debian based systems the following packages been needed:
 - libstdc++6
 - libc6-dev
 - libgcc-s1
-- libasound2-dev
-- libgtk-3-dev
-- libavahi-gobject-dev
-- libavahi-glib-dev
-- libavahi-client-dev
-- libeigen3-dev
 - libcurl4-gnutls-dev
 
 optional, when not use the included juce modules
 
 - juce-modules-source-data
 
-on Fedora/Red Hat based systems the dependecy list reads as followed
-
-- freetype-devel
-- glibmm2.4-devel
-- glib2-devel
-- libsigc++20-devel
-- fftw-devel
-- libsndfile-devel
-- lilv-devel
-- boost-devel
-- libstdc++-devel
-- glibc-devel
-- libgcc
-- gcc
-- alsa-lib-devel
-- gtk3-devel
-- avahi-gobject-devel
-- avahi-glib-devel
-- avahi-devel
-- eigen3-devel
-
-on openSUSE based systems this is the dependency list:
-
-- freetype-devel
-- glibmm2_4-devel
-- glib2-devel
-- libsigc++2-devel
-- fftw-devel
-- libsndfile-devel
-- liblilv-0-devel
-- boost-devel
-- libboost_system-devel
-- libstdc++-devel
-- glibc-devel
-- libgcc_s1 gcc
-- alsa-devel
-- gtk3-devel
-- libavahi-gobject-devel
-- libavahi-glib-devel
-- libavahi-devel
-- eigen3-devel
+On other distributions the package names may be different, but similar.
 
 ## Build
 
