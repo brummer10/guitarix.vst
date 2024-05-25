@@ -146,6 +146,7 @@ private:
     void set_rtneural_load_button_text(const std::string& attr, bool set);
     void set_nam_load_button_text(const std::string& attr, bool set);
 	void paint(juce::Graphics& g) override;
+    void possibleHide( int value);
     juce::Component* findChildByID(juce::Component* parent, const std::string parid);
 	std::list<juce::Component*> edlist;
 	

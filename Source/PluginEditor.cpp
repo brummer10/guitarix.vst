@@ -222,6 +222,8 @@ void PluginEditor::create(int edx, int edy, int &w, int &h)
         b.closeBox();
         }
         b.closeBox();
+        gx_engine::Parameter *p = ed->get_parameter("tube.select");
+        possibleHide(p->getInt().get_value());
     }
     else if (pid == "COMMON-AMP")
     {
@@ -253,6 +255,8 @@ void PluginEditor::create(int edx, int edy, int &w, int &h)
             b.closeBox();
         }
         b.closeBox();
+        gx_engine::Parameter *p = ed->get_parameter("tube.select");
+        possibleHide(p->getInt().get_value());
     }
     else if (pid == "COMMON-GEN")
     {
@@ -859,6 +863,28 @@ void PluginEditor::comboBoxChanged(juce::ComboBox* combo)
     }
 }
 
+void PluginEditor::possibleHide( int value) {
+    if (value == 18) {
+        juce::Component *c = this->findChildWithID("amp2.stage1.Pregain");
+        if (c) c->setVisible(false);
+        c = this->findChildWithID("amp2.stage2.gain1");
+        if (c) c->setVisible(false);
+        c = this->findChildWithID("gxdistortion.wet_dry");
+        if (c) c->setVisible(false);
+        c = this->findChildWithID("gxdistortion.drive");
+        if (c) c->setVisible(false);
+    } else {
+        juce::Component *c = this->findChildWithID("amp2.stage1.Pregain");
+        if (c) c->setVisible(true);
+        c = this->findChildWithID("amp2.stage2.gain1");
+        if (c) c->setVisible(true);
+        c = this->findChildWithID("gxdistortion.wet_dry");
+        if (c) c->setVisible(true);
+        c = this->findChildWithID("gxdistortion.drive");
+        if (c) c->setVisible(true);
+    }
+}
+
 // replace findChildWithID() to find Components recursively when needed (tapbox).
 juce::Component* PluginEditor::findChildByID(juce::Component* parent, const std::string parid)
 {
@@ -942,6 +968,8 @@ void PluginEditor::on_param_value_changed(gx_engine::Parameter *p)
             cb->setSelectedId(p->getInt().get_value() + 1, juce::dontSendNotification);
         else if (p->isFloat())
             cb->setSelectedId(floor(p->getFloat().get_value() - p->getFloat().getLowerAsFloat() +0.5) + 1, juce::dontSendNotification);
+        if (parid == "tube.select")
+            possibleHide( p->getInt().get_value());
     }
 }
 
@@ -991,7 +1019,7 @@ PluginSelector::PluginSelector(MachineEditor* ed, bool stereo, const char* id, c
         minus = true;
     }
 
-    if (strncmp(id, "COMMON", 6) != 0)
+    if (strncmp(id, "COMMON", 6) != 0 && strncmp(id, "ampstack", 8) != 0)
     {
         mute.setBounds(4, 4, texth, texth);
         mute.setClickingTogglesState(true);

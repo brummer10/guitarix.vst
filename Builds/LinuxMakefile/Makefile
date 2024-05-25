@@ -56,6 +56,10 @@ ifndef CONFIG
   CONFIG=Release
 endif
 
+ifeq ($(MAKECMDGOALS),LV2)
+  $(info $(yellow)INFO: $(red)LV2 format is experimental only! Use it on your own risk!!$(reset))
+endif
+
 STANDALONE_IR_PATH ?= /usr/share/gx_head/sounds/
 JUCE_VST3DESTDIR := $(HOME)/.vst3
 
@@ -185,7 +189,7 @@ ifeq ($(CONFIG),Release)
 ifneq ($(MAKECMDGOALS),install)
 ifneq ($(MAKECMDGOALS),clean)
   ifeq ($(shell arch), x86_64)
-    ifneq ($(shell /usr/lib64/ld-linux-x86-64.so.2 --help 2>/dev/null | grep x86-64-v3) , )
+    ifneq ($(shell /usr/lib64/ld-linux-x86-64.so.2 --help 2>/dev/null | grep 'x86-64-v3 (supported, searched)') , )
       JUCE_CXXFLAGS += -march=x86-64-v3
       $(info $(yellow)INFO: $(reset)optimised for $(blue)x86-64-v3$(reset))
     else
@@ -270,7 +274,6 @@ OBJECTS_SHARED_CODE := \
   $(JUCE_OBJDIR)/abgate_3dab4bb7.o \
   $(JUCE_OBJDIR)/aclipper_274cf3d7.o \
   $(JUCE_OBJDIR)/astrofuzz_8c50b14b.o \
-  $(JUCE_OBJDIR)/avahi_register_a890e2da.o \
   $(JUCE_OBJDIR)/axface_c72ddd4f.o \
   $(JUCE_OBJDIR)/bassboom_a881d19.o \
   $(JUCE_OBJDIR)/bfuzz_d1208148.o \
@@ -341,6 +344,7 @@ OBJECTS_SHARED_CODE := \
   $(JUCE_OBJDIR)/vumeter_st_13fca2cd.o \
   $(JUCE_OBJDIR)/zita-convolver_886c041b.o \
   $(JUCE_OBJDIR)/zita_rev1_84405f08.o \
+  #$(JUCE_OBJDIR)/avahi_register_a890e2da.o \
 
 JUCE_UI_SHARED_CODE := \
   $(JUCE_OBJDIR)/JuceUiBuilder_14cda45b.o \
@@ -427,7 +431,7 @@ endif
 	-$(V_AT)cp -R ../../guitarix/trunk/factorysettings/dirlist.js $(JUCE_OUTDIR)/$(JUCE_VST3DIR)/$(JUCE_VST3SUBDIR)/gx_head/factorysettings/dirlist.js
 	-$(V_AT)cp -R ../../guitarix/trunk/factorysettings/Musiclab.gx $(JUCE_OUTDIR)/$(JUCE_VST3DIR)/$(JUCE_VST3SUBDIR)/gx_head/factorysettings/Musiclab.gx
 
-$(JUCE_OUTDIR)/$(JUCE_TARGET_LV2_PLUGIN) : $(OBJECTS_LV2_PLUGIN) $(RESOURCES) $(JUCE_OUTDIR)/$(JUCE_TARGET_SHARED_CODE) $(JUCE_OUTDIR)/$(JUCE_TARGET_LV2_MANIFEST_HELPER)
+$(JUCE_OUTDIR)/$(JUCE_TARGET_LV2_PLUGIN) :  inform $(OBJECTS_LV2_PLUGIN) $(RESOURCES) $(JUCE_OUTDIR)/$(JUCE_TARGET_SHARED_CODE) $(JUCE_OUTDIR)/$(JUCE_TARGET_LV2_MANIFEST_HELPER)
 	@command -v $(PKG_CONFIG) >/dev/null 2>&1 || { echo >&2 "pkg-config not installed. Please, install it."; exit 1; }
 	@$(PKG_CONFIG) --print-errors freetype2 libcurl glibmm-2.4 giomm-2.4 fftw3f sndfile lilv-0  
 	@echo "$(blue)Linking Guitarix - LV2$(reset)"
@@ -452,7 +456,7 @@ endif
 
 $(JUCE_OUTDIR)/$(JUCE_TARGET_LV2_MANIFEST_HELPER) : $(OBJECTS_LV2_MANIFEST_HELPER) $(RESOURCES) $(JUCE_OUTDIR)/$(JUCE_TARGET_SHARED_CODE)
 	@command -v $(PKG_CONFIG) >/dev/null 2>&1 || { echo >&2 "pkg-config not installed. Please, install it."; exit 1; }
-	@$(PKG_CONFIG) --print-errors alsa freetype2 libcurl zlib libjpeg libpng flac vorbis vorbisfile vorbisenc ogg jack glibmm-2.4 giomm-2.4 avahi-gobject avahi-glib avahi-client fftw3f sndfile eigen3
+	@$(PKG_CONFIG) --print-errors alsa freetype2 libcurl zlib libjpeg libpng flac vorbis vorbisfile vorbisenc ogg jack glibmm-2.4 giomm-2.4 fftw3f sndfile eigen3 # avahi-gobject avahi-glib avahi-client
 	@echo Linking "$(blue)Guitarix - LV2 Manifest Helper$(reset)"
 	-$(V_AT)mkdir -p $(JUCE_BINDIR)
 	-$(V_AT)mkdir -p $(JUCE_LIBDIR)
