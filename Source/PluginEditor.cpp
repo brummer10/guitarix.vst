@@ -222,6 +222,7 @@ void PluginEditor::create(int edx, int edy, int &w, int &h)
         b.closeBox();
         }
         b.closeBox();
+        ps->mute.setVisible(false);
         gx_engine::Parameter *p = ed->get_parameter("tube.select");
         possibleHide(p->getInt().get_value());
     }
@@ -1019,7 +1020,7 @@ PluginSelector::PluginSelector(MachineEditor* ed, bool stereo, const char* id, c
         minus = true;
     }
 
-    if (strncmp(id, "COMMON", 6) != 0 && strncmp(id, "ampstack", 8) != 0)
+    if (strncmp(id, "COMMON", 6) != 0)
     {
         mute.setBounds(4, 4, texth, texth);
         mute.setClickingTogglesState(true);

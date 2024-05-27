@@ -170,6 +170,7 @@ public:
 	void setEditor(PluginEditor *ped_) { ped = ped_; }
 	void setID(const char* id, const char* cat);
 	void on_param_value_changed(gx_engine::Parameter *p) override;
+	MuteButton mute;
 
 private:
 	void pluginMenuChanged();
@@ -183,7 +184,6 @@ private:
 	MachineEditor *ed;
 	PluginEditor *ped;
 	PlugSelect combo;
-	MuteButton mute;
 	juce::TextButton add, remove;
 
 	std::string pid;
