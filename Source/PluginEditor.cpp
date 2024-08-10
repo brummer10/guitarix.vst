@@ -208,18 +208,18 @@ void PluginEditor::create(int edx, int edy, int &w, int &h)
 
             //Master Volume
             b.create_big_rackknob("amp.out_master", N_("Master Volume"));
-        b.openVerticalBox("");
-        {
-            b.create_switch(sw_led, "amp.highgain", "LowEnd");
             b.openVerticalBox("");
-            b.insertSpacer();
-            b.insertSpacer();
-            b.insertSpacer();
-            b.insertSpacer();
+            {
+                b.create_switch(sw_led, "amp.highgain", "LowEnd");
+                b.openVerticalBox("");
+                b.insertSpacer();
+                b.insertSpacer();
+                b.insertSpacer();
+                b.insertSpacer();
+                b.closeBox();
+                b.create_switch(sw_led, "antyfizz.on_off", "AntiFizz");
+            }
             b.closeBox();
-            b.create_switch(sw_led, "antyfizz.on_off", "AntiFizz");
-        }
-        b.closeBox();
         }
         b.closeBox();
         ps->mute.setVisible(false);

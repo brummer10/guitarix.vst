@@ -20,6 +20,7 @@
 
 #include <JuceHeader.h>
 #include <sigc++/sigc++.h>
+#include "ParallelThread.h"
 namespace gx_jack { class GxJack; }
 namespace gx_engine { class GxMachine; class Parameter; }
 namespace gx_system { class CmdlineOptions; }
@@ -146,6 +147,7 @@ private:
 	gx_engine::GxMachine *machine, *machine_r;
 	gx_engine::GxMachine *get_machine(bool right = false) { return right ? machine_r: machine; }
 	GuitarixEditor *editor;
+    ParallelThread proc;
 
 	void saveState(std::ostream &os, bool right);
 	void loadState(std::istream &is, bool right);
@@ -172,6 +174,9 @@ private:
     int SampleRate;
     
     void process(float *out[2], int n);
+    void processParallel();
+    int sampleToProcess;
+    float *pp;
 
 	PluginUpdateTimer timer;
 

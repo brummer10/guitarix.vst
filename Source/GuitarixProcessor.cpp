@@ -198,6 +198,9 @@ GuitarixProcessor::GuitarixProcessor()
 	settings_r->signal_rack_unit_order_changed().connect(
 		sigc::bind(sigc::mem_fun(*this, &GuitarixProcessor::on_rack_unit_changed), true));
 	*/
+    proc.start();
+    proc.setPriority(25,1); // SCHED_FIFO -6
+    proc.set<GuitarixProcessor, &GuitarixProcessor::processParallel>(this);
 
 	refreshPrograms();
     sel_preset = new juce::AudioParameterChoice(juce::ParameterID("selPreset",1), "Preset:Select", choices, 0);
@@ -255,6 +258,7 @@ GuitarixProcessor::~GuitarixProcessor()
     timer.stopTimer(1);
     timer.stopTimer(2);
     }
+    proc.stop();
     delete out[0]; out[0]=0;
     delete out[1]; out[1]=0;
     delete gx;
@@ -793,6 +797,7 @@ void GuitarixProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 //	jack->gx_jack_connection(true, true, 0, *options);
     SampleRate = static_cast<int>(sampleRate);
     jack->get_engine().set_rack_changed();
+    proc.setTimeOut(std::max(100,static_cast<int>((samplesPerBlock/(sampleRate*0.000001))*0.1)));
 
     for(auto &r: rms)
     {
@@ -960,7 +965,11 @@ void GuitarixProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::Mi
         }
         
         if(out[0]==0 || out[1]==0)
+        {
+            pp = buf[1];
+            sampleToProcess = n;
             process(buf, n);
+        }
         else
         {
             DBGRT("BUF len:"<<n<<" delay:"<<delay);
@@ -994,6 +1003,8 @@ void GuitarixProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::Mi
                 float *p[2];
                 p[0]=out[0]+ppos;
                 p[1]=out[1]+ppos;
+                sampleToProcess = quantum;
+                pp = p[1];
                 process(p, quantum);
                 ppos+=quantum;
                 DBGRT("    PPOS:"<<ppos<<" after processing "<<quantum<<" unprocessed:"<<(wpos>=ppos?wpos-ppos:olen-ppos+wpos));
@@ -1070,6 +1081,11 @@ void GuitarixProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::Mi
 	}
 }
 
+void GuitarixProcessor::processParallel()
+{
+    jack_r->process_mono(sampleToProcess, pp, pp);
+}
+
 void GuitarixProcessor::process(float *out[2], int n)
 {
 	if (!mStereoMode && !mMultiMode)
@@ -1104,7 +1120,13 @@ void GuitarixProcessor::process(float *out[2], int n)
 			jack_r->process_ramp_mono(n);
 		}
         else
-            jack_r->process_mono(n, out[1], out[1]);
+        {
+            if (proc.getProcess()) {
+                proc.runProcess();
+            } else {
+                processParallel();
+            }
+        }
         if (mMono1Mute)
 		{
             memset(out[0], 0, sizeof(float)*n);
@@ -1112,6 +1134,7 @@ void GuitarixProcessor::process(float *out[2], int n)
 		}
 		else
             jack->process_mono(n, out[0], out[0]);
+        proc.processWait();
         jack->process_stereo(n, out, out);
 		jack_r->process_ramp_stereo(n);
 	}
