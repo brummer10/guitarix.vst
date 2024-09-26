@@ -868,8 +868,8 @@ void PluginEditor::possibleHide( int value) {
     if (value == 18) {
         juce::Component *c = this->findChildWithID("amp2.stage1.Pregain");
         if (c) c->setVisible(false);
-        c = this->findChildWithID("amp2.stage2.gain1");
-        if (c) c->setVisible(false);
+        //c = this->findChildWithID("amp2.stage2.gain1");
+        //if (c) c->setVisible(false);
         c = this->findChildWithID("gxdistortion.wet_dry");
         if (c) c->setVisible(false);
         c = this->findChildWithID("gxdistortion.drive");
@@ -877,8 +877,8 @@ void PluginEditor::possibleHide( int value) {
     } else {
         juce::Component *c = this->findChildWithID("amp2.stage1.Pregain");
         if (c) c->setVisible(true);
-        c = this->findChildWithID("amp2.stage2.gain1");
-        if (c) c->setVisible(true);
+        //c = this->findChildWithID("amp2.stage2.gain1");
+        //if (c) c->setVisible(true);
         c = this->findChildWithID("gxdistortion.wet_dry");
         if (c) c->setVisible(true);
         c = this->findChildWithID("gxdistortion.drive");

@@ -176,7 +176,7 @@ private:
     void process(float *out[2], int n);
     void processParallel();
     int sampleToProcess;
-    float *pp;
+    float *parallelBuffer;
 
 	PluginUpdateTimer timer;
 

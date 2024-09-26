@@ -200,7 +200,7 @@ GuitarixProcessor::GuitarixProcessor()
 	*/
     proc.start();
     proc.setPriority(25,1); // SCHED_FIFO -6
-    proc.set<GuitarixProcessor, &GuitarixProcessor::processParallel>(this);
+    proc.setThreadName("guitarix_vst");
 
 	refreshPrograms();
     sel_preset = new juce::AudioParameterChoice(juce::ParameterID("selPreset",1), "Preset:Select", choices, 0);
@@ -798,6 +798,7 @@ void GuitarixProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
     SampleRate = static_cast<int>(sampleRate);
     jack->get_engine().set_rack_changed();
     proc.setTimeOut(std::max(100,static_cast<int>((samplesPerBlock/(sampleRate*0.000001))*0.1)));
+    proc.set<GuitarixProcessor, &GuitarixProcessor::processParallel>(this);
 
     for(auto &r: rms)
     {
@@ -966,7 +967,7 @@ void GuitarixProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::Mi
         
         if(out[0]==0 || out[1]==0)
         {
-            pp = buf[1];
+            parallelBuffer = buf[1];
             sampleToProcess = n;
             process(buf, n);
         }
@@ -1004,7 +1005,7 @@ void GuitarixProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::Mi
                 p[0]=out[0]+ppos;
                 p[1]=out[1]+ppos;
                 sampleToProcess = quantum;
-                pp = p[1];
+                parallelBuffer = p[1];
                 process(p, quantum);
                 ppos+=quantum;
                 DBGRT("    PPOS:"<<ppos<<" after processing "<<quantum<<" unprocessed:"<<(wpos>=ppos?wpos-ppos:olen-ppos+wpos));
@@ -1083,7 +1084,7 @@ void GuitarixProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::Mi
 
 void GuitarixProcessor::processParallel()
 {
-    jack_r->process_mono(sampleToProcess, pp, pp);
+    jack_r->process_mono(sampleToProcess, parallelBuffer, parallelBuffer);
 }
 
 void GuitarixProcessor::process(float *out[2], int n)
