@@ -370,9 +370,11 @@ JUCE_SHARED_CODE := \
  # $(JUCE_OBJDIR)/include_juce_gui_extra_6dee1c1a.o \
 
 ifndef USE_SYSTEM_JUCE
+ifndef JUCE_DIR
 JUCE_SHARED_CODE += \
   $(JUCE_OBJDIR)/include_juce_audio_plugin_client_utils_e32edaee.o \
 
+endif
 endif
 
 .PHONY: clean all strip install VST3 Standalone LV2 LV2_MANIFEST_HELPER
