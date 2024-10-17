@@ -283,16 +283,17 @@ void GuitarixEditor::buttonClicked(juce::Button * b)
     }
     else if (b == &aboutButton)
     {
-        char txt[]=
+        std::string txt=
         "Guitarix virtual guitar amplifier VST3 port for Linux\n"
         "Version v"
         GXV
         "\n"
-        "Portions (C) 2024 Hermann Meyer\n"
+        "Portions by (C) 2024 Hermann Meyer\n"
         "\n"
-        "Guitarix.vst virtual guitar amplifier port for Mac/PC\n"
-        "Portions (C) 2022 Maxim Alexanian\n"
-        "\n"
+        "Using ";
+        txt += SystemStats::getJUCEVersion().toRawUTF8();
+        txt +=
+        "\n\n"
         "VST is a trademark of Steinberg Media Technologies GmbH, registered in \n"
         "Europe and other countries.\n"
         "\n"
@@ -312,15 +313,16 @@ void GuitarixEditor::buttonClicked(juce::Button * b)
         "You should have received a copy of the GNU General Public License \n"
         "along with this program.  If not, see <http://www.gnu.org/licenses/>.\n"
         "\n"
-        "For the source code for the Mac/PC port see \n"
+        "Guitarix.vst virtual guitar amplifier port for Mac/PC\n"
+        "by (C) 2022 Maxim Alexanian\n"
         "<https://github.com/maximalexanian/guitarix-vst>\n"
         "\n"
-        "For the source code for the Linux port see \n"
+        "For the source code from the Linux port see \n"
         "<https://github.com/brummer10/guitarix.vst>\n"
         "\n \n";
 
         juce::AlertWindow alertWindow("About Guitarix.vst",
-            txt, AlertWindow::InfoIcon);
+            txt.c_str(), AlertWindow::InfoIcon);
         alertWindow.addButton("Ok", 0);
         alertWindow.setUsingNativeTitleBar(true);
             
@@ -681,7 +683,7 @@ void GuitarixEditor::on_online_preset()
 
         auto checkPresets = ([&, w, this](int result) {
             if (result == 1) {
-                download_file("https://musical-artifacts.com/artifacts.json?apps=guitarix", audioProcessor.get_options()->get_online_config_filename());
+                download_file("https://musical-artifacts.com/artifacts.json?apps=guitarix&formats=gx", audioProcessor.get_options()->get_online_config_filename());
             }
             create_online_preset_menu();
         });
