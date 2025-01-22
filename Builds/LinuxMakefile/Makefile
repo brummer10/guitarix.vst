@@ -247,7 +247,7 @@ endif
 OBJECTS_ALL := \
 
 OBJECTS_LV2_MANIFEST_HELPER := \
-  $(JUCE_OBJDIR)/juce_LV2TurtleDumpProgram_69e62a81.o \
+  $(JUCE_OBJDIR)/juce_LV2ManifestHelper_69e62a81.o \
 
 OBJECTS_LV2_PLUGIN := \
   $(JUCE_OBJDIR)/include_juce_audio_plugin_client_LV2_7d84e0a5.o \
@@ -1013,9 +1013,9 @@ $(JUCE_OBJDIR)/include_juce_gui_extra_6dee1c1a.o: ../../JuceLibraryCode/include_
 	@$(ECHO) "Compiling include_juce_gui_extra.cpp"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
 
-$(JUCE_OBJDIR)/juce_LV2TurtleDumpProgram_69e62a81.o: ../../JuceModules/modules/juce_audio_plugin_client/LV2/juce_LV2TurtleDumpProgram.cpp
+$(JUCE_OBJDIR)/juce_LV2ManifestHelper_69e62a81.o: ../../JuceModules/modules/juce_audio_plugin_client/LV2/juce_LV2ManifestHelper.cpp
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
-	@$(ECHO) "Compiling juce_LV2TurtleDumpProgram.cpp"
+	@$(ECHO) "Compiling juce_LV2ManifestHelper.cpp"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_LV2_MANIFEST_HELPER) $(JUCE_CFLAGS_LV2_MANIFEST_HELPER) -o "$@" -c "$<"
 
 clean:
