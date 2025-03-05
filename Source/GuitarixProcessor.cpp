@@ -858,7 +858,6 @@ void GuitarixProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 	cloneSettingsToMachineR();
   
 	gx_inited();
-	//gx_load_preset(machine, "Scratchpad", "Putilin");
 }
 
 void GuitarixProcessor::releaseResources()
@@ -967,8 +966,6 @@ void GuitarixProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::Mi
         
         if(out[0]==0 || out[1]==0)
         {
-            parallelBuffer = buf[1];
-            sampleToProcess = n;
             process(buf, n);
         }
         else
@@ -1004,8 +1001,6 @@ void GuitarixProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::Mi
                 float *p[2];
                 p[0]=out[0]+ppos;
                 p[1]=out[1]+ppos;
-                sampleToProcess = quantum;
-                parallelBuffer = p[1];
                 process(p, quantum);
                 ppos+=quantum;
                 DBGRT("    PPOS:"<<ppos<<" after processing "<<quantum<<" unprocessed:"<<(wpos>=ppos?wpos-ppos:olen-ppos+wpos));
@@ -1122,6 +1117,8 @@ void GuitarixProcessor::process(float *out[2], int n)
 		}
         else
         {
+            sampleToProcess = n;
+            parallelBuffer = out[1];
             if (proc.getProcess()) {
                 proc.runProcess();
             } else {
