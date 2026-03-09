@@ -55,7 +55,7 @@ private:
 class PluginUpdateTimer : public juce::MultiTimer
 {
 public:
-	PluginUpdateTimer() : machine(0), editor(0), mUpdateMode(false), program_chg() {}
+	PluginUpdateTimer() :tStereoMode(false), updateStereoMode(false), machine(0), editor(0), mUpdateMode(false), program_chg() {}
 	void set_machine(gx_engine::GxMachine *m, gx_engine::GxMachine *m_r) { machine = m; machine_r = m_r; }
 	void set_editor(GuitarixEditor* ed) { editor = ed; }
 	void update_mode() { mUpdateMode = true; }
@@ -64,6 +64,9 @@ public:
     std::atomic<int> newProgram;
     std::atomic<int> oldProgram;
     sigc::signal<void,int> program_chg;
+    sigc::signal<void,bool> SetStereoMode;
+    bool tStereoMode;
+    bool updateStereoMode;
 
 private:
 	gx_engine::GxMachine *machine, *machine_r;

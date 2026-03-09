@@ -213,6 +213,7 @@ GuitarixProcessor::GuitarixProcessor()
     timer.newProgram.store(0, std::memory_order_release);
     timer.oldProgram.store(0, std::memory_order_release);
 	timer.program_chg.connect(sigc::mem_fun(this, &GuitarixProcessor::setCurrentProgram));
+	timer.SetStereoMode.connect(sigc::mem_fun(this, &GuitarixProcessor::SetStereoMode));
 
 	timer.startTimer(1,100);
 	timer.startTimer(2,1000);
@@ -226,6 +227,11 @@ void PluginUpdateTimer::timerCallback(int id)
             machine->timerUpdate();
         if (machine_r)
             machine_r->timerUpdate();
+        if (updateStereoMode)
+        {
+            updateStereoMode = false;
+            SetStereoMode(tStereoMode);
+        }
         if (mUpdateMode)
         {
             mUpdateMode = false;
@@ -1243,6 +1249,8 @@ void GuitarixProcessor::setStateInformation (const void* data, int sizeInBytes)
 	machine_r->wait_ramp_down_finished();
 	mLoading = true;
 	loadState(is, false);
+    timer.tStereoMode = mStereoMode;
+    SetStereoMode(false);
 	mLoading = false;
 	cloneSettingsToMachineR();
 
@@ -1254,6 +1262,7 @@ void GuitarixProcessor::setStateInformation (const void* data, int sizeInBytes)
 		editor->createPluginEditors();
 		//editor->updateModeButtons();
 	}
+    timer.updateStereoMode = true;
 }
 
 //==============================================================================
