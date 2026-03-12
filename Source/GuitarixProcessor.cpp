@@ -863,7 +863,8 @@ void GuitarixProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 	mLoading = false;
 	cloneSettingsToMachineR();
     jack->get_engine().set_rack_changed();
- 
+    jack_r->get_engine().set_rack_changed();
+
 	gx_inited();
 }
 
