@@ -118,6 +118,7 @@ GuitarixProcessor::GuitarixProcessor()
 	, mLoading(false)
 	, mPresetsVisible(false)
 	, currentPreset(-1)
+	, mApplyingHostParameterChange(false)
 	, pgm_chg()
 	, bank_chg()
 {
@@ -360,7 +361,9 @@ void GuitarixProcessor::parameterValueChanged(int parameterIndex, float newValue
     else if (parameter->getParameterID() == "selPreset")
         timer.newProgram.store(int(newValue * presets.size()), std::memory_order_release);
     else {
-        gx_preset::GxSettings *settings = &((right?machine:machine_r)->get_settings());
+        juce::ScopedValueSetter<bool> applyingHostParameterChange(
+            mApplyingHostParameterChange, true);
+        gx_preset::GxSettings *settings = &(machine->get_settings());
         gx_engine::ParamMap& param = settings->get_param();
         gx_engine::Parameter& p1 = param[parameter->getParameterID().toStdString()];
         if (&p1) {
@@ -407,9 +410,10 @@ void GuitarixProcessor::on_param_value_changed(gx_engine::Parameter *p, bool rig
 	if (editor && editor->GetAlternateDouble() && mMultiMode) multi = false;
 	
 	if (mLoading) return;
+	const bool notifyHost = !mApplyingHostParameterChange;
 
 	juce::MessageManager::callAsync(
-		[this, p, right, multi]
+		[this, p, right, multi, notifyHost]
 	{
 		if (multi) return;
 		gx_preset::GxSettings *settings = &((right?machine:machine_r)->get_settings());
@@ -452,7 +456,7 @@ void GuitarixProcessor::on_param_value_changed(gx_engine::Parameter *p, bool rig
 		}
 		p1.set_blocked(false);
         // forward internal value changes to the host parameters
-        if (para) {
+        if (para && notifyHost) {
             para->beginChangeGesture();
             if (p1.isBool()) para->setValueNotifyingHost(newValue);
             else if ((p1.isInt()) || (p1.isFloat()))
