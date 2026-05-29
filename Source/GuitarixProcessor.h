@@ -166,6 +166,7 @@ private:
 	void on_param_value_changed(gx_engine::Parameter *p, bool right);
 	void on_param_insert_remove(gx_engine::Parameter *p, bool inserted, bool right);
 	void on_rack_unit_changed(bool stereo, bool right);
+	// guards on_param_value_changed against host->engine->host feedback when host originated the write
 	std::atomic<bool> mApplyingHostParameterChange{false};
 	sigc::signal<void,int> pgm_chg;
 	sigc::signal<void,int> bank_chg;

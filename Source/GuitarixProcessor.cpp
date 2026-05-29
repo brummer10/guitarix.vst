@@ -427,6 +427,7 @@ void GuitarixProcessor::on_param_value_changed(gx_engine::Parameter *p, bool rig
 	if (editor && editor->GetAlternateDouble() && mMultiMode) multi = false;
 	
 	if (mLoading) return;
+	// don't echo host-driven changes back to host
 	const bool notifyHost = !mApplyingHostParameterChange.load(std::memory_order_acquire);
 
 	juce::MessageManager::callAsync(
