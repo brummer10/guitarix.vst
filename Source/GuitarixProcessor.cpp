@@ -28,6 +28,25 @@
 
 using namespace juce;
 
+namespace {
+struct ScopedHostParameterChange
+{
+    explicit ScopedHostParameterChange(std::atomic<bool>& flagIn)
+        : flag(flagIn),
+          previous(flag.exchange(true, std::memory_order_acq_rel))
+    {
+    }
+
+    ~ScopedHostParameterChange()
+    {
+        flag.store(previous, std::memory_order_release);
+    }
+
+    std::atomic<bool>& flag;
+    const bool previous;
+};
+}
+
 static volatile int opt_counter=0;
 
 gx_system::CmdlineOptions *GuitarixStart::options = 0;
@@ -118,7 +137,6 @@ GuitarixProcessor::GuitarixProcessor()
 	, mLoading(false)
 	, mPresetsVisible(false)
 	, currentPreset(-1)
-	, mApplyingHostParameterChange(false)
 	, pgm_chg()
 	, bank_chg()
 {
@@ -361,8 +379,7 @@ void GuitarixProcessor::parameterValueChanged(int parameterIndex, float newValue
     else if (parameter->getParameterID() == "selPreset")
         timer.newProgram.store(int(newValue * presets.size()), std::memory_order_release);
     else {
-        juce::ScopedValueSetter<bool> applyingHostParameterChange(
-            mApplyingHostParameterChange, true);
+        ScopedHostParameterChange applyingHostParameterChange(mApplyingHostParameterChange);
         gx_preset::GxSettings *settings = &(machine->get_settings());
         gx_engine::ParamMap& param = settings->get_param();
         gx_engine::Parameter& p1 = param[parameter->getParameterID().toStdString()];
@@ -410,7 +427,7 @@ void GuitarixProcessor::on_param_value_changed(gx_engine::Parameter *p, bool rig
 	if (editor && editor->GetAlternateDouble() && mMultiMode) multi = false;
 	
 	if (mLoading) return;
-	const bool notifyHost = !mApplyingHostParameterChange;
+	const bool notifyHost = !mApplyingHostParameterChange.load(std::memory_order_acquire);
 
 	juce::MessageManager::callAsync(
 		[this, p, right, multi, notifyHost]
