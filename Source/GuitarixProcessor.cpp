@@ -128,17 +128,17 @@ GuitarixProcessor::GuitarixProcessor()
                        )
 #endif
 	, scale(1.0)
-	, editor(0)
 	, mStereoMode(false)
 	, mMultiMode(false)
 	, mMono1Mute(false)
 	, mMono2Mute(false)
-    , buffersize(0)
-	, mLoading(false)
-	, mPresetsVisible(false)
+	, editor(0)
 	, currentPreset(-1)
 	, pgm_chg()
 	, bank_chg()
+	, mLoading(false)
+    , buffersize(0)
+	, mPresetsVisible(false)
 {
     out[0]=out[1]=0;
     SampleRate = 0;
